@@ -1,0 +1,122 @@
+{
+  "dna_id": "PROP-55A5C0218065E7E9239D8F1F0D835338",
+  "dna_type": "PDNA",
+  "channel": "grudgenudges",
+  "status": "active",
+  "created_at": "2026-04-30T11:20:00Z",
+  "updated_at": "2026-08-15T09:00:00Z",
+  "metadata": {
+    "base_seed": "cafe0123",
+    "core_signature": "Electronics|security_camera|polycarbonate|steel|dome-cam-3",
+    "is_channel_asset": false,
+    "is_type_asset": false,
+    "overrides": {}
+  },
+  "identity_core": {
+    "prop_name": "First Meridian Security Camera #3",
+    "prop_type": "Electronics",
+    "one_liner": "The PTZ dome that saw everything but never blinked.",
+    "alternate_names": [
+      "Ceiling Cam #3",
+      "Lobby Cam"
+    ],
+    "ai_seed": 867509
+  },
+  "physical": {
+    "global_scale": 1.0,
+    "dimensions_x_cm": 12.0,
+    "dimensions_y_cm": 12.0,
+    "dimensions_z_cm": 7.5,
+    "weight_kg": 0.62,
+    "base_color_hex": "#2B2F33",
+    "material_finish": "Matte",
+    "pattern_style": "none",
+    "age_wear_level": "Lightly Used",
+    "customization_markings": [
+      "tiny IR filter speck near the lens housing"
+    ],
+    "has_physics": false,
+    "destructible": false
+  },
+  "pbr": {
+    "albedo_description": "matte IR-cut housing, brushed texture",
+    "roughness": 0.82,
+    "metallic": 0.05,
+    "ior": 1.5,
+    "emissive_properties": "none",
+    "normal_details": "brushed texture, 0.1mm relief",
+    "subsurface_scattering": false,
+    "anisotropy_notes": "none"
+  },
+  "type_branch": {
+    "prop_category": "Electronics",
+    "handheld": false,
+    "two_handed": false,
+    "surface_area_description": "flush-mounted to ceiling grid",
+    "interactable_parts": [
+      "control board (back access panel)",
+      "manual pan/tilt clutch"
+    ],
+    "sound_on_interaction": "quiet stepper-motor whir during patrol sweeps",
+    "is_weapon": false
+  },
+  "ownership": {
+    "owner_char_id": "CHAR-4D7B2C8A1E5F60718293A4B5C6D7E8F9",
+    "handler_char_ids": [],
+    "home_location_id": "LOC-2BE798E5CF23FEBAACEC8A4CE864A29B",
+    "allowed_location_ids": [
+      "LOC-2BE798E5CF23FEBAACEC8A4CE864A29B"
+    ],
+    "channel_asset": false
+  },
+  "scene": {
+    "scope": "Background",
+    "interaction_type": "Passive",
+    "character_bindings": [],
+    "interaction_notes": "Fixed ceiling mount; PTZ sweep sweeps the teller line on a 15s loop.",
+    "spawn_location": "ceiling corner, above bank lobby entrance door"
+  },
+  "continuity": {
+    "last_used_episode": "EPS-01x04",
+    "last_used_date": "2026-07-20",
+    "condition_current_pct": 97,
+    "is_destroyed": false,
+    "has_cross_channel_appearances": true,
+    "cross_channel_episodes": [
+      "EPS-01x02",
+      "EPS-02x01"
+    ]
+  },
+  "state_events": [
+    {
+      "event_id": "SEV-CAM-001",
+      "event_time": "2026-06-03T14:12:00Z",
+      "episode_id": "EPS-01x02",
+      "scene_id": "S2-bank-lobby",
+      "event_type": "damage",
+      "description": "cleaner's ladder bumped the housing; no lens damage",
+      "state_change": "condition -2% -> 97%"
+    }
+  ],
+  "history": {
+    "origin_era": "current",
+    "previous_owners": 0
+  },
+  "plot_utility": {
+    "narrative_importance": "recurring surveillance device",
+    "fragility": "low"
+  },
+  "data_sheet": {
+    "status": "approved",
+    "required_outputs": [
+      "genplay_shot_still"
+    ],
+    "sheet_prompt_template": "{prop_name} ceiling dome camera, 12cm, matte, IR cut filter, 3500K lobby lighting",
+    "sheet_negative_prompt": "lens flare, visible people, cracked housing",
+    "reference_uri": "ref://props/PROP-55A5C0218065E7E9239D8F1F0D835338",
+    "approved_version": "v2.2"
+  },
+  "image_gen_prompt": "security camera dome mounted in a ceiling corner of a bank lobby, 12 cm diameter, matte black IR-cut housing, subtle red status LED, 3500K fluorescent lighting below, sharp focus, product shot on neutral background",
+  "reference_uri": "",
+  "ip_adapter_scale": 0.7
+}

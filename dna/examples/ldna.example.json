@@ -1,0 +1,460 @@
+{
+  "dna_id": "LOC-2BE798E5CF23FEBAACEC8A4CE864A29B",
+  "dna_type": "LDNA",
+  "channel": "grudgenudges",
+  "seed_id": "SEED-453D9A8BDCD2E3495BFA47A611511E15",
+  "status": "active",
+  "created_at": "2026-04-22T08:15:00Z",
+  "updated_at": "2026-08-15T09:00:00Z",
+  "metadata": {
+    "base_seed": "deadbeef",
+    "core_signature": "Commercial_Mid-century_Middle-class_Tense_Desaturated",
+    "is_persistent": true,
+    "is_shell": false,
+    "overrides": {}
+  },
+  "identity_core": {
+    "common_name": "First Meridian Bank - Main Lobby",
+    "type": "bank",
+    "city": "Phoenix",
+    "zoning": "Commercial",
+    "one_liner": "Fluorescent-lit marble lobby with a long brass-trimmed teller line and a suspicious ceiling camera.",
+    "location_subtype": "retail banking lobby",
+    "cultural_style": "American corporate",
+    "architectural_style": "mid-century institutional",
+    "development_pattern": "standalone commercial lot with parking apron",
+    "settlement_scale": "urban block",
+    "density": "moderate",
+    "function": "customer banking services",
+    "activity_level": "steady daytime foot traffic",
+    "country": "USA",
+    "time_zone": "US/Arizona",
+    "altitude_m": 361,
+    "climate_zone": "Arid",
+    "walkability_score": 8,
+    "fictional_address": "400 Central Ave, Phoenix",
+    "neighborhood": "Downtown Core"
+  },
+  "geography": {
+    "region_type": "desert metropolis",
+    "terrain": "flat alluvial basin",
+    "elevation_character": "low, gently graded",
+    "water_proximity": "none",
+    "landform": "urban plain",
+    "geographic_openness": "wide low-rise streetscape",
+    "natural_surroundings": "distant mesa ridgelines on horizon",
+    "urban_context": "civic/corporate corridor, mid-century stock",
+    "regional_character": "sun-bleached Southwest commercial"
+  },
+  "climate": {
+    "climate": "hot desert",
+    "season": "summer",
+    "temperature": "38C outside / over-air-conditioned inside",
+    "humidity": "very dry",
+    "precipitation": "none",
+    "weather": "clear, harsh sun",
+    "wind": "none indoors; hot gusts at doors",
+    "air_character": "conditioned, faintly chemical",
+    "ground_condition": "dry",
+    "haze": "none indoors",
+    "fog": "none",
+    "mist": "none",
+    "dust": "trace desert dust tracked in at entrance",
+    "smoke": "none",
+    "air_visibility": "clear",
+    "distance_visibility": "full across lobby"
+  },
+  "time_state": {
+    "time_of_day": "morning",
+    "sun_position": "low east, through front glazing",
+    "sun_direction": "east-southeast",
+    "daylight_level": "strong perimeter, fluorescent core",
+    "twilight_state": "not applicable",
+    "night_state": "dark, security-lit",
+    "historical_period": "contemporary 2020s",
+    "currentness": "present-day",
+    "seasonal_state": "summer"
+  },
+  "spatial": {
+    "is_indoor": true,
+    "is_outdoor": false,
+    "area_sq_m": 220,
+    "floor_count": 1,
+    "ceiling_height_m": 3.2,
+    "entrance_type": "Double Door",
+    "parking_availability": "Large Lot",
+    "spatial_layout": "single open hall, linear teller counter along west wall, waiting seating bank on east",
+    "orientation": "entrance faces south onto street",
+    "symmetry": "bilateral around central axis from doors to vault corridor",
+    "organization": "service counter vs. public floor, hard front-of-line boundary",
+    "scale": "civic-intimate: roomy but not grand",
+    "enclosure": "fully enclosed, high wall-to-floor ratio",
+    "openness": "open plan, no internal partitions",
+    "foreground_depth": "entry vestibule and queue railings, ~4m",
+    "midground_depth": "customer floor to teller counter, ~12m",
+    "background_depth": "teller line + back-office doors, ~22m",
+    "visual_layers": "vestibule / queue / floor / counter / staffed line",
+    "focal_point": "center teller window with brass rail",
+    "dominant_axis": "doors-to-counter straight line",
+    "sightline": "unobstructed from entrance to every teller window",
+    "perspective": "one-point perspective down the axis",
+    "circulation_pattern": "queue serpentine to counter, exit along east wall",
+    "hierarchy": "counter dominant, seating secondary, signage tertiary",
+    "negative_space": "polished floor expanse kept intentionally empty"
+  },
+  "ground_surface": {
+    "ground_type": "indoor floor",
+    "surface_material": "polished travertine",
+    "surface_pattern": "60x60cm tiles, tight grout lines",
+    "surface_condition": "good, minor scuffing in queue lane",
+    "surface_age": "original 1960s stone, well maintained",
+    "surface_texture": "smooth, low-sheen polish",
+    "surface_moisture": "dry",
+    "grade": "level",
+    "drainage": "not applicable indoors",
+    "vegetation_intrusion": "none"
+  },
+  "architecture": {
+    "building_count": "single building (interior space)",
+    "building_density": "n/a interior",
+    "building_height": "single story, 3.2m ceiling",
+    "building_form": "rectangular hall",
+    "facade_material": "n/a interior; perimeter walls painted drywall with acoustic tile border",
+    "wall_condition": "clean, faint furniture scuffs at counter ends",
+    "window_style": "front glazing band, blinds drawn at teller backs",
+    "door_style": "double glass entry doors with brass push bars",
+    "balcony_presence": "none",
+    "ornamentation": "brass trim lines, bank seal medallion above vault corridor",
+    "architectural_uniformity": "high; consistent mid-century institutional detailing",
+    "structural_age": "1962, renovated 2005",
+    "renovation_level": "partial (lighting and HVAC modernized, stone kept)"
+  },
+  "infrastructure": {
+    "street_lighting": "n/a interior",
+    "utility_lines": "concealed",
+    "traffic_control": "queue stanchions with navy rope",
+    "signage": "teller window numbers, deposit-slip station, security-camera notice",
+    "parking": "adjacent lot (42 spaces), not visible from lobby center",
+    "barriers": "queue stanchions, counter glass partitions",
+    "public_fixtures": "pen chains, deposit slip stand, water cooler",
+    "transit_infrastructure": "bus stop outside front doors"
+  },
+  "vegetation": {
+    "vegetation_density": "minimal",
+    "vegetation_type": "interior planters",
+    "tree_presence": "none",
+    "shrub_presence": "none",
+    "grass_presence": "none",
+    "flower_presence": "none",
+    "groundcover": "none",
+    "vegetation_condition": "two potted ficus, healthy but dusty",
+    "cultivation_level": "low-maintenance contract service"
+  },
+  "natural_features": {
+    "rock_presence": "stone flooring only",
+    "water_presence": "none",
+    "natural_landmark": "none; bank seal medallion serves as internal landmark"
+  },
+  "set_dressing": {
+    "street_furniture": "waiting benches with vinyl cushions",
+    "vehicles": "none indoors",
+    "signs": "window-number plates, framed rate posters",
+    "containers": "deposit-slip racks, waste bin at exit",
+    "fences": "queue stanchions",
+    "trash_containers": "single brushed-steel bin",
+    "commercial_displays": "CD-rate brochure stand, loan-officer cards",
+    "prop_bindings": [
+      "PROP-55A5C0218065E7E9239D8F1F0D835338"
+    ]
+  },
+  "human_presence": {
+    "population_presence": "present",
+    "crowd_density": "moderate",
+    "pedestrian_density": "thin line at counter, clusters at deposit station",
+    "activity": "queued, filling slips, chatting quietly",
+    "social_activity": "muted, transactional",
+    "occupation_activity": "tellers processing, guard stationary",
+    "movement_level": "slow shuffle",
+    "visibility_of_people": "fully visible, no occlusion zones",
+    "clothing_character": "business casual to work clothes; tellers in navy blazers",
+    "group_distribution": "mostly solo adults, one elderly pair"
+  },
+  "casting_profile": {
+    "expected_roles": [
+      {
+        "role": "Bank Teller",
+        "minimum_count": 2,
+        "maximum_count": 3,
+        "recurring_potential": true,
+        "create_if_missing": true,
+        "notes": "morning and afternoon shifts; lead teller is a named CDNA"
+      },
+      {
+        "role": "Security Guard",
+        "minimum_count": 1,
+        "maximum_count": 1,
+        "recurring_potential": false,
+        "create_if_missing": true,
+        "notes": "stationary near entrance"
+      },
+      {
+        "role": "Customer",
+        "minimum_count": 6,
+        "maximum_count": 18,
+        "recurring_potential": false,
+        "create_if_missing": true,
+        "notes": "varies by time_of_day"
+      }
+    ],
+    "crowd_density_default": "Moderate",
+    "time_based_rules": [
+      "Crowd swells 11am-1pm and 4:30pm-6pm (deposit run)",
+      "Thins to near-empty after 7pm close"
+    ]
+  },
+  "materials": {
+    "primary_material": "travertine stone",
+    "secondary_material": "brushed brass",
+    "tertiary_material": "painted drywall / acoustic tile",
+    "material_age": "1960s original, selectively refurbished",
+    "material_finish": "polished stone, satin metal, matte paint",
+    "material_texture": "smooth, cool",
+    "material_uniformity": "high within zones",
+    "material_density": "solid, heavy-feeling room"
+  },
+  "color": {
+    "dominant_color": "warm bone (E8E3D7)",
+    "secondary_color": "slate blue-grey (6B7A82)",
+    "accent_color": "brass (C89F7D)",
+    "color_temperature": "3500K fluorescent, slightly green cast",
+    "color_saturation": "low",
+    "color_contrast": "medium (dark floor shadows vs lit counter)",
+    "material_color_variation": "subtle stone veining",
+    "natural_color_intensity": "muted",
+    "overall_palette": "desaturated institutional neutrals with brass accents"
+  },
+  "lighting": {
+    "lighting_source": "ceiling fluorescent troffers + perimeter daylight",
+    "lighting_direction": "top-down with east window spill",
+    "lighting_intensity": "bright, even",
+    "lighting_quality": "Harsh Fluorescent",
+    "shadow_strength": "soft under counters, hard under stanchions",
+    "shadow_direction": "short, near-vertical",
+    "shadow_length": "short",
+    "ambient_light": "flat wash, no falloff",
+    "artificial_light": "3500K tubes",
+    "light_color": "pale green-white",
+    "highlight_level": "specular hits on brass rail and stone",
+    "contrast_level": "low-medium"
+  },
+  "sensory": {
+    "lighting_quality": "Harsh Fluorescent",
+    "ambient_sound_level": "Moderate",
+    "primary_smell": "bleach and toner",
+    "primary_ambient_sound": "fluorescent hum + faint HVAC whoosh",
+    "acoustic_signature": "short reverb, ~0.4s; hard stone with soft furnishings",
+    "smell_intensity": "Moderate",
+    "temperature_regulation": "over-air conditioned",
+    "floor_feel": "cool, smooth stone underfoot",
+    "air_movement": "Drafty",
+    "traffic_activity": "muffled street noise through front glazing",
+    "water_activity": "none",
+    "wind_effect": "none indoors",
+    "machinery_activity": "coin-counting drawer whirr, receipt printers",
+    "animal_presence": "none"
+  },
+  "atmosphere": {
+    "baseline_mood": "Tense",
+    "comfort_level": "Neutral",
+    "isolation_factor": "Connected (street visible)",
+    "background_activity": "Continuous",
+    "emotional_trigger_notes": "every transaction feels watched; camera notice at eye level",
+    "visual_mood": "controlled, institutional calm with undertone of surveillance",
+    "visual_energy": "low, procedural",
+    "visual_tension": "quiet, latent",
+    "visual_drama": "minimal in layout; carried by people",
+    "visual_character": "mid-century civic banking",
+    "visual_realism": "grounded, photographic"
+  },
+  "condition_state": {
+    "decay_state": "Worn",
+    "operational_status": "Fully Operational",
+    "occupancy_state": "Moderate (10-30)",
+    "structural_integrity_pct": 92,
+    "overall_condition": "well kept with honest age",
+    "weathering": "sun fade on east blinds",
+    "wear": "queue-lane tile scuffing",
+    "damage": "minor scuff on lobby tile quadrant C",
+    "restoration": "2005 lighting/HVAC refresh",
+    "cleanliness": "high",
+    "patina": "brass softened at hand-contact points",
+    "construction_freshness": "none active",
+    "event_state": "none",
+    "construction_state": "none",
+    "seasonal_event": "none",
+    "weather_event": "none",
+    "temporary_objects": "none",
+    "temporary_population_change": "none"
+  },
+  "signature_features": {
+    "landmark": "brass-trimmed teller counter with numbered windows",
+    "signature_structure": "central axis from double doors to vault corridor",
+    "signature_material": "polished travertine",
+    "signature_color": "brass accent (C89F7D)",
+    "signature_feature": "ceiling camera dome above entrance (PROP-55A5C0218065E7E9239D8F1F0D835338)",
+    "unique_pattern": "serpentine queue rail reflecting on stone",
+    "recognition_feature": "bank seal medallion above vault corridor"
+  },
+  "spatial_relationships": {
+    "building_to_road_relationship": "n/a interior",
+    "vegetation_to_building_relationship": "planters flank entrance axis",
+    "street_to_horizon_relationship": "street visible only through front glazing",
+    "landmark_to_scene_relationship": "medallion anchors background of every wide shot",
+    "foreground_to_background_relationship": "queue rails frame sightline to teller counter"
+  },
+  "worldbuilding": {
+    "reality_status": "realistic",
+    "world_type": "contemporary Earth, fictional city",
+    "technology_level": "modern",
+    "civilization_level": "modern urban",
+    "fantasy_level": "none",
+    "historical_accuracy": "accurate 1960s-2020s US retail banking",
+    "cultural_inspiration": "mid-century American institutional",
+    "design_language": "clean geometry, brass detailing, restrained palette"
+  },
+  "default_view": {
+    "camera_position": "entrance vestibule, centered on axis",
+    "camera_height": "eye level, ~1.6m",
+    "camera_distance": "wide establishing, ~18m to counter",
+    "camera_angle": "straight-on, one-point perspective",
+    "lens_type": "standard prime",
+    "focal_length_character": "moderate-wide (~28mm equivalent)",
+    "depth_of_field": "deep, front-to-back sharp",
+    "focus_point": "center teller window",
+    "framing": "full lobby including ceiling camera dome",
+    "composition": "symmetric, axis-centered",
+    "horizon_position": "low third"
+  },
+  "exclusions": {
+    "excluded_structures": [
+      "escalators",
+      "mezzanine"
+    ],
+    "excluded_materials": [
+      "plastic paneling"
+    ],
+    "excluded_colors": [
+      "neon pink"
+    ],
+    "excluded_objects": [
+      "ATM kiosk",
+      "people behind counter glass"
+    ],
+    "excluded_architecture": [
+      "gothic arches",
+      "exposed brick"
+    ],
+    "excluded_weather": [
+      "rain indoors",
+      "snow"
+    ],
+    "excluded_activity": [
+      "running",
+      "protest"
+    ],
+    "excluded_visual_styles": [
+      "fish-eye distortion",
+      "heavy vignette"
+    ]
+  },
+  "rendering_constraints": {
+    "render_style": "photographic",
+    "detail_level": "high",
+    "realism_level": "photorealistic",
+    "stylization_level": "none",
+    "image_quality": "8K master"
+  },
+  "core_signature": {
+    "zoning": "Commercial",
+    "architecture_era": "Mid-century",
+    "socioeconomic_tier": "Middle-class",
+    "baseline_mood": "Tense",
+    "dominant_palette": "Desaturated",
+    "signature_5_trait": "Commercial/Mid-century/Middle-class/Tense/Desaturated",
+    "core_signature_hash": "8da9f0e1c2b3d4a5f60718293a4b5c6d"
+  },
+  "character_connections": {
+    "associated_characters": [
+      {
+        "char_id": "CHAR-FA52F48A9EC776D68A09FEF43CB644C6",
+        "relationship_type": "employer",
+        "connection_detail": "Maya Reyes, primary morning teller"
+      }
+    ],
+    "owner_char_id": "CHAR-4D7B2C8A1E5F60718293A4B5C6D7E8F9",
+    "manager_char_id": "CHAR-4D7B2C8A1E5F60718293A4B5C6D7E8F9",
+    "staff_char_ids": [
+      "CHAR-FA52F48A9EC776D68A09FEF43CB644C6",
+      "CHAR-4D7B2C8A1E5F60718293A4B5C6D7E8F9"
+    ],
+    "notable_events_hosted": [
+      "EPS-01x03 robbery-drill scene"
+    ]
+  },
+  "secret_layers": {
+    "has_hidden_spaces": true,
+    "hidden_spaces_detail": "service corridor behind vault corridor wall",
+    "hidden_object_stashes": [],
+    "concealed_entrances": [
+      "service door disguised as supply closet"
+    ],
+    "reputation_rumor": "staff say camera #3 once caught the night cleaner talking to herself",
+    "urban_legend_status": "Local Story",
+    "is_crime_scene_past": false
+  },
+  "plot_utility": {
+    "primary_narrative_role": "Character Hub",
+    "agency_level": "Reactive (responds to events)",
+    "is_critical_to_plot": true,
+    "critical_threads": [
+      "bank robbery arc",
+      "Maya's promotion thread"
+    ],
+    "destruction_probability": "Low",
+    "reuse_potential": "Recurring"
+  },
+  "history": {
+    "first_appearance": "EPS-01x01",
+    "used_in_episodes": [
+      "EPS-01x01",
+      "EPS-01x02",
+      "EPS-01x03",
+      "EPS-01x04"
+    ],
+    "notable_events": [
+      "lobby renovation reveal (in-universe 2005)"
+    ]
+  },
+  "continuity_flags": {
+    "last_used_episode": "EPS-01x04",
+    "last_used_date": "2026-07-20",
+    "is_stale_unused_days": 26,
+    "renovation_scheduled": false,
+    "permanent_closure_flag": false,
+    "has_cross_channel_appearances": false,
+    "cross_channel_episodes": []
+  },
+  "reference_uri": "ref://locations/LOC-2BE798E5CF23FEBAACEC8A4CE864A29B",
+  "data_sheet": {
+    "status": "approved",
+    "required_outputs": [
+      "data_sheet_image",
+      "genplay_shot_still"
+    ],
+    "sheet_prompt_template": "wide lobby interior, {common_name}, {city}, mid-century modern, {lighting_quality}, {ambient_sound_level}, {primary_smell}",
+    "sheet_negative_prompt": "ATM kiosk, people behind counter glass, fish-eye, neon pink",
+    "reference_uri": "ref://locations/LOC-2BE798E5CF23FEBAACEC8A4CE864A29B",
+    "approved_version": "v2.1"
+  },
+  "image_gen_prompt": "wide interior shot of a mid-century bank lobby, polished travertine floors, brass-trimmed teller line, fluorescent lighting at 3500K, security camera dome in ceiling corner above entrance, desaturated palette, tense atmosphere, one-point perspective from entrance, sharp focus, photographic"
+}

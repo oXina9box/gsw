@@ -1,0 +1,137 @@
+/* Hallmark · token layer · theme: custom OLED studio · tone: atmospheric · anchor hue: hot pink */
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&family=Syne:wght@600;700;800&display=swap');
+
+:root {
+  /* Supplied palette — --c-bg intentionally overridden for glossy OLED black. */
+  --c-primary:        #ff007f;
+  --c-primary-hover:  #ff298c;
+  --c-primary-active: #d90073;
+  --c-primary-dim:    #8c0054;
+  --c-primary-soft:   #ffe6ee;
+  --c-cyan:           #00e5ff;
+  --c-cyan-hover:     #29f0ff;
+  --c-lime:           #52c41a;
+  --c-lime-glow:      #00ff88;
+  --c-amber:          #faad14;
+  --c-red:            #ff4d4f;
+  --c-bg:             #030305;
+  --c-surface:        #161a24;
+  --c-surface-2:      #1e242d;
+  --c-surface-3:      #272d38;
+  --c-text:           #e6e8e6;
+  --c-text-2:         #7e8494;
+  --c-text-3:         #8c8c8c;
+  --c-border:         #3e3e3e;
+  --c-border-2:       #4a5466;
+  --c-hairline:       rgba(255, 255, 255, 0.04);
+
+  /* Semantic color aliases — page CSS only consumes these names. */
+  --color-bg:         var(--c-bg);
+  --color-surface:    var(--c-surface);
+  --color-surface-2:  var(--c-surface-2);
+  --color-surface-3:  var(--c-surface-3);
+  --color-text:       var(--c-text);
+  --color-text-muted: var(--c-text-2);
+  --color-text-faint: var(--c-text-3);
+  --color-border:     var(--c-border);
+  --color-border-2:   var(--c-border-2);
+  --color-hairline:   var(--c-hairline);
+  --color-pink:       var(--c-primary);
+  --color-pink-hover: var(--c-primary-hover);
+  --color-pink-active: var(--c-primary-active);
+  --color-pink-dim:   var(--c-primary-dim);
+  --color-pink-soft:  var(--c-primary-soft);
+  --color-cyan:       var(--c-cyan);
+  --color-cyan-hover: var(--c-cyan-hover);
+  --color-lime:       var(--c-lime-glow);
+  --color-lime-solid: var(--c-lime);
+  --color-amber:      var(--c-amber);
+  --color-red:        var(--c-red);
+  --color-focus:      var(--c-cyan);
+  --color-white:      #ffffff;
+
+  /* Translucent effects are tokens too; page CSS never improvises color. */
+  --alpha-pink-08:    rgba(255, 0, 127, 0.08);
+  --alpha-pink-10:    rgba(255, 0, 127, 0.1);
+  --alpha-pink-13:    rgba(255, 0, 127, 0.13);
+  --alpha-pink-14:    rgba(255, 0, 127, 0.14);
+  --alpha-pink-16:    rgba(255, 0, 127, 0.16);
+  --alpha-pink-17:    rgba(255, 0, 127, 0.17);
+  --alpha-pink-27:    rgba(255, 0, 127, 0.27);
+  --alpha-pink-32:    rgba(255, 0, 127, 0.32);
+  --alpha-pink-34:    rgba(255, 0, 127, 0.34);
+  --alpha-pink-38:    rgba(255, 0, 127, 0.38);
+  --alpha-cyan-04:    rgba(0, 229, 255, 0.04);
+  --alpha-cyan-06:    rgba(0, 229, 255, 0.06);
+  --alpha-cyan-10:    rgba(0, 229, 255, 0.1);
+  --alpha-cyan-12:    rgba(0, 229, 255, 0.12);
+  --alpha-cyan-13:    rgba(0, 229, 255, 0.13);
+  --alpha-cyan-14:    rgba(0, 229, 255, 0.14);
+  --alpha-cyan-20:    rgba(0, 229, 255, 0.2);
+  --alpha-cyan-27:    rgba(0, 229, 255, 0.27);
+  --alpha-cyan-32:    rgba(0, 229, 255, 0.32);
+  --alpha-cyan-34:    rgba(0, 229, 255, 0.34);
+  --alpha-lime-00:    rgba(0, 255, 136, 0);
+  --alpha-lime-10:    rgba(0, 255, 136, 0.1);
+  --alpha-lime-14:    rgba(0, 255, 136, 0.14);
+  --alpha-lime-16:    rgba(0, 255, 136, 0.16);
+  --alpha-lime-40:    rgba(0, 255, 136, 0.4);
+  --alpha-lime-50:    rgba(0, 255, 136, 0.5);
+  --alpha-surface-28: rgba(22, 26, 36, 0.28);
+  --alpha-surface-34: rgba(22, 26, 36, 0.34);
+  --alpha-surface-38: rgba(22, 26, 36, 0.38);
+  --alpha-surface-42: rgba(22, 26, 36, 0.42);
+  --alpha-surface-52: rgba(39, 45, 56, 0.52);
+  --alpha-surface-54: rgba(39, 45, 56, 0.54);
+  --alpha-surface-58: rgba(30, 36, 45, 0.58);
+  --alpha-surface-90: rgba(22, 26, 36, 0.9);
+  --alpha-black-40:   rgba(0, 0, 0, 0.4);
+  --alpha-black-50:   rgba(3, 3, 5, 0.5);
+  --alpha-black-68:   rgba(3, 3, 5, 0.68);
+  --alpha-backdrop:   rgba(3, 3, 5, 0.76);
+  --alpha-white-04:   rgba(255, 255, 255, 0.04);
+
+  --font-display: 'Syne', 'Space Grotesk', sans-serif;
+  --font-body: 'Space Grotesk', system-ui, sans-serif;
+  --font-mono: 'DM Mono', ui-monospace, monospace;
+
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --space-20: 5rem;
+  --space-24: 6rem;
+  --space-32: 8rem;
+
+  --text-xs: 0.6875rem;
+  --text-sm: 0.8125rem;
+  --text-md: 1rem;
+  --text-lg: 1.25rem;
+  --text-xl: clamp(1.5rem, 2.5vw, 2.25rem);
+  --text-display: clamp(3.5rem, 9.5vw, 9.5rem);
+  --text-display-s: clamp(2.75rem, 7vw, 6.5rem);
+
+  --radius-sm: 0.5rem;
+  --radius-md: 1rem;
+  --radius-lg: 1.5rem;
+  --radius-pill: 999px;
+
+  --rule-thin: 1px;
+  --shadow-pink: 0 0 2rem rgba(255, 0, 127, 0.22);
+  --shadow-cyan: 0 0 2rem rgba(0, 229, 255, 0.2);
+  --shadow-lime: 0 0 2rem rgba(0, 255, 136, 0.16);
+  --shadow-panel: 0 1.5rem 4rem rgba(0, 0, 0, 0.34);
+
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in: cubic-bezier(0.64, 0, 0.78, 0);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-fast: 160ms;
+  --dur-base: 280ms;
+  --dur-slow: 700ms;
+}

@@ -1,0 +1,96 @@
+{
+  "dna_id": "PROP-",
+  "dna_type": "PDNA",
+  "channel": "",
+  "status": "active",
+  "metadata": {
+    "base_seed": "",
+    "core_signature": "",
+    "is_channel_asset": false,
+    "is_type_asset": false,
+    "variant_group": "",
+    "overrides": {}
+  },
+  "identity_core": {
+    "prop_name": "",
+    "prop_type": "",
+    "one_liner": "",
+    "alternate_names": [],
+    "ai_seed": 0
+  },
+  "physical": {
+    "global_scale": 1.0,
+    "dimensions_x_cm": 0,
+    "dimensions_y_cm": 0,
+    "dimensions_z_cm": 0,
+    "weight_kg": 0,
+    "base_color_hex": "",
+    "material_finish": "",
+    "pattern_style": "",
+    "age_wear_level": "",
+    "customization_markings": [],
+    "has_physics": false,
+    "destructible": false
+  },
+  "pbr": {
+    "albedo_description": "",
+    "roughness_value": "",
+    "metallic_value": "",
+    "normal_details": "",
+    "subsurface_scattering": false,
+    "emissive_properties": "",
+    "anisotropy_notes": ""
+  },
+  "type_branch": {
+    "channel_binding": "",
+    "placement_role": "",
+    "frame_material": "",
+    "seat_material": "",
+    "back_material": "",
+    "fabric_color": "",
+    "foldable": false,
+    "name_panel": false,
+    "name_panel_text": "",
+    "branding": "",
+    "backup_count": 0
+  },
+  "ownership": {
+    "owner_char_id": "",
+    "handler_char_ids": [],
+    "home_location_id": "",
+    "allowed_location_ids": [],
+    "channel_asset": false
+  },
+  "scene": {
+    "scope": "",
+    "interaction_type": "",
+    "character_bindings": [],
+    "interaction_notes": "",
+    "spawn_location": ""
+  },
+  "continuity": {
+    "last_used_episode": "",
+    "condition_current_pct": 100,
+    "is_destroyed": false
+  },
+  "state_events": [],
+  "history": {
+    "origin_era": "",
+    "previous_owners": 0
+  },
+  "plot_utility": {
+    "narrative_importance": "",
+    "fragility": ""
+  },
+  "data_sheet": {
+    "status": "not_generated",
+    "required_outputs": [],
+    "sheet_prompt_template": "",
+    "sheet_negative_prompt": "",
+    "reference_uri": "",
+    "approved_version": ""
+  },
+  "image_gen_prompt": "",
+  "reference_uri": "",
+  "ip_adapter_scale": 0.75
+}

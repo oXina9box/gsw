@@ -1,0 +1,209 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://gem-studio.dev/schemas/genplay-master.schema.json",
+  "title": "GEMGENPLAYMASTER (v4)",
+  "description": "Locked GenPlay master — the authoritative production contract that the Paged Binder projects from.",
+  "type": "object",
+
+  "required": [
+    "document", "creative_direction", "continuity",
+    "cast", "locations", "assets", "scenes", "edit_plan", "delivery"
+  ],
+
+  "properties": {
+    "document": {
+      "type": "object",
+      "description": "Master document metadata → binder cover page.",
+      "required": [
+        "title", "genplay_id", "channel_code", "channel_name",
+        "episode_code", "seed_id", "logline", "date", "version", "locked"
+      ],
+      "properties": {
+        "title":             { "type": "string", "minLength": 1 },
+        "genplay_id":        { "type": "string", "pattern": "^GP-[A-Z]{2}-[0-9]{8}-[0-9]{3}$" },
+        "channel_code":      { "type": "string", "minLength": 1 },
+        "channel_name":      { "type": "string", "minLength": 1 },
+        "episode_code":      { "type": "string", "pattern": "^[A-Z]{2}-E[0-9]{3}$" },
+        "seed_id":           { "type": "string" },
+        "logline":           { "type": "string" },
+        "date":              { "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$" },
+        "version":           { "type": "string" },
+        "locked":            { "type": "boolean", "const": true,
+          "description": "A locked master is immutable; no status fields may be written." }
+      },
+      "additionalProperties": false
+    },
+
+    "creative_direction": {
+      "type": "object",
+      "description": "Approved gear + channel-wide creative rules → binder channel_dna page.",
+      "required": [
+        "approved_cameras", "approved_lenses", "approved_movements",
+        "aspect_ratio", "frame_rate", "color_pipeline", "visual_style"
+      ],
+      "properties": {
+        "approved_cameras":   { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+        "approved_lenses":    { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+        "approved_movements": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+        "aspect_ratio":       { "type": "string" },
+        "frame_rate":         { "type": "integer", "minimum": 1 },
+        "color_pipeline":     { "type": "string" },
+        "visual_style":       { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+
+    "continuity": {
+      "type": "object",
+      "description": "Episode-wide continuity rules → binder director_notes / channel_rules.",
+      "required": ["global_rules"],
+      "properties": {
+        "global_rules": {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 1
+        }
+      },
+      "additionalProperties": false
+    },
+
+    "cast": {
+      "type": "array",
+      "description": "Characters ordered by screenplay appearance → binder character_sheet pages.",
+      "items": {
+        "type": "object",
+        "required": ["dna_id", "genplay_id", "name", "appearance_order",
+                     "visual_identity", "image_gen_prompt"],
+        "properties": {
+          "dna_id":           { "type": "string", "pattern": "^CHAR-[A-F0-9]{32}$" },
+          "genplay_id":       { "type": "string", "pattern": "^CDNA-[0-9]+$" },
+          "name":             { "type": "string", "minLength": 1 },
+          "appearance_order": { "type": "integer", "minimum": 1 },
+          "visual_identity":  { "type": "string" },
+          "image_gen_prompt": { "type": "string" }
+        },
+        "additionalProperties": false
+      }
+    },
+
+    "locations": {
+      "type": "array",
+      "description": "Locations ordered by screenplay appearance → binder location_sheet pages.",
+      "items": {
+        "type": "object",
+        "required": ["dna_id", "genplay_id", "name", "appearance_order",
+                     "spatial_rules", "lighting_rules", "image_gen_prompt"],
+        "properties": {
+          "dna_id":           { "type": "string", "pattern": "^LOC-[A-F0-9]{32}$" },
+          "genplay_id":       { "type": "string", "pattern": "^LDNA-[0-9]+$" },
+          "name":             { "type": "string", "minLength": 1 },
+          "appearance_order": { "type": "integer", "minimum": 1 },
+          "spatial_rules":    { "type": "string" },
+          "lighting_rules":   { "type": "string" },
+          "image_gen_prompt": { "type": "string" }
+        },
+        "additionalProperties": false
+      }
+    },
+
+    "assets": {
+      "type": "array",
+      "description": "Props (PDNA) ordered by screenplay appearance → binder prop_sheet pages (max 3 per page).",
+      "items": {
+        "type": "object",
+        "required": ["dna_id", "genplay_id", "name", "appearance_order",
+                     "physical_properties", "image_gen_prompt"],
+        "properties": {
+          "dna_id":           { "type": "string", "pattern": "^PROP-[A-F0-9]{32}$" },
+          "genplay_id":       { "type": "string", "pattern": "^PDNA-[0-9]+$" },
+          "name":             { "type": "string", "minLength": 1 },
+          "appearance_order": { "type": "integer", "minimum": 1 },
+          "physical_properties":{ "type": "string" },
+          "image_gen_prompt": { "type": "string" }
+        },
+        "additionalProperties": false
+      }
+    },
+
+    "scenes": {
+      "type": "array",
+      "description": "Scenes in screenplay order. Each scene carries its shots; shot numbers accumulate globally.",
+      "items": {
+        "type": "object",
+        "required": ["scene_number", "heading", "detail", "characters",
+                     "locations", "props", "shots"],
+        "properties": {
+          "scene_number": { "type": "integer", "minimum": 1 },
+          "heading":      { "type": "string" },
+          "detail":       { "type": "string" },
+          "characters":   { "type": "array", "items": { "type": "string" } },
+          "locations":    { "type": "array", "items": { "type": "string" } },
+          "props":        { "type": "array", "items": { "type": "string" } },
+          "shots": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "required": ["shot_id", "take", "date_shot", "required_dna",
+                           "image_prompt", "video_prompt", "timing",
+                           "camera", "movement", "continuity"],
+              "properties": {
+                "shot_id":    { "type": "string" },
+                "take":       { "type": "integer", "minimum": 1 },
+                "date_shot":  { "type": "string" },
+                "required_dna":{ "type": "array", "items": { "type": "string" } },
+                "reference_images": { "type": "array", "items": { "type": "string" } },
+                "image_prompt":    { "type": "string" },
+                "negative":         { "type": "array", "items": { "type": "string" } },
+                "timing": {
+                  "type": "object",
+                  "required": ["seconds", "frames", "frame_rate"],
+                  "properties": {
+                    "seconds":    { "type": "number" },
+                    "frames":     { "type": "integer" },
+                    "frame_rate": { "type": "integer" }
+                  },
+                  "additionalProperties": false
+                },
+                "camera":       { "type": "array", "items": { "type": "string" } },
+                "movement":     { "type": "array", "items": { "type": "string" } },
+                "dialogue":    { "type": "array", "items": { "type": "string" } },
+                "action":      { "type": "array", "items": { "type": "string" } },
+                "continuity": {
+                  "type": "object",
+                  "properties": {
+                    "in":  { "type": "string" },
+                    "out": { "type": "string" }
+                  },
+                  "additionalProperties": false
+                },
+                "video_prompt": { "type": "string" }
+              },
+              "additionalProperties": false
+            }
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+
+    "edit_plan": {
+      "type": "object",
+      "description": "Edit plan + delivery → binder post_pages_recap.",
+      "required": ["storage_directions"],
+      "properties": {
+        "storage_directions": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+
+    "delivery": {
+      "type": "object",
+      "description": "Delivery specs (reserved for future use).",
+      "properties": {},
+      "additionalProperties": true
+    }
+  },
+
+  "additionalProperties": false
+}

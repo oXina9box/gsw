@@ -1,0 +1,573 @@
+{
+  "dna_id": "CHAR-FA52F48A9EC776D68A09FEF43CB644C6",
+  "dna_type": "CDNA",
+  "channel": "grudgenudges",
+  "seed_id": "SEED-B3A1F2C4D5E6F7081928374C5B6A7F8E",
+  "status": "active",
+  "created_at": "2026-05-14T10:30:00Z",
+  "updated_at": "2026-08-15T09:00:00Z",
+  "metadata": {
+    "base_seed": "1a2b3c4d",
+    "core_signature": "Female_Honey_Mesomorph_2A_Enneagram6",
+    "is_npc": false,
+    "is_persistent": true,
+    "is_shell": false,
+    "is_18_plus": false,
+    "overrides": {
+      "identity_core.full_name": "Maya Reyes"
+    }
+  },
+  "identity_core": {
+    "full_name": "Maya Reyes",
+    "preferred_pronouns": "she/her",
+    "gender_identity": "Female",
+    "nickname": "Maya",
+    "cultural_background": "Latina",
+    "religious_orientation": "Raised Catholic, currently secular",
+    "political_leaning": "Centrist, leans community-minded",
+    "socioeconomic_origin": "Working Class",
+    "socioeconomic_current": "Working Class",
+    "education": "Some College",
+    "professional_title": "Bank Teller",
+    "age": 31,
+    "birth_date_actual": "1988-04-19",
+    "spawn_date": "2026-05-14",
+    "attitude": "Pragmatic",
+    "one_liner": "Gets people through the line fast and remembers every name."
+  },
+  "physical": {
+    "height_cm": 166.1,
+    "weight_kg": 62.4,
+    "somatotype": "Endomorph",
+    "face_shape": "Oval",
+    "apparent_age": "Early 30s",
+    "handedness": "right",
+    "skin": {
+      "mst_level": 5,
+      "fitzpatrick": 3,
+      "undertone": "warm_golden",
+      "hex_override": "C9A694"
+    },
+    "head": {
+      "shape": "Mesocephalic",
+      "forehead_height": "Average"
+    },
+    "eyes": {
+      "base_color": "Brown",
+      "set": "Average",
+      "depth": "Deep-set"
+    },
+    "nose": {
+      "bridge": "Straight",
+      "tip": "Pointed",
+      "nostrils": "Average"
+    },
+    "lips": {
+      "fullness": "Full",
+      "cupids_bow": "Subtle"
+    },
+    "hair": {
+      "type_andre_walker": "2B",
+      "length": "Medium",
+      "base_color": "Dark Brown"
+    },
+    "anthropometry": {
+      "height_cm": 166.1,
+      "weight_kg": 62.4,
+      "bmi": 22.6,
+      "sitting_height_cm": 84.5,
+      "leg_length_cm": 81.5,
+      "torso_length_cm": 84.6,
+      "cranial_perimeter_cm": 56.2,
+      "cranial_length_cm": 18.9,
+      "cranial_breadth_cm": 14.1,
+      "bizygomatic_breadth_cm": 13.4,
+      "biacromial_breadth_cm": 39.2,
+      "chest_circumference_cm": 92.0,
+      "waist_circumference_cm": 78.0,
+      "hip_circumference_cm": 96.0,
+      "midarm_circumference_cm": 28.5,
+      "thigh_circumference_cm": 54.0,
+      "calf_circumference_cm": 36.0,
+      "hand_length_cm": 17.2,
+      "hand_breadth_cm": 8.2,
+      "foot_length_cm": 24.0,
+      "foot_breadth_cm": 9.0,
+      "digit_ratio_2_4": 0.98,
+      "digit_ratio_2_5": 1.0,
+      "digit_ratio_2_10": 1.02,
+      "fingerprint_whorl_pattern": "central pocket loop"
+    },
+    "craniofacial_morphology": {
+      "interpupillary_distance_mm": 64.0,
+      "palpebral_fissure_height_mm": 11.5,
+      "palpebral_fissure_width_mm": 29.0,
+      "intercanthal_distance_mm": 28.0,
+      "nasofrontal_angle_deg": 115.0,
+      "nasolabial_angle_deg": 102.0,
+      "alar_base_width_mm": 48.0,
+      "nostril_width_mm": 13.5,
+      "nostril_flare_pct": 20,
+      "gonial_angle_left_deg": 128.0,
+      "gonial_angle_right_deg": 129.0,
+      "mandibular_symphysis_length_mm": 52.0,
+      "mandibular_body_height_mm": 48.0,
+      "dental_midline_deviation_mm": 0.0,
+      "maxillary_incisal_edge_exposure_mm": 4.5,
+      "buccal_fat_thickness_mm": 12.0,
+      "nasolabial_fold_depth_mm": 8.5,
+      "lower_lip_thickness_mm": 11.0,
+      "upper_lip_length_mm": 32.0,
+      "facial_third_ratios": {
+        "upper": 1.0,
+        "middle": 1.05,
+        "lower": 1.1
+      },
+      "soft_tissue_theon_thickness_mm": 4.2,
+      "soft_tissue_theon_notes": "Subtle, no overprojection"
+    },
+    "dermatological_profile": {
+      "mst_scale_level": 5,
+      "fitzpatrick": 3,
+      "undertone": "warm_golden",
+      "capillary_visibility": "Low (cheeks only after crying)",
+      "freckle_map": {
+        "notable": "light dusting across bridge of nose"
+      },
+      "wringle_vectors": {
+        "nasolabial_fold": "shallow, left > right"
+      },
+      "elastosis_notes": "None (31, no significant photodamage)",
+      "subsurface_scattering_depth_mm": 0.8,
+      "pore_density_zones": {
+        "T-zone": "moderate",
+        "cheeks": "fine"
+      }
+    },
+    "trichological_profile": {
+      "scalp_follicle_density_hairs_per_cm2": 220,
+      "norwood_scale_left": 1,
+      "strand_diameter_microns": 72,
+      "strand_cross_section": "oval",
+      "strand_porosity": "medium",
+      "body_hair_distribution": {
+        "forearms": "moderate",
+        "underarms": "full",
+        "legs": "moderate"
+      }
+    },
+    "musculoskeletal_and_kinematic": {
+      "muscle_belly_lengths": {
+        "forearm": "28 cm",
+        "quadriceps": "48 cm"
+      },
+      "tendon_insertion_points": {
+        "patellar": "standard"
+      },
+      "spine_curves": {
+        "cervical_deg": 42,
+        "thoracic_deg": 38,
+        "lumbar_deg": 45,
+        "sacral_incidence_deg": 37
+      },
+      "pelvic_tilt_deg": 4.0,
+      "shoulder_asymmetry_deg": 1.5,
+      "stride_length_cm": 72,
+      "cadence_steps_per_min": 116,
+      "arm_swing_asymmetry_pct": 3,
+      "gait_parameters": {
+        "pattern": "slight left pelvic drop, otherwise neutral",
+        "stability": "good"
+      }
+    },
+    "secondary_sex_and_intimate_phenotype": {
+      "hormonal_presentation": "gynoid",
+      "android_gynoid_ratio": 0.75,
+      "fat_distribution_pattern": "gluteofemoral + subcutaneous thigh",
+      "breast_anatomy": {
+        "tissue_density_gcm3": 0.98,
+        "ptosis_grade": "I",
+        "volume": "B"
+      },
+      "pelvic_gynecic_index": 78.0,
+      "gluteal_tilt_deg": 7.5
+    },
+    "distinctive_asymmetries_and_anomalies": {
+      "facial_asymmetry_vector_left": 0.8,
+      "facial_asymmetry_vector_right": 1.0,
+      "deviated_septum": true,
+      "deviated_septum_direction": "slight left",
+      "darwin_tubercle_left": false,
+      "darwin_tubercle_right": false,
+      "diastema_mm": 0.0,
+      "rotated_incisors_severity": "none",
+      "anomaly_notes": "Acquired dimple on left cheek from childhood fall"
+    },
+    "distinctive_marks": [
+      {
+        "mark_type": "scar",
+        "placement": "left cheek, ~1cm below orbit",
+        "description": "3mm linear scar from a fall at age 7"
+      },
+      {
+        "mark_type": "birthmark",
+        "placement": "right shoulder blade",
+        "description": "Small caf\u00e9-au-lait macule, ~0.8cm diameter"
+      }
+    ]
+  },
+  "cinematic": {
+    "lens_profile": {
+      "primary": "50mm Natural",
+      "special": "None"
+    },
+    "aperture": "f/2.8 Balanced",
+    "lighting_model": "Soft Diffused Studio",
+    "unconventional_angles_framing": [
+      "Over-the-Shoulder"
+    ],
+    "cinematography_notes": {
+      "negative_prompt_block": [
+        "deformed fingers",
+        "extra limbs"
+      ],
+      "camera_hardware_tag": "Shot on Canon EOS R5",
+      "consistency_method": "--cref",
+      "seed_value_locked": 182736
+    }
+  },
+  "psychological": {
+    "big_five": {
+      "openness": {
+        "score": 0.7,
+        "notes": "curious about people, not risks"
+      },
+      "conscientiousness": {
+        "score": 0.82,
+        "notes": "punctual, methodical with ledgers"
+      },
+      "extraversion": {
+        "score": 0.55,
+        "notes": "social when on duty, quiet off shift"
+      },
+      "agreeableness": {
+        "score": 0.78,
+        "notes": "conflict-averse, customer-people pleaser"
+      },
+      "neuroticism": {
+        "score": 0.28,
+        "notes": "low; stays calm under queue pressure"
+      }
+    },
+    "temperament": {
+      "dominance": "Phlegmatic",
+      "primary_stress_emotion": "Withdrawal"
+    },
+    "behavioral_drivers": {
+      "baseline_confidence": "steady",
+      "communication_style": "direct-but-warm",
+      "humor_style": "warm/affectionate",
+      "coping_mechanism": "problem-focused, music after shift",
+      "trust_baseline": "moderate-high in coworkers",
+      "stress_response": {
+        "mode": "tend-and-befriend",
+        "physical_tic": "presses thumb into palm",
+        "vocal_change": "voice drops a half-step when flustered"
+      }
+    },
+    "narrative_subtext": {
+      "core_wound": "felt invisible growing up as the quiet middle child",
+      "the_secret": "saving to leave the city after a promotion",
+      "worldview": "banks are neutral \u2014 people choose how to use them",
+      "blind_spot": "assumes regulars have good intentions",
+      "primary_trigger": "disrespect toward elderly customers"
+    }
+  },
+  "speech_pattern": {
+    "average_sentence_length": "Medium",
+    "vocabulary_level": "Moderate",
+    "favorite_words_phrases": [
+      "ma'am",
+      "right away",
+      "thank you for your patience"
+    ],
+    "verbal_tics": [
+      "brief pause before numbers"
+    ],
+    "voice_pitch": "Alto",
+    "voice_tone": "Warm, Clear",
+    "speech_pace": "Moderate",
+    "formality_baseline": 0.6
+  },
+  "voice_identity": {
+    "voice_name": "Maya-Teller-Standard",
+    "voice_status": "active",
+    "voice_owner_type": "character",
+    "voice_age_range": "31-35",
+    "gender_expression": "Female",
+    "accent": "General American with mild Southwestern vowel coloring",
+    "timbre": "Warm mid-range",
+    "pitch": "medium",
+    "resonance": "chest-forward",
+    "tempo": "moderate",
+    "emotional_range": "calm to gently firm",
+    "provider_bindings": [
+      {
+        "provider": "placeholder-voice-service",
+        "external_voice_id": "v-maya-reyes-001",
+        "model": "gem-voice-1",
+        "priority": 1,
+        "status": "testing",
+        "quality": "high",
+        "notes": "Sample binding \u2014 swap at pipeline stage. No provider hard-coded by schema."
+      }
+    ]
+  },
+  "wardrobe": {
+    "style_profile": "Work-Ready Casual",
+    "sizing": {
+      "top": "Women's S",
+      "bottom": "26",
+      "shoe": "7.5 W"
+    },
+    "default_outfit_id": "OUT-WORK-UNIFORM",
+    "current_outfit_id": "OUT-WORK-UNIFORM",
+    "outfits": [
+      {
+        "outfit_id": "OUT-WORK-UNIFORM",
+        "outfit_name": "Bank Teller Standard Uniform",
+        "garment_type": "Uniform",
+        "one_liner": "Navy blazer, white blouse, khaki slacks, black loafers.",
+        "pieces": [
+          {
+            "piece": "blazer",
+            "description": "Navy, single-breasted, 2-button",
+            "fabric": "poly-wool blend",
+            "fit": "Tailored",
+            "color_hex": "0A1F44",
+            "wear_level": "good",
+            "damage": "none"
+          },
+          {
+            "piece": "blouse",
+            "description": "White, button-down",
+            "fabric": "cotton-poplin",
+            "fit": "regular",
+            "color_hex": "FFFFFF",
+            "wear_level": "good",
+            "damage": "none"
+          },
+          {
+            "piece": "slacks",
+            "description": "Khaki chino",
+            "fabric": "cotton",
+            "fit": "straight",
+            "color_hex": "C2B280",
+            "wear_level": "good",
+            "damage": "minor shine at seat"
+          }
+        ],
+        "scene_types": [
+          "bank interior",
+          "bank exterior"
+        ],
+        "seasonality": "year-round",
+        "continuity_condition_pct": 95,
+        "last_used_episode": "EPS-01x03",
+        "image_gen_prompt": "bank teller uniform, navy blazer, white blouse, khaki slacks, ID lanyard, neutral expression, clean",
+        "reference_uri": "ref://mood/bank-uniform-001",
+        "status": "active"
+      },
+      {
+        "outfit_id": "OUT-OFF-HOURS",
+        "outfit_name": "Off-Hours Casual",
+        "garment_type": "Casual",
+        "one_liner": "Dark jeans, band tee, cardigan, sneakers.",
+        "pieces": [
+          {
+            "piece": "tee",
+            "description": "Black band shirt",
+            "fabric": "cotton",
+            "fit": "regular",
+            "color_hex": "000000",
+            "wear_level": "good",
+            "damage": "small pit-stain (left armpit)"
+          },
+          {
+            "piece": "jeans",
+            "description": "Dark denim",
+            "fabric": "cotton-elastane",
+            "fit": "slim",
+            "color_hex": "0A0A0A",
+            "wear_level": "good",
+            "damage": "none"
+          }
+        ],
+        "scene_types": [
+          "apartment interior"
+        ],
+        "seasonality": "year-round",
+        "continuity_condition_pct": 98,
+        "last_used_episode": "EPS-01x04",
+        "image_gen_prompt": "casual off-duty, dark jeans, black band tee, cardigan, natural posture",
+        "status": "active"
+      }
+    ],
+    "uniforms": [
+      {
+        "outfit_id": "OUT-WORK-UNIFORM",
+        "outfit_name": "Bank Teller Standard Uniform",
+        "garment_type": "Uniform",
+        "one_liner": "Navy blazer, white blouse, khaki slacks, black loafers.",
+        "pieces": [
+          {
+            "piece": "blazer",
+            "description": "Navy, single-breasted, 2-button",
+            "fabric": "poly-wool blend",
+            "fit": "Tailored",
+            "color_hex": "0A1F44",
+            "wear_level": "good",
+            "damage": "none"
+          },
+          {
+            "piece": "blouse",
+            "description": "White, button-down",
+            "fabric": "cotton-poplin",
+            "fit": "regular",
+            "color_hex": "FFFFFF",
+            "wear_level": "good",
+            "damage": "none"
+          },
+          {
+            "piece": "slacks",
+            "description": "Khaki chino",
+            "fabric": "cotton",
+            "fit": "straight",
+            "color_hex": "C2B280",
+            "wear_level": "good",
+            "damage": "minor shine at seat"
+          }
+        ],
+        "scene_types": [
+          "bank interior",
+          "bank exterior"
+        ],
+        "seasonality": "year-round",
+        "continuity_condition_pct": 95,
+        "last_used_episode": "EPS-01x03",
+        "image_gen_prompt": "bank teller uniform, navy blazer, white blouse, khaki slacks, ID lanyard, neutral expression, clean",
+        "reference_uri": "ref://mood/bank-uniform-001",
+        "status": "active"
+      }
+    ],
+    "outfit_history": [
+      "OUT-WORK-UNIFORM"
+    ]
+  },
+  "temporal": {
+    "birth_date_actual": "1988-04-19",
+    "aging_policy": "real_time",
+    "age_lock": false,
+    "age_offset_years": 0,
+    "life_stage": "adult",
+    "temporal_notes": "Ages in real time; real_time policy applies. age_lock=false keeps her age tracked to present day."
+  },
+  "temporal_variants": [
+    {
+      "variant_id": "VAR-MAYA-YOUNG",
+      "label": "young",
+      "age_range": "18-25",
+      "priority": 10,
+      "use_when": "flashback childhood or college",
+      "image_gen_prompt_modifier": "younger facial features, smooth skin, long hair, casual clothes"
+    },
+    {
+      "variant_id": "VAR-MAYA-ADULT",
+      "label": "adult",
+      "age_range": "26-40",
+      "priority": 100,
+      "use_when": "default present-day",
+      "physical_overrides": {
+        "skin.mst_level": 5,
+        "weight_kg": 62.4
+      },
+      "wardrobe_overrides": {
+        "current_outfit_id": "OUT-WORK-UNIFORM"
+      },
+      "image_gen_prompt_modifier": ""
+    },
+    {
+      "variant_id": "VAR-MAYA-OLD",
+      "label": "old",
+      "age_range": "60+",
+      "priority": 5,
+      "use_when": "far-future or memory sequences",
+      "physical_overrides": {
+        "height_cm": 164,
+        "mst_level": 6,
+        "hair": {
+          "length": "Short",
+          "grey_percentage": 85
+        }
+      },
+      "image_gen_prompt_modifier": "short grey hair, reading glasses, slight stoop, warm smile lines"
+    }
+  ],
+  "casting": {
+    "casting_tier": "supporting",
+    "casting_pool": "bank-tellers-gr",
+    "is_background": false,
+    "is_recurring": true,
+    "is_promotable": true,
+    "availability_state": "active",
+    "first_appearance": "EPS-01x01",
+    "last_appearance": "EPS-01x04",
+    "promotion_history": []
+  },
+  "relationship_graph": {
+    "notes": "Legacy graph retained; structured edges below are authoritative."
+  },
+  "relationship_edges": [
+    {
+      "edge_id": "EDGE-MAYAREYES-001",
+      "related_char_id": "CHAR-4D7B2C8A1E5F60718293A4B5C6D7E8F9",
+      "relation_type": "boss",
+      "canonical": true,
+      "current_status": "active",
+      "sentiment": "neutral",
+      "start_date": "2026-05-14",
+      "notes": "Reports to bank manager Elena Vasquez."
+    },
+    {
+      "edge_id": "EDGE-MAYAREYES-002",
+      "related_char_id": "CHAR-4D7B2C8A1E5F60718293A4B5C6D7E8F9",
+      "relation_type": "coworker",
+      "canonical": true,
+      "current_status": "active",
+      "sentiment": "positive",
+      "notes": "Shift partner, knows her coffee order."
+    }
+  ],
+  "location_tie": {
+    "primary_loc_id": "LOC-2BE798E5CF23FEBAACEC8A4CE864A29B"
+  },
+  "episode_history": [
+    "EPS-01x01",
+    "EPS-01x02",
+    "EPS-01x03",
+    "EPS-01x04"
+  ],
+  "data_sheet": {
+    "status": "approved",
+    "required_outputs": [
+      "data_sheet_image",
+      "genplay_shot_still"
+    ],
+    "sheet_prompt_template": "photo of {full_name}, {age}, {professional_title} at {location_tie}",
+    "sheet_negative_prompt": "deformed, blurry, disfigured",
+    "reference_uri": "ref://chars/CHAR-FA52F48A9EC776D68A09FEF43CB644C6",
+    "approved_version": "v2.0"
+  },
+  "image_gen_prompt": "professional headshot of Maya Reyes, 31, Latina woman, bank teller, warm smile, navy blazer, clean lighting, 50mm portrait lens, natural skin texture, sharp focus",
+  "voice_gen_notes": "(legacy) routed to voice_identity provider_bindings"
+}

@@ -1,0 +1,108 @@
+{
+  "dna_id": "PROP-18AFEF5A7884DDC603DFA71543DB42E8",
+  "dna_type": "PDNA",
+  "channel": "channel-one",
+  "status": "active",
+  "metadata": {
+    "base_seed": "channel-one-director-chair-black-canvas",
+    "core_signature": "ChannelAsset|director_chair|wood|canvas|black",
+    "is_channel_asset": true,
+    "is_type_asset": false,
+    "variant_group": "first-channel-director-chairs",
+    "overrides": {}
+  },
+  "identity_core": {
+    "prop_name": "Director's Chair \u2014 Black Canvas",
+    "prop_type": "ChannelAsset",
+    "one_liner": "Wood-frame director's chair with canvas seat and back, the main seat for the first channel.",
+    "alternate_names": [
+      "host chair",
+      "main chair"
+    ],
+    "ai_seed": 183258
+  },
+  "physical": {
+    "global_scale": 1.0,
+    "dimensions_x_cm": 53,
+    "dimensions_y_cm": 50,
+    "dimensions_z_cm": 86,
+    "weight_kg": 4.5,
+    "base_color_hex": "#1a1a1a",
+    "material_finish": "Textured",
+    "pattern_style": "plain canvas",
+    "age_wear_level": "Pristine",
+    "customization_markings": [
+      "channel logo on back panel"
+    ],
+    "has_physics": true,
+    "destructible": true
+  },
+  "pbr": {
+    "albedo_description": "black canvas with warm wood frame",
+    "roughness_value": "0.85",
+    "metallic_value": "0.0",
+    "normal_details": "visible canvas weave and wood grain",
+    "subsurface_scattering": false,
+    "emissive_properties": "none",
+    "anisotropy_notes": "none"
+  },
+  "type_branch": {
+    "channel_binding": "channel-one",
+    "placement_role": "main_seat",
+    "frame_material": "wood",
+    "seat_material": "canvas",
+    "back_material": "canvas",
+    "fabric_color": "black",
+    "foldable": true,
+    "name_panel": true,
+    "name_panel_text": "",
+    "branding": "channel logo on back panel",
+    "backup_count": 1
+  },
+  "ownership": {
+    "owner_char_id": "",
+    "handler_char_ids": [],
+    "home_location_id": "",
+    "allowed_location_ids": [],
+    "channel_asset": true
+  },
+  "scene": {
+    "scope": "Midground",
+    "interaction_type": "Passive",
+    "character_bindings": [],
+    "interaction_notes": "Primary seated position for host/main character during channel scenes.",
+    "spawn_location": "main stage"
+  },
+  "continuity": {
+    "last_used_episode": "",
+    "condition_current_pct": 100,
+    "is_destroyed": false
+  },
+  "state_events": [],
+  "history": {
+    "origin_era": "current",
+    "previous_owners": 0
+  },
+  "plot_utility": {
+    "narrative_importance": "channel identity anchor",
+    "fragility": "moderate"
+  },
+  "data_sheet": {
+    "status": "not_generated",
+    "required_outputs": [
+      "hero_object",
+      "front_view",
+      "side_view",
+      "back_view",
+      "material_closeup",
+      "scale_reference"
+    ],
+    "sheet_prompt_template": "",
+    "sheet_negative_prompt": "",
+    "reference_uri": "",
+    "approved_version": ""
+  },
+  "image_gen_prompt": "wood-frame director's chair with black canvas seat and back panel, foldable X-frame, channel logo on back, studio seating, photorealistic",
+  "reference_uri": "",
+  "ip_adapter_scale": 0.75
+}

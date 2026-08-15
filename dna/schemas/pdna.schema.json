@@ -1,0 +1,236 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://gemstudio.internal/dna/schemas/pdna.schema.json",
+  "title": "Prop DNA (PDNA) v2.2 — Prop Master Registry",
+  "description": "PDNA is a PROP MASTER registry, not an asset warehouse. An object becomes PDNA only if it passes the 6-question gate: (1) handled/carried by characters, (2) moves between locations, (3) changes state (damage/repair/destroy), (4) is plot-important, (5) is a channel/brand asset, (6) is a vehicle or animal. Everything else belongs in LDNA set_dressing. Refactored from ADNA: asset_name -> prop_name, asset_type -> prop_type. prop_type enum is EXACTLY ChannelAsset | HeroProp | HandProp | Electronics | Vehicle | Animal. Removed and routed elsewhere: Costume (CDNA wardrobe), Weather (LDNA climate/time_state), Decor / generic furniture / installed TVs (LDNA set_dressing). Clone prevention: metadata.core_signature must include the VARIANT TRAIT (color, size, model); metadata.variant_group groups intentional siblings.",
+  "type": "object",
+  "required": ["dna_id", "dna_type", "channel", "status", "identity_core", "physical"],
+  "additionalProperties": true,
+  "properties": {
+    "dna_id": { "type": "string", "pattern": "^PROP-[A-F0-9]{32}$", "description": "Unique prop ID: PROP- + 32 uppercase hex chars (SHA-256)." },
+    "dna_type": { "type": "string", "const": "PDNA" },
+    "channel": { "type": "string" },
+    "seed_id": { "type": "string", "pattern": "^SEED-[A-F0-9]{32}$" },
+    "status": { "type": "string", "enum": ["draft", "active", "archived", "retired", "deceased", "destroyed"] },
+    "created_at": { "$ref": "#/$defs/datetime" },
+    "updated_at": { "$ref": "#/$defs/datetime" },
+
+    "metadata": {
+      "type": "object",
+      "description": "Seed, signature, variant tracking. core_signature MUST include the variant trait so intentional variants are not flagged as clones.",
+      "properties": {
+        "base_seed": { "type": "string" },
+        "core_signature": { "type": "string", "description": "Format: prop_type|object|primary_material|secondary_material|VARIANT_TRAIT" },
+        "is_channel_asset": { "type": "boolean" },
+        "is_type_asset": { "type": "boolean" },
+        "variant_group": { "type": "string", "description": "Groups intentional siblings (e.g. two chair fabric colors)." },
+        "is_persistent": { "type": "boolean" },
+        "is_shell": { "type": "boolean" },
+        "overrides": { "type": "object" }
+      }
+    },
+
+    "identity_core": {
+      "type": "object",
+      "description": "Core identity. prop_name + prop_type required.",
+      "required": ["prop_name", "prop_type"],
+      "additionalProperties": true,
+      "properties": {
+        "prop_name": { "type": "string", "minLength": 1, "description": "Renamed from asset_name." },
+        "prop_type": { "type": "string", "enum": ["ChannelAsset", "HeroProp", "HandProp", "Electronics", "Vehicle", "Animal"], "description": "Renamed from asset_type. Costume/Weather/Decor/Media removed: Costume -> CDNA wardrobe, Weather -> LDNA climate, Decor/generic furniture/installed TVs -> LDNA set_dressing." },
+        "alternate_names": { "type": "array", "items": { "type": "string" } },
+        "one_liner": { "type": "string" },
+        "ai_seed": { "type": "integer" }
+      }
+    },
+
+    "physical": {
+      "type": "object",
+      "description": "Dimensions, appearance, physics (flat shape).",
+      "properties": {
+        "global_scale": { "type": "number" },
+        "dimensions_x_cm": { "type": "number" },
+        "dimensions_y_cm": { "type": "number" },
+        "dimensions_z_cm": { "type": "number" },
+        "weight_kg": { "type": "number" },
+        "base_color_hex": { "type": "string", "pattern": "^#?[0-9A-Fa-f]{6}$" },
+        "material_finish": { "type": "string", "enum": ["Matte", "Satin", "Glossy", "Mirror", "Transparent", "Translucent", "Textured"] },
+        "pattern_style": { "type": "string" },
+        "age_wear_level": { "type": "string", "enum": ["Pristine", "Lightly Used", "Worn", "Damaged", "Heavily Damaged"] },
+        "customization_markings": { "type": "array", "items": { "type": "string" } },
+        "has_physics": { "type": "boolean" },
+        "destructible": { "type": "boolean" }
+      }
+    },
+
+    "pbr": {
+      "type": "object",
+      "description": "PBR material values. Accepts exact floats (roughness/metallic) or legacy string forms (roughness_value/metallic_value).",
+      "properties": {
+        "albedo_description": { "type": "string" },
+        "albedo_hex": { "type": "string", "pattern": "^#?[0-9A-Fa-f]{6}$" },
+        "roughness": { "type": "number", "minimum": 0, "maximum": 1 },
+        "roughness_value": { "type": "string" },
+        "metallic": { "type": "number", "minimum": 0, "maximum": 1 },
+        "metallic_value": { "type": "string" },
+        "ior": { "type": "number", "minimum": 0 },
+        "anisotropy_angle_deg": { "type": "number" },
+        "anisotropy_direction_deg": { "type": "number" },
+        "anisotropy_notes": { "type": "string" },
+        "emissive_luminance_nits": { "type": "number" },
+        "emissive_properties": { "type": "string" },
+        "normal_details": { "type": "string" },
+        "normal_map_height_mm": { "type": "number" },
+        "subsurface_scattering": { "type": "boolean" },
+        "sss": { "type": "object", "properties": { "enabled": { "type": "boolean" }, "depth_mm": { "type": "number" }, "profile": { "type": "string" } } },
+        "clearcoat": { "type": "number", "minimum": 0, "maximum": 1 },
+        "sheen": { "type": "number", "minimum": 0, "maximum": 1 }
+      }
+    },
+
+    "type_branch": {
+      "type": "object",
+      "description": "Single branch object matching prop_type. ChannelAsset carries channel_binding/placement_role/materials/branding; HandProp/HeroProp carry prop_category/handheld/weapon fields; Vehicle and Animal carry their legacy sub-objects. Open for type-specific detail.",
+      "additionalProperties": true,
+      "properties": {
+        "channel_binding": { "type": "string" },
+        "placement_role": { "type": "string" },
+        "frame_material": { "type": "string" },
+        "seat_material": { "type": "string" },
+        "back_material": { "type": "string" },
+        "fabric_color": { "type": "string" },
+        "foldable": { "type": "boolean" },
+        "name_panel": { "type": "boolean" },
+        "name_panel_text": { "type": "string" },
+        "branding": { "type": "string" },
+        "backup_count": { "type": "integer", "minimum": 0 },
+        "prop_category": { "type": "string", "enum": ["Electronics", "Kitchenware", "Tool", "Weapon", "Document", "Food", "Drink", "Sports Equipment", "Medical", "Musical Instrument", "Luggage", "Signage", "Furniture", "Other"] },
+        "handheld": { "type": "boolean" },
+        "two_handed": { "type": "boolean" },
+        "surface_area_description": { "type": "string" },
+        "interactable_parts": { "type": "array", "items": { "type": "string" } },
+        "sound_on_interaction": { "type": "string" },
+        "is_weapon": { "type": "boolean" },
+        "weapon_type": { "type": "string", "enum": ["Bladed", "Firearm", "Blunt", "Projectile", "Chemical", "Improvised", "Other"] },
+        "safety_protocol": { "type": "string", "enum": ["Prop Only", "Visual Only", "Interactive (Gated)"] },
+        "vehicle": { "type": "object" },
+        "animal": { "$ref": "#/$defs/animal_branch" }
+      }
+    },
+
+    "ownership": {
+      "type": "object",
+      "description": "Who owns/handles the prop and where it lives. Empty string = unassigned.",
+      "properties": {
+        "owner_char_id": { "$ref": "#/$defs/char_ref_or_empty" },
+        "handler_char_ids": { "type": "array", "items": { "type": "string", "pattern": "^CHAR-[A-F0-9]{32}$" } },
+        "home_location_id": { "$ref": "#/$defs/loc_ref_or_empty" },
+        "allowed_location_ids": { "type": "array", "items": { "type": "string", "pattern": "^LOC-[A-F0-9]{32}$" } },
+        "channel_asset": { "type": "boolean" }
+      }
+    },
+
+    "scene": {
+      "type": "object",
+      "description": "How the prop appears and interacts in scenes.",
+      "properties": {
+        "scope": { "type": "string", "enum": ["Foreground", "Midground", "Background"] },
+        "interaction_type": { "type": "string", "enum": ["Static", "Passive", "Active", "Physics"] },
+        "character_bindings": { "type": "array", "items": { "type": "string", "pattern": "^CHAR-[A-F0-9]{32}$" } },
+        "interaction_notes": { "type": "string" },
+        "spawn_location": { "type": "string" }
+      }
+    },
+
+    "continuity": {
+      "type": "object",
+      "description": "Damage, wear, cross-channel tracking.",
+      "properties": {
+        "last_used_episode": { "type": "string" },
+        "last_used_date": { "$ref": "#/$defs/datetime" },
+        "condition_current_pct": { "type": "number", "minimum": 0, "maximum": 100 },
+        "durability_remaining_uses": { "type": "string" },
+        "is_destroyed": { "type": "boolean" },
+        "destroyed_in_episode": { "type": "string" },
+        "is_stale_unused_days": { "type": "number" },
+        "has_cross_channel_appearances": { "type": "boolean" },
+        "cross_channel_episodes": { "type": "array", "items": { "type": "string" } },
+        "universe_timeline_registered": { "type": "boolean" }
+      }
+    },
+
+    "state_events": {
+      "type": "array",
+      "description": "Chronological damage/wear/continuity events.",
+      "items": {
+        "type": "object",
+        "required": ["event_id", "event_time", "event_type", "state_change"],
+        "properties": {
+          "event_id": { "type": "string" },
+          "event_time": { "$ref": "#/$defs/datetime" },
+          "episode_id": { "type": "string" },
+          "scene_id": { "type": "string" },
+          "event_type": { "type": "string", "enum": ["damage", "wear", "repair", "relocate", "acquire", "destroy", "modify", "other"] },
+          "description": { "type": "string" },
+          "state_change": { "type": "string" }
+        }
+      }
+    },
+
+    "history": {
+      "type": "object",
+      "description": "Provenance.",
+      "properties": {
+        "origin_era": { "type": "string" },
+        "previous_owners": { "type": "integer", "minimum": 0 }
+      }
+    },
+
+    "plot_utility": {
+      "type": "object",
+      "description": "Narrative role.",
+      "properties": {
+        "narrative_importance": { "type": "string" },
+        "fragility": { "type": "string" }
+      }
+    },
+
+    "data_sheet": { "$ref": "#/$defs/data_sheet" },
+    "image_gen_prompt": { "type": "string" },
+    "reference_uri": { "type": "string" },
+    "ip_adapter_scale": { "type": "number", "minimum": 0, "maximum": 1 }
+  },
+
+  "$defs": {
+    "datetime": { "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}(T[0-9]{2}:[0-9]{2}(:[0-9]{2}(\\.[0-9]+)?)?(Z|[+-][0-9]{2}:[0-9]{2})?)?$" },
+    "char_ref_or_empty": { "anyOf": [ { "type": "string", "maxLength": 0 }, { "type": "string", "pattern": "^CHAR-[A-F0-9]{32}$" } ] },
+    "loc_ref_or_empty": { "anyOf": [ { "type": "string", "maxLength": 0 }, { "type": "string", "pattern": "^LOC-[A-F0-9]{32}$" } ] },
+    "data_sheet": {
+      "type": "object",
+      "description": "Shared data-sheet contract (same contract as CDNA/LDNA).",
+      "properties": {
+        "status": { "type": "string", "enum": ["not_generated", "draft", "approved"] },
+        "required_outputs": { "type": "array", "items": { "type": "string" } },
+        "sheet_prompt_template": { "type": "string" },
+        "sheet_negative_prompt": { "type": "string" },
+        "reference_uri": { "type": "string" },
+        "approved_version": { "type": "string" }
+      }
+    },
+    "animal_branch": {
+      "type": "object",
+      "properties": {
+        "species": { "type": "string" },
+        "breed_type": { "type": "string" },
+        "size_class": { "type": "string", "enum": ["Tiny", "Small", "Medium", "Large", "Giant"] },
+        "coat_pattern": { "type": "string" },
+        "coat_color_primary": { "type": "string" },
+        "coat_color_secondary": { "type": "string" },
+        "distinctive_markings": { "type": "array", "items": { "type": "string" } },
+        "temperament_baseline": { "type": "string", "enum": ["Docile", "Friendly", "Neutral", "Skittish", "Aggressive", "Unpredictable"] },
+        "vocalization_type": { "type": "string" },
+        "is_mount": { "type": "boolean" }
+      }
+    }
+  }
+}

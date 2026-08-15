@@ -1,0 +1,197 @@
+{
+  "document": {
+    "title": "The Key",
+    "genplay_id": "GP-GN-20260815-001",
+    "channel_code": "GN",
+    "channel_name": "grudge-nudges",
+    "episode_code": "GN-E001",
+    "seed_id": "SEED-7A3B2C1D4E5F67890ABCDEF123456789",
+    "logline": "A woman returns to her childhood home and finds a key that should not exist.",
+    "date": "2026-08-15",
+    "version": "1.0",
+    "locked": true
+  },
+  "creative_direction": {
+    "approved_cameras": ["ARRI Alexa 35"],
+    "approved_lenses": ["Cooke S4/i", "Laowa Probe 24mm", "Zeiss Supreme Prime"],
+    "approved_movements": ["slow tracking", "micro push in", "slow dolly in", "tracking follow", "static hold", "slow crane back"],
+    "aspect_ratio": "9:16",
+    "frame_rate": 24,
+    "color_pipeline": "ACEScg to Rec.709",
+    "visual_style": "Cinematic photorealism, subtle 35mm grain"
+  },
+  "continuity": {
+    "global_rules": [
+      "Match actor positioning across cuts.",
+      "Maintain prop continuity within a scene.",
+      "Weather and lighting must not contradict prior scenes."
+    ]
+  },
+  "cast": [
+    {
+      "dna_id": "CHAR-FA52F48A9EC776D68A09FEF43CB644C6",
+      "genplay_id": "CDNA-001",
+      "name": "Mara",
+      "appearance_order": 1,
+      "visual_identity": "30s female, guarded neutrality, precise and restrained movement. Charcoal wool coat, black knit top, silver ring on right index finger. Left cheek scar visible.",
+      "image_gen_prompt": "30s woman, guarded neutral expression, precise restrained movement, wearing charcoal wool coat over black knit top, silver ring on right index finger, visible scar on left cheek, cinematic photorealism, subtle 35mm grain"
+    },
+    {
+      "dna_id": "CHAR-00000000000000000000000000000002",
+      "genplay_id": "CDNA-002",
+      "name": "Elena",
+      "appearance_order": 2,
+      "visual_identity": "60s woman, silver-tight curls, cat-eye glasses, hands always moving. Mustard yellow cardigan, burgundy lipstick. Carries a worn leather satchel.",
+      "image_gen_prompt": "60s woman, silver tight curls, cat-eye glasses, expressive hand gestures, mustard yellow cardigan, burgundy lipstick, worn leather satchel, cinematic photorealism"
+    }
+  ],
+  "locations": [
+    {
+      "dna_id": "LOC-2BE798E5CF23FEBAACEC8A4CE864A29B",
+      "genplay_id": "LDNA-001",
+      "name": "Mara's Apartment",
+      "appearance_order": 1,
+      "spatial_rules": "Door on frame right, window on frame left. Camera axis: entry to window. Dark worn wood floors.",
+      "lighting_rules": "Cool window moonlight from camera left, warm practical table lamp. 1:4 contrast ratio.",
+      "image_gen_prompt": "dimly lit apartment interior, dark worn wood floors, sealed door on the right, rain-streaked window on the left, cool moonlight spilling from left, warm practical table lamp glow, cinematic photorealism"
+    }
+  ],
+  "assets": [
+    {
+      "dna_id": "PROP-55A5C0218065E7E9239D8F1F0D835338",
+      "genplay_id": "PDNA-001",
+      "name": "Brass Key",
+      "appearance_order": 1,
+      "physical_properties": "Aged brass, long three-tooth key, scratched burnished surface, 8cm scale. Small red thread tied through the bow.",
+      "image_gen_prompt": "macro shot of an aged brass key, long three-tooth design, scratched burnished surface, small red thread tied through the bow"
+    }
+  ],
+  "scenes": [
+    {
+      "scene_number": 1,
+      "heading": "INT. MARA'S APARTMENT - NIGHT",
+      "detail": "Establish isolation and introduce the impossible object.",
+      "characters": ["CDNA-001"],
+      "locations": ["LDNA-001"],
+      "props": [],
+      "shots": [
+        {
+          "shot_id": "GN_E001_S01_01",
+          "take": 1,
+          "date_shot": "ongeneration",
+          "required_dna": ["CDNA-001", "LDNA-001"],
+          "reference_images": ["REF-CDNA-001-HERO", "REF-LDNA-001-WIDE"],
+          "image_prompt": "Wide shot, full room with Mara occupying the right third. Mara enters from frame right and stops beside the table. Rain-streaked window in foreground, Mara in midground, sealed door in background. Cool moonlight from camera left, warm practical lamp. Cinematic photorealism, subtle 35mm grain, 9:16 aspect ratio. --no extra doors, no changing room geometry",
+          "negative": ["extra doors", "changing room geometry"],
+          "timing": { "seconds": 4.0, "frames": 96, "frame_rate": 24 },
+          "camera": [
+            "body: ARRI Alexa 35, Super 35",
+            "lens: Cooke S4/i, 32mm, T2.8",
+            "aperture: T2.8",
+            "shutter: 1/48",
+            "iso: 800",
+            "white_balance: 3200K",
+            "height: 1.2m",
+            "distance: 3.5m",
+            "focus: Mara's face"
+          ],
+          "movement": [
+            "type: slow lateral tracking",
+            "direction: right to left",
+            "stabilization: dolly stabilized"
+          ],
+          "dialogue": [],
+          "action": [
+            "Mara enters from frame right, walks slowly, stops beside the table."
+          ],
+          "continuity": { "in": "", "out": "" },
+          "video_prompt": "A slow lateral tracking shot searches the apartment as Mara enters from frame right and stops beside the table. Keep Mara, the sealed door, and the rain-streaked window spatially consistent. Cinematic photorealism, 24fps, subtle 35mm grain. --no extra doors, no changing room geometry, no camera shake"
+        },
+        {
+          "shot_id": "GN_E001_S01_02",
+          "take": 1,
+          "date_shot": "ongeneration",
+          "required_dna": ["CDNA-001", "LDNA-001", "PDNA-001"],
+          "reference_images": ["REF-CDNA-001-MEDIUM", "REF-LDNA-001-TABLE", "REF-PDNA-001-MACRO"],
+          "image_prompt": "Close-up on the brass key lying on the table. Rain streaks visible through the window behind. Cool moonlight catches the tarnished surface. Key in focus, background softly blurred. Cinematic photorealism, subtle 35mm grain, 9:16, macro-level detail. --no Mara's hand, no extra objects on table",
+          "negative": ["Mara's hand", "extra objects on table"],
+          "timing": { "seconds": 3.0, "frames": 72, "frame_rate": 24 },
+          "camera": [
+            "body: ARRI Alexa 35, Super 35",
+            "lens: Laowa Probe 24mm, T2.8",
+            "aperture: T2.8",
+            "shutter: 1/48",
+            "iso: 1600",
+            "white_balance: 3200K",
+            "height: 0.8m",
+            "distance: 0.5m",
+            "focus: key surface"
+          ],
+          "movement": [
+            "type: static hold",
+            "direction: none",
+            "stabilization: tripod"
+          ],
+          "dialogue": [],
+          "action": [
+            "Static close-up on the brass key resting on the table.",
+            "Rain streaks slide past the window in background."
+          ],
+          "continuity": { "in": "", "out": "" },
+          "video_prompt": "Static close-up on the brass key resting on the table as rain streaks slide past the window in the background. Focus on the tarnished brass surface catching moonlight. Cinematic photorealism, 24fps, 9:16, subtle 35mm grain, macro-level detail. --no hand, no extra objects"
+        }
+      ]
+    },
+    {
+      "scene_number": 2,
+      "heading": "INT. MARA'S APARTMENT / HALLWAY - CONTINUOUS",
+      "detail": "Mara discovers the key unlocks a door that should not exist.",
+      "characters": ["CDNA-001", "CDNA-002"],
+      "locations": ["LDNA-001"],
+      "props": ["PDNA-001"],
+      "shots": [
+        {
+          "shot_id": "GN_E001_S02_01",
+          "take": 1,
+          "date_shot": "ongeneration",
+          "required_dna": ["CDNA-001", "CDNA-002", "LDNA-001", "PDNA-001"],
+          "reference_images": ["REF-CDNA-001-MEDIUM", "REF-CDNA-002-FULL", "REF-LDNA-001-HALLWAY"],
+          "image_prompt": "Mara and Elena stand before the sealed door. Elena holds the brass key up to the moonlight. The door seam glows faintly. Two-shot, medium framing. Cool moonlight, warm practical lamp. Cinematic photorealism, subtle 35mm grain, 9:16. --no extra characters, no visible hallway beyond door",
+          "negative": ["extra characters", "visible hallway beyond door"],
+          "timing": { "seconds": 5.0, "frames": 120, "frame_rate": 24 },
+          "camera": [
+            "body: ARRI Alexa 35, Super 35",
+            "lens: Cooke S4/i, 50mm, T2.8",
+            "aperture: T2.8",
+            "shutter: 1/48",
+            "iso: 800",
+            "white_balance: 3200K",
+            "height: 1.4m",
+            "distance: 4.0m",
+            "focus: both faces"
+          ],
+          "movement": [
+            "type: micro push in",
+            "direction: forward",
+            "stabilization: gimbal"
+          ],
+          "dialogue": [
+            "ELENA: (barely audible) You still have it.",
+            "MARA: It was never supposed to be here."
+          ],
+          "action": [
+            "Elena steps into frame from the left, holding the key up.",
+            "Mara's hand tightens on the table edge.",
+            "The key catches moonlight, revealing its three teeth."
+          ],
+          "continuity": { "in": "Key on table, Mara's hand tense", "out": "Elena enters, key raised" },
+          "video_prompt": "Two-shot of Mara and Elena before the sealed door. Elena holds the brass key up to the moonlight; the door seam glows faintly. Micro push-in as Elena speaks. Keep spatial consistency with Scene 1's room layout. Cinematic photorealism, 24fps, 9:16, subtle 35mm grain. --no extra characters, no visible hallway beyond door"
+        }
+      ]
+    }
+  ],
+  "edit_plan": {
+    "storage_directions": "Store all generated takes in the channel bucket under /grudge-nudges/GN-E001/takes/. Keep inline shots sequential. Do not generate B-roll filler until primary continuity is locked. Re-prompts get take 02 with the same global shot number."
+  },
+  "delivery": {}
+}

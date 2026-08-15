@@ -1,0 +1,628 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://gemstudio.internal/dna/schemas/ldna.schema.json",
+  "title": "Location DNA (LDNA) v2.1 — Exhaustive-but-Trimmed, Visually Deterministic",
+  "description": "Master record for a persistent location. Every block belongs to one of three classes documented in its description: FACT (what physically exists), RELATIONSHIP (how things relate spatially), RENDER (how the AI should depict the facts). Classes are documentation only — no class field in the data. Boundary rules: (1) recurring/plot-important objects are PDNA records referenced in set_dressing.prop_bindings, never described inline; (2) named/recurring people are CDNA records referenced in character_connections/casting_profile — human_presence describes ONLY anonymous crowd/environmental people; (3) full cinematography belongs to future Film DNA — default_view and rendering_constraints hold only the minimum needed to render the Location Data Sheet. Naming note: this schema's atmosphere block means MOOD; physical air effects (haze/fog/mist/dust) live in climate.",
+  "type": "object",
+  "required": ["dna_id", "dna_type", "channel", "status", "identity_core", "spatial", "sensory", "atmosphere"],
+  "additionalProperties": true,
+  "properties": {
+    "dna_id": { "type": "string", "pattern": "^LOC-[A-F0-9]{32}$", "description": "Unique location ID: LOC- + 32 uppercase hex chars (SHA-256)." },
+    "dna_type": { "type": "string", "const": "LDNA" },
+    "channel": { "type": "string" },
+    "seed_id": { "type": "string", "pattern": "^SEED-[A-F0-9]{32}$" },
+    "status": { "type": "string", "enum": ["draft", "active", "archived", "retired", "deceased", "destroyed"] },
+    "created_at": { "$ref": "#/$defs/datetime" },
+    "updated_at": { "$ref": "#/$defs/datetime" },
+
+    "metadata": {
+      "type": "object",
+      "description": "FACT. Seed, signature metadata, role flags.",
+      "properties": {
+        "base_seed": { "type": "string" },
+        "core_signature": { "type": "string" },
+        "is_persistent": { "type": "boolean" },
+        "is_shell": { "type": "boolean" },
+        "overrides": { "type": "object" }
+      }
+    },
+
+    "identity_core": {
+      "type": "object",
+      "description": "FACT. Core identity. Required: common_name, type, city, zoning, one_liner.",
+      "required": ["common_name", "type", "city", "zoning", "one_liner"],
+      "additionalProperties": true,
+      "properties": {
+        "common_name": { "type": "string", "minLength": 1 },
+        "type": { "type": "string" },
+        "city": { "type": "string" },
+        "zoning": { "type": "string", "enum": ["Commercial", "Residential", "Municipal"] },
+        "one_liner": { "type": "string", "minLength": 1 },
+        "location_subtype": { "type": "string" },
+        "cultural_style": { "type": "string" },
+        "architectural_style": { "type": "string" },
+        "development_pattern": { "type": "string" },
+        "settlement_scale": { "type": "string" },
+        "density": { "type": "string" },
+        "function": { "type": "string" },
+        "activity_level": { "type": "string" },
+        "gps_coordinates": { "type": "string" },
+        "fictional_address": { "type": "string" },
+        "neighborhood": { "type": "string" },
+        "country": { "type": "string" },
+        "time_zone": { "type": "string" },
+        "altitude_m": { "type": "number" },
+        "climate_zone": { "type": "string", "enum": ["Arid", "Continental", "Tropical", "Mediterranean", "Polar", "Temperate"] },
+        "walkability_score": { "type": "number", "minimum": 1, "maximum": 10 }
+      }
+    },
+
+    "geography": {
+      "type": "object",
+      "description": "FACT. Regional geography of the location.",
+      "properties": {
+        "region_type": { "type": "string" },
+        "terrain": { "type": "string" },
+        "elevation_character": { "type": "string" },
+        "water_proximity": { "type": "string" },
+        "water_type": { "type": "string" },
+        "landform": { "type": "string" },
+        "geographic_openness": { "type": "string" },
+        "natural_surroundings": { "type": "string" },
+        "urban_context": { "type": "string" },
+        "regional_character": { "type": "string" }
+      }
+    },
+
+    "climate": {
+      "type": "object",
+      "description": "FACT. Weather, season, and physical air effects. Luna's 'atmosphere' air effects (haze/fog/mist/dust/smoke) live here, NOT in the atmosphere (mood) block.",
+      "properties": {
+        "climate": { "type": "string" },
+        "season": { "type": "string" },
+        "temperature": { "type": "string" },
+        "humidity": { "type": "string" },
+        "precipitation": { "type": "string" },
+        "weather": { "type": "string" },
+        "wind": { "type": "string" },
+        "air_character": { "type": "string" },
+        "ground_condition": { "type": "string" },
+        "haze": { "type": "string" },
+        "fog": { "type": "string" },
+        "mist": { "type": "string" },
+        "dust": { "type": "string" },
+        "smoke": { "type": "string" },
+        "air_visibility": { "type": "string" },
+        "distance_visibility": { "type": "string" }
+      }
+    },
+
+    "time_state": {
+      "type": "object",
+      "description": "FACT. Time of day, light state, period. Supersedes the retired time_windows + seasonal_state blocks.",
+      "properties": {
+        "time_of_day": { "type": "string" },
+        "sun_position": { "type": "string" },
+        "sun_direction": { "type": "string" },
+        "daylight_level": { "type": "string" },
+        "twilight_state": { "type": "string" },
+        "night_state": { "type": "string" },
+        "historical_period": { "type": "string" },
+        "currentness": { "type": "string" },
+        "seasonal_state": { "type": "string" }
+      }
+    },
+
+    "spatial": {
+      "type": "object",
+      "description": "FACT + RELATIONSHIP. Merged spatial structure: physical dimensions/access plus layout, depth layers, sightlines, circulation.",
+      "required": ["is_indoor"],
+      "additionalProperties": true,
+      "properties": {
+        "is_indoor": { "type": "boolean" },
+        "is_outdoor": { "type": "boolean" },
+        "area_sq_m": { "type": "number" },
+        "floor_count": { "type": "number" },
+        "ceiling_height_m": { "type": "number" },
+        "entrance_type": { "type": "string" },
+        "parking_availability": { "type": "string" },
+        "spatial_layout": { "type": "string" },
+        "orientation": { "type": "string" },
+        "symmetry": { "type": "string" },
+        "organization": { "type": "string" },
+        "scale": { "type": "string" },
+        "enclosure": { "type": "string" },
+        "openness": { "type": "string" },
+        "foreground_depth": { "type": "string" },
+        "midground_depth": { "type": "string" },
+        "background_depth": { "type": "string" },
+        "visual_layers": { "type": "string" },
+        "focal_point": { "type": "string" },
+        "dominant_axis": { "type": "string" },
+        "sightline": { "type": "string" },
+        "perspective": { "type": "string" },
+        "circulation_pattern": { "type": "string" },
+        "hierarchy": { "type": "string" },
+        "negative_space": { "type": "string" }
+      }
+    },
+
+    "ground_surface": {
+      "type": "object",
+      "description": "FACT. Ground/floor surface detail.",
+      "properties": {
+        "ground_type": { "type": "string" },
+        "surface_material": { "type": "string" },
+        "surface_pattern": { "type": "string" },
+        "surface_condition": { "type": "string" },
+        "surface_age": { "type": "string" },
+        "surface_texture": { "type": "string" },
+        "surface_moisture": { "type": "string" },
+        "grade": { "type": "string" },
+        "drainage": { "type": "string" },
+        "vegetation_intrusion": { "type": "string" }
+      }
+    },
+
+    "architecture": {
+      "type": "object",
+      "description": "FACT. Built-environment structure (conditional: meaningful for built environments). Open — zoning/type branch detail allowed.",
+      "properties": {
+        "building_count": { "type": "string" },
+        "building_density": { "type": "string" },
+        "building_height": { "type": "string" },
+        "building_form": { "type": "string" },
+        "roof_style": { "type": "string" },
+        "roof_material": { "type": "string" },
+        "facade_material": { "type": "string" },
+        "wall_condition": { "type": "string" },
+        "window_style": { "type": "string" },
+        "door_style": { "type": "string" },
+        "balcony_presence": { "type": "string" },
+        "balcony_style": { "type": "string" },
+        "ornamentation": { "type": "string" },
+        "architectural_uniformity": { "type": "string" },
+        "building_spacing": { "type": "string" },
+        "setback": { "type": "string" },
+        "foundation_visibility": { "type": "string" },
+        "structural_age": { "type": "string" },
+        "renovation_level": { "type": "string" }
+      }
+    },
+
+    "infrastructure": {
+      "type": "object",
+      "description": "FACT. Roads, utilities, street infrastructure.",
+      "properties": {
+        "road_type": { "type": "string" },
+        "road_width": { "type": "string" },
+        "road_condition": { "type": "string" },
+        "sidewalk_type": { "type": "string" },
+        "curb_type": { "type": "string" },
+        "street_lighting": { "type": "string" },
+        "utility_lines": { "type": "string" },
+        "utility_poles": { "type": "string" },
+        "traffic_control": { "type": "string" },
+        "signage": { "type": "string" },
+        "street_sign_style": { "type": "string" },
+        "parking": { "type": "string" },
+        "barriers": { "type": "string" },
+        "railings": { "type": "string" },
+        "public_fixtures": { "type": "string" },
+        "transit_infrastructure": { "type": "string" }
+      }
+    },
+
+    "vegetation": {
+      "type": "object",
+      "description": "FACT. Plants, trees, cultivation.",
+      "properties": {
+        "vegetation_density": { "type": "string" },
+        "vegetation_type": { "type": "string" },
+        "tree_presence": { "type": "string" },
+        "tree_species_character": { "type": "string" },
+        "tree_size": { "type": "string" },
+        "tree_spacing": { "type": "string" },
+        "shrub_presence": { "type": "string" },
+        "grass_presence": { "type": "string" },
+        "flower_presence": { "type": "string" },
+        "groundcover": { "type": "string" },
+        "vine_presence": { "type": "string" },
+        "canopy_density": { "type": "string" },
+        "vegetation_condition": { "type": "string" },
+        "cultivation_level": { "type": "string" },
+        "seasonal_foliage": { "type": "string" }
+      }
+    },
+
+    "natural_features": {
+      "type": "object",
+      "description": "FACT. Rocks, soil, water bodies, natural landmarks.",
+      "properties": {
+        "rock_presence": { "type": "string" },
+        "rock_type": { "type": "string" },
+        "cliff_presence": { "type": "string" },
+        "soil_type": { "type": "string" },
+        "sand_presence": { "type": "string" },
+        "water_presence": { "type": "string" },
+        "water_surface": { "type": "string" },
+        "water_color": { "type": "string" },
+        "shoreline_type": { "type": "string" },
+        "natural_landmark": { "type": "string" },
+        "natural_feature_scale": { "type": "string" }
+      }
+    },
+
+    "set_dressing": {
+      "type": "object",
+      "description": "FACT. Generic, non-recurring set dressing stays as descriptors. BOUNDARY RULE: recurring or plot-important objects are PDNA records referenced in prop_bindings — never described inline.",
+      "properties": {
+        "street_furniture": { "type": "string" },
+        "vehicles": { "type": "string" },
+        "vehicle_density": { "type": "string" },
+        "signs": { "type": "string" },
+        "awnings": { "type": "string" },
+        "containers": { "type": "string" },
+        "sculptures": { "type": "string" },
+        "fences": { "type": "string" },
+        "gates": { "type": "string" },
+        "trash_containers": { "type": "string" },
+        "construction_elements": { "type": "string" },
+        "market_elements": { "type": "string" },
+        "commercial_displays": { "type": "string" },
+        "prop_bindings": {
+          "type": "array",
+          "description": "PROP- ids of recurring/plot-important objects physically present here.",
+          "items": { "type": "string", "pattern": "^PROP-[A-F0-9]{32}$" }
+        }
+      }
+    },
+
+    "human_presence": {
+      "type": "object",
+      "description": "FACT. Anonymous crowd/environmental people ONLY. BOUNDARY RULE: named/recurring people are CDNA records in character_connections/casting_profile, never described here.",
+      "properties": {
+        "population_presence": { "type": "string" },
+        "crowd_density": { "type": "string" },
+        "pedestrian_density": { "type": "string" },
+        "activity": { "type": "string" },
+        "social_activity": { "type": "string" },
+        "occupation_activity": { "type": "string" },
+        "movement_level": { "type": "string" },
+        "visibility_of_people": { "type": "string" },
+        "clothing_character": { "type": "string" },
+        "group_distribution": { "type": "string" }
+      }
+    },
+
+    "casting_profile": {
+      "type": "object",
+      "description": "FACT. Feeds NPC casting. Named staff are CDNA ids in character_connections.staff_char_ids; expected_roles drives anonymous role generation.",
+      "properties": {
+        "expected_roles": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["role"],
+            "properties": {
+              "role": { "type": "string" },
+              "minimum_count": { "type": "integer", "minimum": 0 },
+              "maximum_count": { "type": "integer", "minimum": 0 },
+              "recurring_potential": { "type": "boolean" },
+              "create_if_missing": { "type": "boolean" },
+              "notes": { "type": "string" }
+            }
+          }
+        },
+        "crowd_density_default": { "type": "string", "enum": ["Deserted", "Sparse", "Moderate", "Crowded", "Packed"] },
+        "time_based_rules": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+
+    "materials": {
+      "type": "object",
+      "description": "FACT. Dominant materials of the location.",
+      "properties": {
+        "primary_material": { "type": "string" },
+        "secondary_material": { "type": "string" },
+        "tertiary_material": { "type": "string" },
+        "material_age": { "type": "string" },
+        "material_finish": { "type": "string" },
+        "material_texture": { "type": "string" },
+        "material_uniformity": { "type": "string" },
+        "material_density": { "type": "string" }
+      }
+    },
+
+    "color": {
+      "type": "object",
+      "description": "FACT. Palette of the location.",
+      "properties": {
+        "dominant_color": { "type": "string" },
+        "secondary_color": { "type": "string" },
+        "accent_color": { "type": "string" },
+        "color_temperature": { "type": "string" },
+        "color_saturation": { "type": "string" },
+        "color_contrast": { "type": "string" },
+        "material_color_variation": { "type": "string" },
+        "natural_color_intensity": { "type": "string" },
+        "overall_palette": { "type": "string" }
+      }
+    },
+
+    "lighting": {
+      "type": "object",
+      "description": "FACT/RENDER. Full lighting detail (sensory.lighting_quality remains the required anchor).",
+      "properties": {
+        "lighting_source": { "type": "string" },
+        "lighting_direction": { "type": "string" },
+        "lighting_intensity": { "type": "string" },
+        "lighting_quality": { "type": "string", "enum": ["Harsh Fluorescent", "Warm Incandescent", "Cool LED", "Natural Daylight", "Dim/Atmospheric", "Dark/Near-black"] },
+        "shadow_strength": { "type": "string" },
+        "shadow_direction": { "type": "string" },
+        "shadow_length": { "type": "string" },
+        "ambient_light": { "type": "string" },
+        "artificial_light": { "type": "string" },
+        "light_color": { "type": "string" },
+        "highlight_level": { "type": "string" },
+        "contrast_level": { "type": "string" }
+      }
+    },
+
+    "sensory": {
+      "type": "object",
+      "description": "FACT. Required anchors: lighting_quality, ambient_sound_level, primary_smell. Overlap handled by lighting/materials is trimmed. Sound-implied visual cues added.",
+      "required": ["lighting_quality", "ambient_sound_level", "primary_smell"],
+      "additionalProperties": true,
+      "properties": {
+        "lighting_quality": { "type": "string", "enum": ["Harsh Fluorescent", "Warm Incandescent", "Cool LED", "Natural Daylight", "Dim/Atmospheric", "Dark/Near-black"] },
+        "ambient_sound_level": { "type": "string", "enum": ["Silent", "Quiet", "Moderate", "Loud", "Deafening"] },
+        "primary_smell": { "type": "string" },
+        "primary_ambient_sound": { "type": "string" },
+        "acoustic_signature": { "type": "string" },
+        "smell_intensity": { "type": "string", "enum": ["Faint", "Moderate", "Strong", "Overpowering"] },
+        "temperature_regulation": { "type": "string" },
+        "floor_feel": { "type": "string" },
+        "air_movement": { "type": "string", "enum": ["Still", "Light Breeze", "Drafty", "Strong Draft", "Windy"] },
+        "traffic_activity": { "type": "string" },
+        "water_activity": { "type": "string" },
+        "wind_effect": { "type": "string" },
+        "machinery_activity": { "type": "string" },
+        "animal_presence": { "type": "string" }
+      }
+    },
+
+    "atmosphere": {
+      "type": "object",
+      "description": "RENDER (mood). Baseline mood — NOT physical air effects (those live in climate). Required: baseline_mood.",
+      "required": ["baseline_mood"],
+      "additionalProperties": true,
+      "properties": {
+        "baseline_mood": { "type": "string", "enum": ["Electric", "Melancholic", "Warm", "Tense", "Sterile", "Chaotic", "Nostalgic"] },
+        "comfort_level": { "type": "string", "enum": ["Inviting", "Neutral", "Uncomfortable", "Hostile"] },
+        "isolation_factor": { "type": "string", "enum": ["Connected (street visible)", "Semi-isolated", "Fully isolated", "Claustrophobic"] },
+        "background_activity": { "type": "string", "enum": ["None", "Occasional", "Continuous", "Hectic"] },
+        "emotional_trigger_notes": { "type": "string" },
+        "visual_mood": { "type": "string" },
+        "visual_energy": { "type": "string" },
+        "visual_tension": { "type": "string" },
+        "visual_drama": { "type": "string" },
+        "visual_character": { "type": "string" },
+        "visual_realism": { "type": "string" }
+      }
+    },
+
+    "condition_state": {
+      "type": "object",
+      "description": "FACT. Folds the retired operational_state, occupancy_state, decay_state_machine blocks plus state events.",
+      "properties": {
+        "decay_state": { "type": "string", "enum": ["Pristine", "Worn", "Vandalized", "Crumbling", "Ruin"] },
+        "operational_status": { "type": "string", "enum": ["Fully Operational", "Short-staffed", "After Hours", "Emergency", "Renovation", "Seasonal Closure", "Permanently Closed"] },
+        "occupancy_state": { "type": "string", "enum": ["Deserted (0-2)", "Sparse (3-10)", "Moderate (10-30)", "Crowded (30-100)", "Packed (100+)"] },
+        "structural_integrity_pct": { "type": "number", "minimum": 0, "maximum": 100 },
+        "overall_condition": { "type": "string" },
+        "weathering": { "type": "string" },
+        "wear": { "type": "string" },
+        "damage": { "type": "string" },
+        "restoration": { "type": "string" },
+        "cleanliness": { "type": "string" },
+        "patina": { "type": "string" },
+        "construction_freshness": { "type": "string" },
+        "event_state": { "type": "string" },
+        "construction_state": { "type": "string" },
+        "seasonal_event": { "type": "string" },
+        "weather_event": { "type": "string" },
+        "temporary_objects": { "type": "string" },
+        "temporary_population_change": { "type": "string" }
+      }
+    },
+
+    "signature_features": {
+      "type": "object",
+      "description": "FACT. Anti-generic anchors: the features that make this location recognizable.",
+      "properties": {
+        "landmark": { "type": "string" },
+        "signature_structure": { "type": "string" },
+        "signature_material": { "type": "string" },
+        "signature_color": { "type": "string" },
+        "signature_feature": { "type": "string" },
+        "unique_pattern": { "type": "string" },
+        "recognition_feature": { "type": "string" }
+      }
+    },
+
+    "spatial_relationships": {
+      "type": "object",
+      "description": "RELATIONSHIP. How elements relate spatially.",
+      "properties": {
+        "building_to_road_relationship": { "type": "string" },
+        "building_to_building_relationship": { "type": "string" },
+        "vegetation_to_building_relationship": { "type": "string" },
+        "water_to_land_relationship": { "type": "string" },
+        "street_to_horizon_relationship": { "type": "string" },
+        "landmark_to_scene_relationship": { "type": "string" },
+        "foreground_to_background_relationship": { "type": "string" }
+      }
+    },
+
+    "worldbuilding": {
+      "type": "object",
+      "description": "FACT. Reality and setting context.",
+      "properties": {
+        "reality_status": { "type": "string" },
+        "world_type": { "type": "string" },
+        "technology_level": { "type": "string" },
+        "civilization_level": { "type": "string" },
+        "fantasy_level": { "type": "string" },
+        "historical_accuracy": { "type": "string" },
+        "cultural_inspiration": { "type": "string" },
+        "design_language": { "type": "string" }
+      }
+    },
+
+    "default_view": {
+      "type": "object",
+      "description": "RENDER. FUTURE-FDNA. Minimum needed to render the Location Data Sheet — full cinematography belongs to Film DNA.",
+      "properties": {
+        "camera_position": { "type": "string" },
+        "camera_height": { "type": "string" },
+        "camera_distance": { "type": "string" },
+        "camera_angle": { "type": "string" },
+        "lens_type": { "type": "string" },
+        "focal_length_character": { "type": "string" },
+        "depth_of_field": { "type": "string" },
+        "focus_point": { "type": "string" },
+        "framing": { "type": "string" },
+        "composition": { "type": "string" },
+        "horizon_position": { "type": "string" }
+      }
+    },
+
+    "exclusions": {
+      "type": "object",
+      "description": "RENDER. Feeds negative_prompt. Each field is an array of strings.",
+      "properties": {
+        "excluded_structures": { "type": "array", "items": { "type": "string" } },
+        "excluded_materials": { "type": "array", "items": { "type": "string" } },
+        "excluded_colors": { "type": "array", "items": { "type": "string" } },
+        "excluded_objects": { "type": "array", "items": { "type": "string" } },
+        "excluded_architecture": { "type": "array", "items": { "type": "string" } },
+        "excluded_weather": { "type": "array", "items": { "type": "string" } },
+        "excluded_activity": { "type": "array", "items": { "type": "string" } },
+        "excluded_visual_styles": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+
+    "rendering_constraints": {
+      "type": "object",
+      "description": "RENDER. FUTURE-FDNA. Minimum constraints for the Location Data Sheet — full pipeline constraints belong to Film DNA.",
+      "properties": {
+        "render_style": { "type": "string" },
+        "detail_level": { "type": "string" },
+        "realism_level": { "type": "string" },
+        "stylization_level": { "type": "string" },
+        "image_quality": { "type": "string" }
+      }
+    },
+
+    "core_signature": {
+      "type": "object",
+      "description": "FACT. 5-trait clone-prevention signature. Now optional: zoning and baseline_mood are anchored in identity_core and atmosphere; this block mirrors them for hashing.",
+      "additionalProperties": true,
+      "properties": {
+        "zoning": { "type": "string", "enum": ["Commercial", "Residential", "Municipal"] },
+        "architecture_era": { "type": "string", "enum": ["Pre-war", "Brutalist", "Modern", "Neo-classical", "Industrial", "Mid-century", "Ultra-modern"] },
+        "socioeconomic_tier": { "type": "string", "enum": ["High-end", "Middle-class", "Working-class", "Abandoned", "Gentrifying"] },
+        "baseline_mood": { "type": "string", "enum": ["Electric", "Melancholic", "Warm", "Tense", "Sterile", "Chaotic", "Nostalgic"] },
+        "dominant_palette": { "type": "string", "enum": ["Neon/Cyberpunk", "Sepia/Warm", "Cool/Blue", "Desaturated", "High Contrast", "Pastel/Soft"] },
+        "signature_5_trait": { "type": "string" },
+        "core_signature_hash": { "type": "string" }
+      }
+    },
+
+    "character_connections": {
+      "type": "object",
+      "description": "FACT. Named/recurring people as CDNA references (boundary rule).",
+      "properties": {
+        "associated_characters": { "type": "array", "items": { "type": "object" } },
+        "owner_char_id": { "type": "string", "pattern": "^CHAR-[A-F0-9]{32}$" },
+        "manager_char_id": { "type": "string", "pattern": "^CHAR-[A-F0-9]{32}$" },
+        "regular_patrons": { "type": "array", "items": { "type": "string" } },
+        "staff_char_ids": { "type": "array", "items": { "type": "string", "pattern": "^CHAR-[A-F0-9]{32}$" } },
+        "notable_events_hosted": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+
+    "secret_layers": {
+      "type": "object",
+      "description": "FACT. Hidden spaces and lore (legacy section 13).",
+      "properties": {
+        "has_hidden_spaces": { "type": "boolean" },
+        "hidden_spaces_detail": { "type": "string" },
+        "hidden_object_stashes": { "type": "array", "items": { "type": "string" } },
+        "concealed_entrances": { "type": "array", "items": { "type": "string" } },
+        "reputation_rumor": { "type": "string" },
+        "urban_legend_status": { "type": "string", "enum": ["None", "Local Story", "Widely Known", "Documented", "Viral"] },
+        "is_crime_scene_past": { "type": "boolean" },
+        "crime_scene_detail": { "type": "string" }
+      }
+    },
+
+    "plot_utility": {
+      "type": "object",
+      "description": "FACT. Narrative role (legacy section 15).",
+      "properties": {
+        "primary_narrative_role": { "type": "string", "enum": ["Setting Only", "Plot Catalyst", "Character Hub", "Climax Location", "Transition/Pass-through", "Background Color"] },
+        "agency_level": { "type": "string" },
+        "is_critical_to_plot": { "type": "boolean" },
+        "critical_threads": { "type": "array", "items": { "type": "string" } },
+        "destruction_probability": { "type": "string", "enum": ["None", "Low", "Medium", "High", "Certain"] },
+        "destruction_trigger_condition": { "type": "string" },
+        "reuse_potential": { "type": "string", "enum": ["One-off", "Occasional", "Recurring", "Cross-channel"] }
+      }
+    },
+
+    "history": {
+      "type": "object",
+      "description": "FACT. Appearance and event history.",
+      "properties": {
+        "first_appearance": { "type": "string" },
+        "used_in_episodes": { "type": "array", "items": { "type": "string" } },
+        "notable_events": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+
+    "continuity_flags": {
+      "type": "object",
+      "description": "FACT. Stale/closure/cross-channel tracking (unchanged continuity group).",
+      "properties": {
+        "last_used_episode": { "type": "string" },
+        "last_used_date": { "$ref": "#/$defs/datetime" },
+        "is_stale_unused_days": { "type": "number" },
+        "renovation_scheduled": { "type": "boolean" },
+        "permanent_closure_flag": { "type": "boolean" },
+        "has_cross_channel_appearances": { "type": "boolean" },
+        "cross_channel_episodes": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+
+    "reference_uri": { "type": "string", "description": "Canonical reference URI for this location's approved visuals." },
+    "data_sheet": { "$ref": "#/$defs/data_sheet" },
+    "image_gen_prompt": { "type": "string", "description": "FACT/RENDER bridge: full prompt for Location Data Sheet generation." }
+  },
+  "$defs": {
+    "datetime": { "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}(T[0-9]{2}:[0-9]{2}(:[0-9]{2}(\\.[0-9]+)?)?(Z|[+-][0-9]{2}:[0-9]{2})?)?$" },
+    "data_sheet": {
+      "type": "object",
+      "description": "Shared data-sheet contract (same contract as CDNA/PDNA).",
+      "properties": {
+        "status": { "type": "string", "enum": ["not_generated", "draft", "approved"] },
+        "required_outputs": { "type": "array", "items": { "type": "string" } },
+        "sheet_prompt_template": { "type": "string" },
+        "sheet_negative_prompt": { "type": "string" },
+        "reference_uri": { "type": "string" },
+        "approved_version": { "type": "string" }
+      }
+    }
+  }
+}
