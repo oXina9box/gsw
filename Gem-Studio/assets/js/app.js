@@ -41,12 +41,6 @@ function load() { try { return JSON.parse(localStorage.getItem(LS)) || seed(); }
 let db = load();
 const save = () => localStorage.setItem(LS, JSON.stringify(db));
 
-/* === dashboard entry (studio shell) — guarded: only boots where #app exists === */
-const root = document.getElementById('app');
-if (root) {
-  addEventListener('hashchange', render);
-  render();
-}
 
 function render() {
   const [, v, id] = location.hash.split('/');
@@ -58,9 +52,8 @@ function render() {
     if (confirm('Reset demo data?')) { localStorage.removeItem(LS); db = seed(); save(); render(); }
   });
 }
-
-const pipe = s => `<div class="pipe">${DEPTS.map((_, i) => `<i class="${i < s ? 'done' : i === s ? 'now' : ''}"></i>`).join('')}</div>`;
-const agentCount = () => db.departments.reduce((n, d) => n + d.lanes.reduce((m, l) => m + l.agents.length, 0), 0);
+function pipe(s) { return `<div class="pipe">${DEPTS.map((_, i) => `<i class="${i < s ? 'done' : i === s ? 'now' : ''}"></i>`).join('')}</div>`; }
+function agentCount() { return db.departments.reduce((n, d) => n + d.lanes.reduce((m, l) => m + l.agents.length, 0), 0); }
 
 function studioView() {
   const act = db.productions.filter(p => p.step < DEPTS.length);
@@ -209,6 +202,12 @@ function bindAdd() {
       save(); render();
     });
   }));
+}
+/* === dashboard entry (studio shell) — boots after all functions defined === */
+const root = document.getElementById('app');
+if (root) {
+  addEventListener('hashchange', render);
+  render();
 }
 
 
