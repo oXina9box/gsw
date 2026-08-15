@@ -1,0 +1,11 @@
+# File-manager / tool artifacts — regenerable, never version these
+.directory
+.hallmark/
+.DS_Store
+
+# Python bytecode caches (production dirs are read-only; keep caches out of the tree)
+__pycache__/
+*.py[cod]
+
+# Node (managed per-project when needed)
+node_modules/
