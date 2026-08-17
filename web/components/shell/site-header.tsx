@@ -14,8 +14,8 @@ export async function SiteHeader() {
     <Link className="wordmark" href="/"><span className="wordmark-mark">✦</span>GEM STUDIO</Link>
     <nav className="main-nav" id="main-nav" aria-label="Primary navigation">
       <Link href="/#studio">The studio</Link><Link href="/#system">The system</Link><Link href="/#social">Social workshop</Link><Link href="/core-values">Core values</Link>
-      {user ? <><Link href="/app">Dashboard</Link><Link href="/app/builder">Builder</Link></> : null}
+      {user ? <><Link href="/app">Dashboard</Link><Link href="/app/builder">Builder</Link><Link href="/app/dna">DNA</Link><Link href="/app/genplay">GenPlay</Link></> : null}
     </nav>
-    <div className="header-actions"><AuthActions userEmail={user?.email} /><button className="menu-toggle" type="button" aria-controls="main-nav" aria-expanded="false" aria-label="Open navigation"><span></span><span></span></button></div>
+    <div className="header-actions"><AuthActions authenticated={Boolean(user)} userEmail={user?.email} /><button className="menu-toggle" type="button" aria-controls="main-nav" aria-expanded="false" aria-label="Open navigation"><span></span><span></span></button></div>
   </header>;
 }

@@ -15,10 +15,10 @@ npm run build
 npm run dev
 ```
 
-Apply `../supabase/migrations/0001_initial.sql` to a development Supabase project before testing account creation. Configure the Supabase site URL, email confirmation redirect, password reset redirect, and production SMTP before launch.
+Apply all files in `../supabase/migrations/` to a development Supabase project before testing account creation. Deploy `../supabase/functions/delete-account/` and configure its server-only secret. Configure the Supabase site URL, email confirmation redirect, password reset redirect, Storage policies, and production SMTP before launch.
 
 Never add a Supabase secret/service-role key to browser code or Git.
 
 ## Current implementation boundary
 
-This is the first future-product slice. It intentionally does not import demo records or use localStorage. DNA/GenPlay importers and the remaining authenticated product CRUD are separate migration phases.
+The current slice includes authenticated workspace channel/production creation, production stage events, a persisted departments/lanes/agents builder, DNA/GenPlay inventories, private asset metadata boundaries, and account deletion through an Edge Function. It intentionally does not import demo records or use localStorage. Source-data importers, uploads/generation providers, billing, and final legal approval remain deployment-specific work.

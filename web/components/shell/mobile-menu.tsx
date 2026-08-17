@@ -9,7 +9,7 @@ export function MobileMenuController() {
     if (!button || !nav) return;
     const toggle = () => { const open = nav.classList.toggle("is-open"); button.setAttribute("aria-expanded", String(open)); button.setAttribute("aria-label", open ? "Close navigation" : "Open navigation"); };
     button.addEventListener("click", toggle);
-    nav.querySelectorAll("a").forEach((link) => link.addEventListener("click", () => nav.classList.remove("is-open")));
+    nav.querySelectorAll("a").forEach((link) => link.addEventListener("click", () => { nav.classList.remove("is-open"); button.setAttribute("aria-expanded", "false"); button.setAttribute("aria-label", "Open navigation"); }));
     return () => button.removeEventListener("click", toggle);
   }, []);
   return null;
