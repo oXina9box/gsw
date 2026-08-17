@@ -22,3 +22,7 @@ Never add a Supabase secret/service-role key to browser code or Git.
 ## Current implementation boundary
 
 The current slice includes authenticated workspace channel/production creation, production stage events, a persisted departments/lanes/agents builder, DNA/GenPlay inventories, private asset metadata boundaries, and account deletion through an Edge Function. It intentionally does not import demo records or use localStorage. Source-data importers, uploads/generation providers, billing, and final legal approval remain deployment-specific work.
+
+## Repository-managed legal content
+
+The public `/privacy` and `/terms` pages render from `content/legal/privacy-policy.md` and `content/legal/terms-of-service.md`. Update those Markdown files in the repository, rebuild, and deploy; do not edit the route files for ordinary legal-copy changes. `content/legal/legal-review.md` records the outstanding product and legal review items.
