@@ -116,3 +116,122 @@ export async function updateAgentFiles(formData: FormData) {
   revalidatePath("/app/builder");
   redirect("/app/builder");
 }
+
+
+// Orchestration Engine Actions
+import { startExecution, advanceExecution, completeStep, failStep, cancelExecution } from "@/lib/orchestration/engine";
+
+export async function createWorkflow(formData: FormData) {
+  const name = text(formData, "name");
+  if (!valid(name)) redirect("/app/orchestration?error=workflow");
+  const { supabase, id } = await workspaceId();
+  const { error } = await supabase.from("workflows").insert({ workspace_id: id, name });
+  if (error) redirect("/app/orchestration?error=workflow");
+  revalidatePath("/app/orchestration");
+  redirect("/app/orchestration");
+}
+
+export async function createHandoffRule(formData: FormData) {
+  const workflowId = text(formData, "workflow_id");
+  const sourceRef = text(formData, "source");
+  const targetRef = text(formData, "target");
+  const trigger = text(formData, "trigger_event") || "completion";
+  const allowed = new Set(["completion", "approval", "manual", "timeout"]);
+  if (!workflowId || !sourceRef || !targetRef || !allowed.has(trigger)) redirect("/app/orchestration?error=handoff");
+  const { supabase, id } = await workspaceId();
+  const { data: workflow } = await supabase.from("workflows").select("id").eq("id", workflowId).eq("workspace_id", id).maybeSingle();
+  if (!workflow) redirect("/app/orchestration?error=handoff");
+  const { data: max } = await supabase.from("handoff_rules").select("position").eq("workflow_id", workflowId).order("position", { ascending: false }).limit(1).maybeSingle();
+  const position = (max?.position ?? 0) + 1;
+  const sourceParts = sourceRef.split(":");
+  const targetParts = targetRef.split(":");
+  const record = {
+    workspace_id: id,
+    workflow_id: workflowId,
+    position,
+    source_kind: sourceParts[0],
+    source_lane_id: sourceParts[0] === "lane" ? sourceParts[1] : null,
+    source_agent_id: sourceParts[0] === "agent" ? sourceParts[1] : null,
+    target_kind: targetParts[0],
+    target_lane_id: targetParts[0] === "lane" ? targetParts[1] : null,
+    target_agent_id: targetParts[0] === "agent" ? targetParts[1] : null,
+    trigger_event: trigger,
+  };
+  const { error } = await supabase.from("handoff_rules").insert(record);
+  if (error) redirect("/app/orchestration?error=handoff");
+  revalidatePath("/app/orchestration");
+  redirect("/app/orchestration");
+}
+
+export async function deleteHandoffRule(formData: FormData) {
+  const ruleId = text(formData, "rule_id");
+  if (!ruleId) redirect("/app/orchestration?error=handoff");
+  const { supabase } = await workspaceId();
+  const { error } = await supabase.from("handoff_rules").delete().eq("id", ruleId);
+  if (error) redirect("/app/orchestration?error=handoff");
+  revalidatePath("/app/orchestration");
+  redirect("/app/orchestration");
+}
+
+export async function startWorkflowExecution(formData: FormData) {
+  const workflowId = text(formData, "workflow_id");
+  const brief = formData.get("brief");
+  if (!workflowId) redirect("/app/orchestration?error=execution");
+  const parsed: Record<string, unknown> = brief ? JSON.parse(String(brief)) : {};
+  const { supabase, id } = await workspaceId();
+  const { data: workflow } = await supabase.from("workflows").select("id").eq("id", workflowId).eq("workspace_id", id).maybeSingle();
+  if (!workflow) redirect("/app/orchestration?error=execution");
+  const { data: user } = await supabase.auth.getUser();
+  const result = await startExecution(supabase, id, workflowId, parsed, user?.user?.id ?? null);
+  if (!result.ok) redirect("/app/orchestration?error=execution");
+  revalidatePath("/app/orchestration");
+  redirect("/app/orchestration");
+}
+
+export async function advanceExecutionAction(formData: FormData) {
+  const executionId = text(formData, "execution_id");
+  const trigger = text(formData, "trigger_event") || "completion";
+  if (!executionId) redirect("/app/orchestration?error=execution");
+  const { supabase } = await workspaceId();
+  const { data: user } = await supabase.auth.getUser();
+  const result = await advanceExecution(supabase, executionId, trigger as "completion" | "approval" | "manual" | "timeout", user?.user?.id ?? null);
+  if (!result.ok) redirect("/app/orchestration?error=execution");
+  revalidatePath("/app/orchestration");
+  redirect("/app/orchestration");
+}
+
+export async function completeExecutionStep(formData: FormData) {
+  const stepId = text(formData, "step_id");
+  const output = formData.get("output");
+  if (!stepId) redirect("/app/orchestration?error=step");
+  const { supabase } = await workspaceId();
+  const { data: user } = await supabase.auth.getUser();
+  const parsed: Record<string, unknown> | null = output ? JSON.parse(String(output)) : null;
+  const result = await completeStep(supabase, stepId, parsed, user?.user?.id ?? null);
+  if (!result.ok) redirect("/app/orchestration?error=step");
+  revalidatePath("/app/orchestration");
+  redirect("/app/orchestration");
+}
+
+export async function failExecutionStep(formData: FormData) {
+  const stepId = text(formData, "step_id");
+  const errorMessage = text(formData, "error_message");
+  if (!stepId) redirect("/app/orchestration?error=step");
+  const { supabase } = await workspaceId();
+  const { data: user } = await supabase.auth.getUser();
+  const result = await failStep(supabase, stepId, errorMessage, user?.user?.id ?? null);
+  if (!result.ok) redirect("/app/orchestration?error=step");
+  revalidatePath("/app/orchestration");
+  redirect("/app/orchestration");
+}
+
+export async function cancelExecutionAction(formData: FormData) {
+  const executionId = text(formData, "execution_id");
+  if (!executionId) redirect("/app/orchestration?error=execution");
+  const { supabase } = await workspaceId();
+  const { data: user } = await supabase.auth.getUser();
+  const result = await cancelExecution(supabase, executionId, user?.user?.id ?? null);
+  if (!result.ok) redirect("/app/orchestration?error=execution");
+  revalidatePath("/app/orchestration");
+  redirect("/app/orchestration");
+}
