@@ -1,0 +1,4 @@
+import { createClient } from "@/lib/supabase/server";
+import Link from "next/link";
+export const metadata = { title: "Channels" };
+export default async function ChannelsPage() { const supabase = await createClient(); const { data: channels, error } = await supabase.from("channels").select("id, name, status").order("created_at", { ascending: false }); return <section className="product-page shell"><p className="kicker">Workspace / channels</p><h1>Channels</h1>{error ? <p className="form-error">Unable to load channels.</p> : channels?.length ? <div className="grid">{channels.map((channel) => <Link className="card" href={`/app/channels/${channel.id}`} key={channel.id}><p className="kicker">{channel.status}</p><h2>{channel.name}</h2></Link>)}</div> : <div className="panel"><h2>No channels yet.</h2><p className="muted">The finished product will create the first channel here.</p></div>}</section>; }

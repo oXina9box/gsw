@@ -1,0 +1,2 @@
+export const metadata = { title: "Builder" };
+export default function BuilderPage() { return <section className="product-page shell"><p className="kicker">Workspace / builder</p><h1>Lanes & agents</h1><div className="panel"><p className="muted">The live builder will load workspace-owned departments, lanes, agents, and agent files from Supabase. Demo agent records are intentionally not included.</p></div></section>; }
