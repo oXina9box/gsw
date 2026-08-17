@@ -62,3 +62,4 @@ Website-frame/
   promote its contents.
 - Serve + link-check before merging any file move (`python -m http.server 8000`
   inside `Gem-Studio/`, watch for 404s).
+- `scripts/security-gate.sh` is the pre-merge audit gate: it runs the vendored red-team scanner (`scripts/vendor/security_redteam_audit.py`, mode `local`) and fails on high-or-worse findings in tracked code outside `_attic/`. Audit reports land in the gitignored `security-audit-report/`.

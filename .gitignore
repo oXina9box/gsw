@@ -15,3 +15,7 @@ node_modules/
 .env.*
 !.env.example
 supabase/functions/.env
+# Security gate + credential hygiene (never commit secrets or audit output)
+*.pem
+*.key
+security-audit-report/

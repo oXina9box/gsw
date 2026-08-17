@@ -1,11 +1,18 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
 
+const ALLOWED_ORIGINS = (() => {
+  const supabaseUrl = Deno.env.get("SUPABASE_URL");
+  return [...(supabaseUrl ? [new URL(supabaseUrl).origin] : []), "http://localhost:5173", "http://localhost:3000"];
+})();
 function headers(request: Request) {
-  return {
-    "Access-Control-Allow-Origin": request.headers.get("Origin") ?? "*",
+  const h: Record<string, string> = {
     "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
     "Access-Control-Allow-Methods": "POST, OPTIONS",
   };
+  const origin = request.headers.get("Origin");
+  if (origin && ALLOWED_ORIGINS.includes(origin)) h["Access-Control-Allow-Origin"] = origin;
+  if (origin) h["Vary"] = "Origin";
+  return h;
 }
 
 Deno.serve(async (request) => {

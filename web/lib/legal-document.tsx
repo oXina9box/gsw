@@ -55,7 +55,7 @@ function renderMarkdown(source: string) {
       continue;
     }
 
-    const heading = /^(#{1,3})\s+(.+)$/.exec(trimmed);
+    const heading = trimmed.match(/^(#{1,3})\s+(.+)$/);
     if (heading) {
       flushParagraph();
       closeList();
@@ -64,7 +64,7 @@ function renderMarkdown(source: string) {
       continue;
     }
 
-    const quote = /^>\s+(.+)$/.exec(trimmed);
+    const quote = trimmed.match(/^>\s+(.+)$/);
     if (quote) {
       flushParagraph();
       closeList();
@@ -72,7 +72,7 @@ function renderMarkdown(source: string) {
       continue;
     }
 
-    const bullet = /^(?:[-*•])\s+(.+)$/.exec(trimmed);
+    const bullet = trimmed.match(/^(?:[-*•])\s+(.+)$/);
     if (bullet) {
       flushParagraph();
       openList("ul");
@@ -80,7 +80,7 @@ function renderMarkdown(source: string) {
       continue;
     }
 
-    const ordered = /^(?:\d+|[a-z])\.\s+(.+)$/.exec(trimmed);
+    const ordered = trimmed.match(/^(?:\d+|[a-z])\.\s+(.+)$/);
     if (ordered) {
       flushParagraph();
       openList("ol");
