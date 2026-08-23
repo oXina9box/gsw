@@ -1,17 +1,23 @@
 import { describe, expect, it } from "vitest";
 import {
   DEPARTMENTS,
+  DNA_GROUPS,
+  DNA_TIERS,
   JOB_KINDS,
   MAX_CLIP_BYTES,
+  MODEL_TIERS,
   creditBalance,
   isAssemblyClip,
+  isDnaGroup,
+  isDnaTier,
   isJobKind,
+  isModelTier,
   normalizeRunMode,
   normalizeProviderBaseUrl,
   safeInternalPath,
+  validateAssemblyTrim,
   validateCreditAmount,
 } from "./domain";
-
 describe("studio domain", () => {
   it("keeps the canonical production order", () => {
     expect(DEPARTMENTS).toHaveLength(13);
@@ -54,5 +60,32 @@ describe("studio domain", () => {
     expect(() => normalizeProviderBaseUrl("https://api.example.com/v1", false)).toThrow("allowlisted");
     expect(() => normalizeProviderBaseUrl("http://127.0.0.1:8000/v1", false, ["127.0.0.1"])).toThrow("public HTTPS");
     expect(() => normalizeProviderBaseUrl("https://[fc00::1]/v1", false, ["[fc00::1]"])).toThrow("public HTTPS");
+  });
+
+  it("validates DNA tiers and groups", () => {
+    expect(DNA_TIERS).toEqual(["A", "B"]);
+    expect(isDnaTier("A")).toBe(true);
+    expect(isDnaTier("B")).toBe(true);
+    expect(isDnaTier("C")).toBe(false);
+    expect(DNA_GROUPS).toContain("Universe");
+    expect(DNA_GROUPS).toContain("Channel");
+    expect(isDnaGroup("Universe")).toBe(true);
+    expect(isDnaGroup("InvalidGroup")).toBe(false);
+  });
+
+  it("validates model tiers", () => {
+    expect(MODEL_TIERS).toEqual(["free", "mid", "best"]);
+    expect(isModelTier("free")).toBe(true);
+    expect(isModelTier("mid")).toBe(true);
+    expect(isModelTier("best")).toBe(true);
+    expect(isModelTier("ultra")).toBe(false);
+  });
+
+  it("validates assembly trims", () => {
+    expect(validateAssemblyTrim(100, 500, 1000)).toEqual({ startMs: 100, endMs: 500 });
+    expect(validateAssemblyTrim(0, null)).toEqual({ startMs: 0, endMs: null });
+    expect(() => validateAssemblyTrim(-1, 500)).toThrow("invalid_trim_start");
+    expect(() => validateAssemblyTrim(500, 100)).toThrow("invalid_trim_end");
+    expect(() => validateAssemblyTrim(0, 1500, 1000)).toThrow("trim_exceeds_duration");
   });
 });

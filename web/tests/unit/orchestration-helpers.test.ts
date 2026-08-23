@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { evaluateConditions, mapPayload, validateConditions } from "../../lib/orchestration/engine";
+import { evaluateConditions, mapPayload, mergeDocumentSet, normalizeDocumentSet, nextRoundTablePass, validateConditions, validatePassOrder } from "../../lib/orchestration/engine";
 
 describe("mapPayload", () => {
   it("maps nested values without changing the input", () => {
@@ -58,5 +58,31 @@ describe("validateConditions", () => {
     expect(validateConditions({ field: "status" })).toEqual(["Conditions must be a JSON array."]);
     expect(validateConditions([{ field: "status", op: "equals", value: "approved" }])).toEqual(["Condition 1 operator must be one of: eq, neq, exists."]);
     expect(validateConditions(["status"])).toEqual(["Condition 1 must be an object."]);
+  });
+});
+
+describe("document chain", () => {
+  it("normalizes and merges documents without losing upstream work", () => {
+    expect(normalizeDocumentSet([{ id: "brief", content: "seed" }, { id: "brief", content: "ignored" }, { id: "empty" }])).toEqual([{ id: "brief", content: "seed" }]);
+    expect(mergeDocumentSet([{ id: "brief", content: "seed" }], [{ id: "script", content: "draft" }, { id: "brief", content: "revised" }])).toEqual([
+      { id: "brief", content: "revised" },
+      { id: "script", content: "draft" },
+    ]);
+  });
+
+  it("rejects malformed document sets", () => {
+    expect(normalizeDocumentSet(null)).toEqual([]);
+    expect(normalizeDocumentSet([{ id: "", content: "x" }, "bad"])).toEqual([]);
+  });
+});
+
+describe("lane collaboration", () => {
+  it("accepts bounded round-table order and rejects invalid settings", () => {
+    expect(validatePassOrder("round_table", [0, 1, 2], 3)).toEqual([]);
+    expect(validatePassOrder("round_table", [], 1).length).toBeGreaterThan(0);
+    expect(validatePassOrder("round_table", [0], 21).length).toBeGreaterThan(0);
+    expect(validatePassOrder("forward", [], 0)).toEqual([]);
+    expect(nextRoundTablePass({ passOrder: [1, 2, 0], cycle: 0, pass: 1 })).toEqual({ agentPosition: 0, cycle: 0, pass: 2 });
+    expect(nextRoundTablePass({ passOrder: [1, 2, 0], cycle: 0, pass: 2 })).toEqual({ agentPosition: 1, cycle: 1, pass: 0 });
   });
 });

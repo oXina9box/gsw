@@ -10,6 +10,12 @@ import {
   decideProductionApproval,
   enqueueProductionJob,
   selectShotClip,
+  saveAssemblyDecision,
+  attachProductionDna,
+  createProductionLanePlan,
+  saveProviderHandoffArtifact,
+  compileProductionDnaSheet,
+  saveProductionBudgetGuideline,
 } from "@/app/(product)/actions";
 import { DEPARTMENTS, JOB_KINDS } from "@/lib/studio/domain";
 
@@ -58,6 +64,10 @@ export default async function ProductionPage({
     { data: shots, error: shotsError },
     { data: agents, error: agentsError },
     { data: connections, error: connectionsError },
+    { data: assemblyDecisions, error: assemblyError },
+    { data: dnaRecords, error: dnaError },
+    { data: lanePlans },
+    { data: budgetGuideline },
   ] = await Promise.all([
     supabase
       .from("production_events")
@@ -98,6 +108,10 @@ export default async function ProductionPage({
       .eq("workspace_id", production.workspace_id)
       .eq("status", "active")
       .order("label"),
+    supabase.from("assembly_decisions").select("shot_id, position, keep, trim_start_ms, trim_end_ms, audio_choice").eq("production_id", productionId).order("position"),
+    supabase.from("dna_records").select("id, dna_id, dna_type, tier, record").order("updated_at", { ascending: false }),
+    supabase.from("production_lane_plans").select("id, lane_name, lane_kind, required_count, status").eq("production_id", productionId).order("created_at"),
+    supabase.from("production_budget_guidelines").select("guideline_credits, notes").eq("production_id", productionId).maybeSingle(),
   ]);
 
   // hasQueryError split per-section below — no blanket banner here
@@ -105,6 +119,7 @@ export default async function ProductionPage({
   const stepCount = production.step_count ?? 13;
   const currentDepartment = DEPARTMENTS[currentStep] ?? `Stage ${currentStep + 1}`;
   const currentArtifacts = (artifacts ?? []).filter((a) => a.department_step === currentStep);
+  const decisions = (assemblyDecisions ?? []) as Array<{ shot_id: string; position: number; keep: boolean; trim_start_ms: number; trim_end_ms: number | null; audio_choice: string | null }>;
 
   return (
     <section className="product-page shell">
@@ -312,9 +327,23 @@ export default async function ProductionPage({
         )}
       </div>
 
+      <div className="panel"><div className="section-head"><div><h2>Production lanes</h2><p className="muted">Add lanes sized to this episode&apos;s GenPlay needs.</p></div></div><form action={createProductionLanePlan} className="inline-form"><input type="hidden" name="production_id" value={production.id} /><label>Lane name<input name="lane_name" required maxLength={120} placeholder="Continuity review" /></label><label>Kind<input name="lane_kind" required maxLength={80} placeholder="review" /></label><label>Count<input name="required_count" type="number" min="1" defaultValue="1" /></label><button className="button button-outline" type="submit">Add lane</button></form>{(lanePlans ?? []).length ? <ul className="event-list">{(lanePlans ?? []).map((lane) => <li key={lane.id}><strong>{lane.lane_name}</strong><span>{lane.lane_kind} · {lane.required_count}</span><span className={`status-mark ${lane.status}`}>{lane.status}</span></li>)}</ul> : <p className="muted">No episode-specific lanes yet.</p>}</div>
+
+      <div className="panel"><h2>Model budget guideline</h2><form action={saveProductionBudgetGuideline} className="inline-form"><input type="hidden" name="production_id" value={production.id} /><label>Guideline credits<input name="guideline_credits" type="number" min="0" defaultValue={budgetGuideline?.guideline_credits ?? ""} /></label><label>Notes<input name="notes" maxLength={2000} defaultValue={budgetGuideline?.notes ?? ""} /></label><button className="button button-outline" type="submit">Save guideline</button></form></div>
+
+      <div className="panel">
+        <div className="section-head"><div><h2>Casting gate</h2><p className="muted">Search Universe records, then attach fitting entities to production context.</p></div></div>
+        {dnaError ? <p className="form-error" role="alert">Unable to load Universe records.</p> : null}
+        {(dnaRecords ?? []).length ? <div className="catalog-list">{(dnaRecords as Array<{ id: string; dna_id: string; dna_type: string; tier: string; record: { name?: string; summary?: string } | null }>).map((dna) => <article className="catalog-row" key={dna.id}><div><strong>{dna.record?.name ?? dna.dna_id}</strong><p className="muted">{dna.dna_type} · {dna.tier}-tier · {dna.record?.summary ?? "No summary"}</p></div><form action={attachProductionDna} className="inline-form"><input type="hidden" name="production_id" value={production.id} /><input type="hidden" name="dna_record_id" value={dna.id} /><button className="button button-outline" type="submit">Cast</button></form></article>)}</div> : <p className="muted">No Universe records yet. Create one in Universe.</p>}
+        <Link className="button button-outline" href="/app/universe">Create DNA in Universe</Link>
+        <form action={compileProductionDnaSheet} className="inline-form"><input type="hidden" name="production_id" value={production.id} /><button className="button button-outline" type="submit">Compile master DNA sheet</button></form>
+      </div>
+
       {/* Shot Assembly Section (step 8 or when shots exist) */}
       {(currentStep === 8 || (shots && shots.length > 0)) && (
         <div className="panel">
+          <details><summary className="text-link">Provider handoff import/export</summary><form action={saveProviderHandoffArtifact} className="inline-form"><input type="hidden" name="production_id" value={production.id} /><label>Kind<select name="kind"><option>prompt</option><option>result</option><option>image</option><option>video</option><option>audio</option></select></label><label>Provider<input name="provider" maxLength={120} /></label><label>JSON payload<textarea name="payload" required rows={3} placeholder='{"prompt":"..."}' /></label><button className="button button-outline" type="submit">Save handoff artifact</button></form></details>
+          {assemblyError ? <p className="form-error" role="alert">Unable to load assembly decisions.</p> : null}
           {shotsError && <p className="form-error" role="alert">Unable to load shots — Refresh</p>}
           <div className="section-head">
             <div>
@@ -355,6 +384,15 @@ export default async function ProductionPage({
                       </div>
                     </div>
                   )}
+                  <form action={saveAssemblyDecision} className="inline-form" style={{ marginTop: "1rem" }}>
+                    <input type="hidden" name="production_id" value={production.id} /><input type="hidden" name="shot_id" value={shot.id} />
+                    <label>Order<input name="position" type="number" min="0" defaultValue={decisions.find((d) => d.shot_id === shot.id)?.position ?? shot.shot_number - 1} required /></label>
+                    <label className="check-row"><input name="keep" type="checkbox" defaultChecked={decisions.find((d) => d.shot_id === shot.id)?.keep ?? true} />Keep</label>
+                    <label>Trim start ms<input name="trim_start_ms" type="number" min="0" defaultValue={decisions.find((d) => d.shot_id === shot.id)?.trim_start_ms ?? 0} /></label>
+                    <label>Trim end ms<input name="trim_end_ms" type="number" min="0" defaultValue={decisions.find((d) => d.shot_id === shot.id)?.trim_end_ms ?? ""} /></label>
+                    <label>Audio<input name="audio_choice" maxLength={120} defaultValue={decisions.find((d) => d.shot_id === shot.id)?.audio_choice ?? ""} /></label>
+                    <button className="button button-outline" type="submit">Save edit decision</button>
+                  </form>
                 </div>
               ))}
             </div>

@@ -89,3 +89,31 @@ Three cycles complete. No finding is unresolved at the contract level; external 
 - Numeric owner-launch caps and recovery targets are now selected in `service-level-requirements.md` section 5 and traced into the product spec, security standard, contract coverage, release checklist, and F08 task.
 - Every implementation task now has one owner tag: `@terra` for platform/security/data/operations/release work or `@luna` for four-module/product/content/rehearsal work. `agent-implementation-handoff.md` defines dependencies and review boundaries.
 - Cycle 3 remains a hard gate before F01 implementation. It must review the updated numeric limits and Terra/Luna handoff as artifact plus contract, then record findings here.
+
+## Beta Phases 1–7 cycle (2026-08-23)
+
+### CLAIM
+
+Phases 1–7 are implemented and locally verified: 111 unit tests, 20 E2E tests, build, migration invariants through `0023`, security gate, structure audit, npm audit all pass; no placeholders or mock flows in product paths.
+
+### EXTRACT
+
+Reviewed `beta-execution-plan.md`, `beta-phase2-tasks.md`, `beta-phase3-7-tasks.md`, `phase2-7-completion-audit.md`, `phase7-local-evidence.md`, lane-theory §9 table, migrations `0014`–`0023`, invariant suite, engine/helpers, actions, navigation contracts against the doubt tables above.
+
+### Findings and reconciliation
+
+| # | Finding | Classification | Resolution |
+|---|---|---|---|
+| F1 | Onboarding identity step updated `workspaces` directly; RLS on `workspaces` has SELECT policy only, so every identity save would fail at runtime. Unit mocks and signed-out E2E could not catch it. | Valid + actionable (launch-blocking for Phase 4) | `saveOnboardingStep` now uses existing `rename_studio` RPC (same convention as Account rename). Invariant suite gained authenticated-role proof: direct workspace UPDATE denied even for owner's own row; RPC renames own workspace; foreign `rename_studio` rejected with `invalid_studio`. |
+| F2 | `validateAssemblyTrim` was test-only dead code while `saveAssemblyDecision` re-implemented identical checks inline — two sources of truth. | Valid + actionable (own addition) | Action now calls the helper; DB CHECK constraints remain as backstop. |
+| F3 | Route contract still labeled `/app/orchestration` as `feature-flagged-authenticated-workspace` after Phase 2 Task 4 removed the flag dead end; frozen-contract test asserted the stale label. | Valid + actionable (doc/code truth drift) | Label corrected to `authenticated-workspace` in contract + test; page verified flag-free by grep. |
+| F4 | `beta-execution-plan.md` carried stale evidence ("21 files / 105 tests", "9 passed" E2E, migrations through `0021`) contradicting the audit docs. | Valid + actionable (spec-truth violation) | Evidence line refreshed to current verified numbers (23 files / 111 tests, 20 E2E, migrations `0023`). |
+| F5 | Structure audit is a shallow existence check (11 paths, tracked-env scan, duplicate migration prefixes); evidence table says only "PASS" without scope note. | Valid trade-off, documented | Scope noted here; deeper structural gates remain the security scanner and migration invariants. No change. |
+| F6 | Invariant test reused `v_connection` (provider connection id) and `v_queued_id` for later unrelated rows. | Noise (test-local variable reuse, no behavioral effect) | Left as-is; no production impact. |
+| F7 | Doc-chain and round-table could have been persistence-only metadata. | Doubt falsified by evidence | Engine wires `mergeDocumentSet` at rule execution (`engine.ts:127`) and step completion (`engine.ts:299`); round-table pass/cycle advances with events at `engine.ts:308–323`. Runtime-real, not decorative. |
+| F8 | Social lifecycle helpers could be unused wrappers. | Doubt falsified by evidence | `approveReleasePackage`/`confirmReleasePublished` call `transitionRelease`/`canPublish`; publish requires `approved` status plus explicit confirm field; DB CHECKs mirror transitions. |
+| F9 | Dead links / mock flows in Phase 2–6 surfaces. | Doubt falsified by sweep | All `href="/…"` targets map to existing routes or documented compatibility redirects (`/app/dna`, `/app/genplay`); no demo fixtures in product queries. |
+
+### STOP
+
+One cycle; findings were substantive and all reconciled in the same pass (F1–F4 fixed, F5 documented, F6 accepted, F7–F9 closed with evidence). Re-run gates after fixes: migration invariants PASS (incl. new RLS/RPC block), unit 111 PASS, typecheck/lint PASS, E2E 20 PASS. Per protocol a second cycle is allowed; run one before any launch-evidence claims that depend on external staging authority.

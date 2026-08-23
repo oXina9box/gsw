@@ -25,6 +25,8 @@ declare
   v_protected_agent uuid;
   v_protected_production uuid;
   v_protected_job uuid;
+  v_other_owner uuid := gen_random_uuid();
+  v_other_workspace uuid;
 begin
   insert into public.beta_invites(email) values ('owner@example.test');
   insert into auth.users(id, email) values (v_owner_id, 'owner@example.test');
@@ -183,5 +185,104 @@ begin
   update public.account_deletion_requests set purge_prepared_at = now() - interval '16 minutes', processing_at = now() where user_id = v_owner_id;
   if not public.prepare_account_purge(v_owner_id) then raise exception 'quiescent account purge did not become ready'; end if;
   if not exists (select 1 from public.storage_purge_queue where workspace_id = v_workspace_id and user_id = v_owner_id) then raise exception 'storage purge was not durably queued'; end if;
+
+  -- Phase 2–6 additive contracts: template, onboarding, DNA tier, assembly, social lifecycle.
+  insert into public.onboarding_profiles(workspace_id, mode, step, studio_identity)
+  values (v_workspace_id, 'guided', 'identity', '{"studio_name":"Invariant Studio"}'::jsonb)
+  on conflict (workspace_id) do update set mode = excluded.mode, step = excluded.step;
+  if not exists (select 1 from public.workflow_templates where key = 'gem-studio-default' and jsonb_array_length(definition->'stages') = 13) then raise exception 'default workflow template incomplete'; end if;
+  insert into public.workflows(workspace_id, name, template_key, template_version, definition)
+  select v_workspace_id, 'Invariant default', key, version, definition from public.workflow_templates where key = 'gem-studio-default'
+  on conflict (workspace_id, name) do nothing;
+  if not exists (select 1 from public.workflows where workspace_id = v_workspace_id and template_key = 'gem-studio-default') then raise exception 'workflow template instantiation failed'; end if;
+  perform public.create_dna_record(v_workspace_id, 'CDNA', 'Invariant Character', 'minimum cast');
+  update public.dna_records set tier = 'B', group_type = 'Channel' where workspace_id = v_workspace_id and record->>'name' = 'Invariant Character';
+  declare
+    v_dna_id uuid;
+  begin
+    select id into v_dna_id from public.dna_records where workspace_id = v_workspace_id and record->>'name' = 'Invariant Character' order by created_at desc limit 1;
+    perform public.promote_dna_record(v_workspace_id, v_dna_id, 'cast gate');
+    if not exists (select 1 from public.dna_promotion_events where workspace_id = v_workspace_id and dna_record_id = v_dna_id and to_tier = 'A') then raise exception 'DNA promotion audit missing'; end if;
+    -- Idempotence / error paths:
+    begin
+      perform public.promote_dna_record(v_workspace_id, v_dna_id, 'second promotion');
+      raise exception 'allowed already promoted DNA';
+    exception when others then
+      if sqlerrm <> 'already_a_tier' then raise; end if;
+    end;
+    begin
+      perform public.promote_dna_record(v_workspace_id, gen_random_uuid(), 'missing record');
+      raise exception 'allowed promoting non-existent DNA';
+    exception when others then
+      if sqlerrm <> 'record_not_found' then raise; end if;
+    end;
+    begin
+      perform public.promote_dna_record(v_workspace_id, v_dna_id, '');
+      raise exception 'allowed empty promotion reason';
+    exception when others then
+      if sqlerrm <> 'invalid_reason' then raise; end if;
+    end;
+  end;
+
+  -- Phase 5 artifacts: lane plans, dna sheets, provider handoff, assembly decisions, budget guidelines
+  insert into public.production_lane_plans(workspace_id, production_id, lane_name, lane_kind, source)
+  values (v_workspace_id, v_production_id, 'Continuity review', 'review', '{"priority":1}'::jsonb);
+  insert into public.production_dna_sheets(workspace_id, production_id, entity_key, version, sheet)
+  values (v_workspace_id, v_production_id, 'cast:invariant_character', 1, '{"cast":[{"name":"Invariant Character","tier":"A"}]}'::jsonb);
+  insert into public.provider_handoff_artifacts(workspace_id, production_id, kind, provider, payload)
+  values (v_workspace_id, v_production_id, 'prompt', 'openai', '{"prompt":"test"}'::jsonb);
+  declare
+    v_shot_id uuid;
+  begin
+    insert into public.genplay_shots(workspace_id, production_id, shot_number, prompt, duration_ms)
+    values (v_workspace_id, v_production_id, 1, 'Invariant shot', 3000) returning id into v_shot_id;
+    insert into public.assembly_decisions(workspace_id, production_id, shot_id, position, keep, trim_start_ms, trim_end_ms, audio_choice, notes)
+    values (v_workspace_id, v_production_id, v_shot_id, 0, true, 0, 3000, 'main_track', 'Initial cut');
+  end;
+  insert into public.production_budget_guidelines(workspace_id, production_id, guideline_credits, notes)
+  values (v_workspace_id, v_production_id, 250, 'Guidelines for invariant production');
+
+  -- Phase 6 release lifecycle, social reports, signal promotion
+  insert into public.release_packages(workspace_id, production_id, platform, caption, status) values (v_workspace_id, v_production_id, 'youtube', 'Invariant release', 'ready') returning id into v_connection;
+  update public.release_packages set status = 'approved', approved_at = now() where id = v_connection;
+  update public.release_packages set status = 'published', published_at = now() where id = v_connection and status = 'approved';
+  if (select status <> 'published' from public.release_packages where id = v_connection) then raise exception 'release lifecycle failed'; end if;
+  insert into public.social_reports(workspace_id, release_package_id, report_type, notes) values (v_workspace_id, v_connection, 'performance', 'Invariant report');
+  insert into public.signals(workspace_id, channel_id, signal_type, title, body, status)
+  values (v_workspace_id, v_channel_id, 'performance', 'Invariant Signal', 'Signal details', 'active') returning id into v_queued_id;
+  insert into public.signal_promotion_events(workspace_id, signal_id, production_id)
+  values (v_workspace_id, v_queued_id, v_production_id);
+
+  -- Cross-workspace tenant isolation matrix
+  insert into public.beta_invites(email) values ('other@example.test');
+  insert into auth.users(id, email) values (v_other_owner, 'other@example.test');
+  select id into v_other_workspace from public.workspaces where owner_id = v_other_owner;
+  perform set_config('request.jwt.claim.sub', v_other_owner::text, true);
+  perform set_config('request.jwt.claims', jsonb_build_object('sub', v_other_owner, 'aal', 'aal1', 'iat', extract(epoch from now())::bigint)::text, true);
+  set local role authenticated;
+  if exists (select 1 from public.dna_records where workspace_id = v_workspace_id) then raise exception 'cross-workspace DNA read leaked'; end if;
+  if exists (select 1 from public.dna_promotion_events where workspace_id = v_workspace_id) then raise exception 'cross-workspace DNA promotion event leaked'; end if;
+  if exists (select 1 from public.release_packages where workspace_id = v_workspace_id) then raise exception 'cross-workspace release read leaked'; end if;
+  if exists (select 1 from public.social_reports where workspace_id = v_workspace_id) then raise exception 'cross-workspace social report read leaked'; end if;
+  if exists (select 1 from public.production_lane_plans where workspace_id = v_workspace_id) then raise exception 'cross-workspace lane plan leaked'; end if;
+  if exists (select 1 from public.production_dna_sheets where workspace_id = v_workspace_id) then raise exception 'cross-workspace dna sheet leaked'; end if;
+  if exists (select 1 from public.provider_handoff_artifacts where workspace_id = v_workspace_id) then raise exception 'cross-workspace provider handoff leaked'; end if;
+  if exists (select 1 from public.assembly_decisions where workspace_id = v_workspace_id) then raise exception 'cross-workspace assembly decision leaked'; end if;
+  if exists (select 1 from public.production_budget_guidelines where workspace_id = v_workspace_id) then raise exception 'cross-workspace budget guideline leaked'; end if;
+  if exists (select 1 from public.onboarding_profiles where workspace_id = v_workspace_id) then raise exception 'cross-workspace onboarding profile leaked'; end if;
+  -- workspaces has no direct UPDATE policy: table updates must stay denied; renames go through rename_studio RPC only.
+  update public.workspaces set name = 'Hijack' where id = v_other_workspace;
+  if found then raise exception 'authenticated role directly updated workspace row'; end if;
+  perform public.rename_studio(v_other_workspace, 'Other Studio');
+  if (select name <> 'Other Studio' from public.workspaces where id = v_other_workspace) then raise exception 'rename_studio failed for owning member'; end if;
+  begin
+    perform public.rename_studio(v_workspace_id, 'Hostile Rename');
+    raise exception 'foreign rename_studio accepted';
+  exception when others then
+    if sqlerrm <> 'invalid_studio' then raise; end if;
+  end;
+  reset role;
+  perform set_config('request.jwt.claim.sub', v_owner_id::text, true);
+  perform set_config('request.jwt.claims', jsonb_build_object('sub', v_owner_id, 'aal', 'aal1', 'iat', extract(epoch from now())::bigint)::text, true);
 end;
 $$;

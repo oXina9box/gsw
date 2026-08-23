@@ -1,7 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { evaluateConditions, mapPayload } from "./helpers";
+import { evaluateConditions, mapPayload, mergeDocumentSet, nextRoundTablePass } from "./helpers";
 
-export { evaluateConditions, mapPayload, validateConditions } from "./helpers";
+export { evaluateConditions, mapPayload, validateConditions, normalizeDocumentSet, mergeDocumentSet, validatePassOrder, nextRoundTablePass } from "./helpers";
 
 export type TriggerEvent = "completion" | "approval" | "manual" | "timeout";
 export type NodeKind = "lane" | "agent";
@@ -124,6 +124,9 @@ async function runRule(supabase: SupabaseClient, execution: Execution, rule: Han
   }
 
   const mapped = mapPayload(execution.context, rule.payload_mapping);
+  const mappedWithDocuments = Object.prototype.hasOwnProperty.call(mapped, "documents")
+    ? { ...mapped, documents: mergeDocumentSet(execution.context.documents, mapped.documents) }
+    : mapped;
   const { error } = await supabase.from("execution_steps").insert({
     workspace_id: execution.workspace_id,
     execution_id: execution.id,
@@ -136,17 +139,29 @@ async function runRule(supabase: SupabaseClient, execution: Execution, rule: Han
     target_agent_id: rule.target_agent_id,
     status: "running",
     input_payload: execution.context,
-    output_payload: mapped,
+    output_payload: mappedWithDocuments,
     started_at: new Date().toISOString(),
   });
   if (error) return { ok: false, error: error.message };
 
-  const nextContext = { ...execution.context, ...mapped };
+  let collaboration: Record<string, unknown> = {};
+  let targetAgent: string | null = rule.target_kind === "agent" ? rule.target_agent_id : null;
+  if (rule.target_kind === "lane" && rule.target_lane_id) {
+    const { data: lane } = await supabase.from("lanes").select("id, collaboration_mode, pass_order, pass_cycles").eq("id", rule.target_lane_id).eq("workspace_id", execution.workspace_id).maybeSingle();
+    if (lane?.collaboration_mode === "round_table") {
+      const { data: agents } = await supabase.from("agents").select("id").eq("lane_id", rule.target_lane_id).eq("workspace_id", execution.workspace_id).order("created_at");
+      const ordered = (lane.pass_order as number[] | null) ?? [];
+      const first = ordered.length ? ordered[0] : 0;
+      targetAgent = agents?.[first]?.id ?? null;
+      collaboration = { mode: "round_table", lane_id: rule.target_lane_id, pass_order: ordered, pass_cycles: lane.pass_cycles, cycle: 0, pass: 0 };
+    }
+  }
+  const nextContext = { ...execution.context, ...mappedWithDocuments, ...(Object.keys(collaboration).length ? { collaboration } : {}) };
   await supabase
     .from("executions")
     .update({
       current_lane_id: rule.target_kind === "lane" ? rule.target_lane_id : null,
-      current_agent_id: rule.target_kind === "agent" ? rule.target_agent_id : null,
+      current_agent_id: targetAgent,
       context: nextContext,
       updated_at: new Date().toISOString(),
     })
@@ -280,7 +295,9 @@ export async function completeStep(
     .maybeSingle();
   if (!execution) return { ok: false, error: "execution_not_found" };
   const live = execution as Execution;
-  const nextContext = output ? { ...live.context, ...output } : live.context;
+  const nextContext = output
+    ? { ...live.context, ...output, ...(Object.prototype.hasOwnProperty.call(output, "documents") ? { documents: mergeDocumentSet(live.context.documents, output.documents) } : {}) }
+    : live.context;
 
   if (output) {
     await supabase
@@ -289,6 +306,20 @@ export async function completeStep(
       .eq("id", live.id);
   }
   await logEvent(supabase, live.workspace_id, live.id, "step_completed", actorId, { step_id: stepId });
+  const collaboration = (nextContext.collaboration ?? null) as { mode?: string; lane_id?: string; pass_order?: number[]; pass_cycles?: number; cycle?: number; pass?: number } | null;
+  if (collaboration?.mode === "round_table" && collaboration.lane_id && collaboration.pass_order?.length) {
+    const next = nextRoundTablePass({ passOrder: collaboration.pass_order, cycle: collaboration.cycle ?? 0, pass: collaboration.pass ?? 0 });
+    if (next && next.cycle < (collaboration.pass_cycles ?? 1)) {
+      const { data: agents } = await supabase.from("agents").select("id").eq("lane_id", collaboration.lane_id).eq("workspace_id", live.workspace_id).order("created_at");
+      const nextAgent = agents?.[next.agentPosition]?.id;
+      if (!nextAgent) return { ok: false, error: "round_table_agent_missing" };
+      const updatedContext = { ...nextContext, collaboration: { ...collaboration, ...next } };
+      await supabase.from("executions").update({ current_lane_id: collaboration.lane_id, current_agent_id: nextAgent, context: updatedContext, updated_at: new Date().toISOString() }).eq("id", live.id);
+      await logEvent(supabase, live.workspace_id, live.id, "round_table_pass_started", actorId, { cycle: next.cycle, pass: next.pass, agent_id: nextAgent });
+      return { ok: true };
+    }
+    await logEvent(supabase, live.workspace_id, live.id, "round_table_completed", actorId, { cycles: collaboration.pass_cycles });
+  }
   return advanceExecution(supabase, live.id, "completion", actorId);
 }
 

@@ -1,6 +1,6 @@
 # Beta Execution Plan — Delta to Full-Function Live Product
 
-**Status:** Re-cut 2026-08-23 against the real `production`-branch codebase (replaces the pre-slice plan written against placeholder pages).
+**Status:** Execution update 2026-08-23. Phases 2–6 core paths now implemented and verified locally; Phase 7 launch evidence remains blocked on isolated production infrastructure and authenticated staging credentials.
 **Depends on:** `lane-theory-spec.md` (workflow law, incl. §9 implementation state), `site-workflow-spec.md` (routes/contracts/security), `planning/README.md` (governance order), `post-launch.md` (additivity contract).
 **Goal:** Owner runs real productions on live data with every function working. No stubs — features ship working or as interfaces awaiting a backend (e.g., provider generation) that doesn't exist yet.
 
@@ -34,6 +34,8 @@ Owner rulings, all now reflected in `site-workflow-spec.md` and `spec-contract-c
 - Verification: `npm run typecheck`, `npm run lint`, `npm test` (21 files / 102 tests), `npm run build`, `scripts/test-migrations.sh`, and `scripts/security-gate.sh` (0 in-scope high findings).
 
 ## Phase 2 — Lane theory core (the workflow law)
+
+**Implementation update 2026-08-23:** persisted workflow/lane collaboration metadata and document-chain merge semantics are implemented; orchestration is supported in navigation; onboarding, tier, assembly, and release schema seams added in migrations 0015–0018. Phase acceptance remains open until round-table runtime cycles, template picker, casting workbench, production workbench, social approval actions, E2E, and launch evidence are verified.
 
 - **Doc-chain semantics:** agent receives complete prior doc set, adds/creates, passes full set forward; supervisor/expert final desk reviews; kickback by agent or user per setting **manual / semi-auto / auto**.
 - **Round-table mode:** per-lane pass orders (1-2-3, 2-1, repeated cycles) as first-class collaboration mode alongside forward lanes.
@@ -70,6 +72,8 @@ Owner rulings, all now reflected in `site-workflow-spec.md` and `spec-contract-c
 - E2E coverage for the real CRUD flows (currently policy-heavy, page-light).
 - Day-0 checklist run with evidence; doubt review per `planning/README.md`; restore rehearsal.
 - Launch per governance: no "mostly ready."
+
+**Current evidence:** `web` typecheck, lint, unit suite (23 files / 111 tests), production build, Playwright smoke (20 passed), migration invariants through `0023`, and security gate pass locally. Authenticated CRUD E2E, isolated restore/RTO/RPO, production WAF/TLS/PITR, and owner/legal signatures remain required external gates; they are not represented as complete.
 
 ## Owner open items
 

@@ -74,14 +74,14 @@ Owner rulings since first draft: **no stubs anywhere** (features ship working, o
 
 | This spec | Current code (`production` branch) | Gap |
 |---|---|---|
-| §2 Onboarding wizard (studio assistant, guided/fast, first channel, hiring fair) | None — signup drops into cold app | **Missing** |
+| §2 Onboarding wizard (studio assistant, guided/fast, first channel, hiring fair) | `/app/onboarding` persists guided/fast profile, writes studio/channel/departments, creates default workflow | **Partial** — BYOK assistant conversation/hiring agent assignment still requires runtime wiring |
 | §1/§2 Flow templates, build-from-scratch, bolster/trim | 13 stages hard-coded in `lib/studio/domain.ts`; orchestration workflows exist but marked experimental diagnostics in the site spec | **Resolved 2026-08-23** — customization is core; spec amended; 13-stage flow becomes default template |
-| §3.1 Forward lanes + round-table pass orders (per lane) | Orchestration handoff rules (ordered source→target, payload mapping); no doc-chain semantics, no round-table, conditions only `eq/neq/exists` | **Partial** |
-| §3.2 Casting gate, A/B tiers, B→A promotion | Universe CRUD with versioned/lockable records; worker consumes continuity DNA cast; no tiers/promotion/casting flow | **Partial** |
-| §7 DNA groups (Big 3 + Studio/Channel/Season/Socials/FDNA) | Big 3 only (`dna_records`); deferred groups unrepresented | **Partial** |
+| §3.1 Forward lanes + round-table pass orders (per lane) | Persisted lane modes, bounded pass order/cycles, document merge, engine pass context/events | **Partial** — full supervisor desk review/kickback policy still requires workflow-level UI |
+| §3.2 Casting gate, A/B tiers, B→A promotion | Universe tier/group filters, audited promotion, production casting gate and attach | **Partial** — fit scoring/spawn-from-minimum template still requires richer casting UI |
+| §7 DNA groups (Big 3 + Studio/Channel/Season/Socials/FDNA) | `group_type` supports Universe/Studio/Channel/Season/Socials/FDNA; filters available | **Partial** — creation/edit controls for non-Universe groups remain |
 | §4 Production lanes sized by GenPlay | Production detail page + job enqueue + GenPlay shot contracts + ffmpeg `assemble_master` | Exists (13-stage shape) |
-| §6 In-site AI, BYOK + credits, recommended models per role | Real worker via OpenAI-compatible BYOK (`provider_configs`, AES-256-GCM), credit ledger + Stripe checkout, protected inference for premium agents; **no** free/mid/best recommendations, no auto-advance loop, worker needs external poller | **Partial** |
-| §5 Social cycle | Manual signals only; posting/analytics "not enabled in this build" | **Partial** |
+| §6 In-site AI, BYOK + credits, recommended models per role | Real worker via OpenAI-compatible BYOK (`provider_configs`, AES-256-GCM), credit ledger + Stripe checkout, protected inference for premium agents; agent tier recommendations/overrides and production guideline tracking | **Partial** — worker poller/provider generation remains backend-dependent |
+| §5 Social cycle | Release package prep, explicit approval/publish confirmation, report/interaction capture, signal promotion audit | **Partial** — platform adapters remain intentionally backend-dependent |
 | Video editor (assembly) | `assemble_master` concatenates selected MP4s — no timeline/trim/sequence UI | **Resolved 2026-08-23** — assembly workbench for beta; full editor is provider-era upgrade |
 | Legal/clearance desk | None | **Resolved 2026-08-23** — deferred; no legal advisors engaged, do not build until counsel input exists |
 

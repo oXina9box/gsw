@@ -78,3 +78,33 @@ export function decideAdvancement(input: Readonly<{ runMode: RunMode; currentSte
   if (input.pendingApprovals > 0) return Object.freeze({ advanceStep: false, enqueueNext: false, reason: "awaiting_approval" });
   return Object.freeze({ advanceStep: true, enqueueNext: input.runMode === "auto", reason: "advanced" });
 }
+
+export const DNA_TIERS = ["A", "B"] as const;
+export type DnaTier = (typeof DNA_TIERS)[number];
+
+export const DNA_GROUPS = ["Universe", "Studio", "Channel", "Season", "Socials", "FDNA"] as const;
+export type DnaGroup = (typeof DNA_GROUPS)[number];
+
+export const MODEL_TIERS = ["free", "mid", "best"] as const;
+export type ModelTier = (typeof MODEL_TIERS)[number];
+
+export function isDnaTier(value: unknown): value is DnaTier {
+  return typeof value === "string" && (DNA_TIERS as readonly string[]).includes(value);
+}
+
+export function isDnaGroup(value: unknown): value is DnaGroup {
+  return typeof value === "string" && (DNA_GROUPS as readonly string[]).includes(value);
+}
+
+export function isModelTier(value: unknown): value is ModelTier {
+  return typeof value === "string" && (MODEL_TIERS as readonly string[]).includes(value);
+}
+
+export function validateAssemblyTrim(startMs: number, endMs: number | null | undefined, totalDurationMs?: number) {
+  if (!Number.isSafeInteger(startMs) || startMs < 0) throw new Error("invalid_trim_start");
+  if (endMs !== null && endMs !== undefined) {
+    if (!Number.isSafeInteger(endMs) || endMs < startMs) throw new Error("invalid_trim_end");
+    if (totalDurationMs !== undefined && endMs > totalDurationMs) throw new Error("trim_exceeds_duration");
+  }
+  return { startMs, endMs: endMs ?? null };
+}

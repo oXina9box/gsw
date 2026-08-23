@@ -6,7 +6,7 @@ export const metadata = { title: "Open Production" };
 
 export default async function FrontOfficePage({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
   const { supabase } = await getWorkspaceContext();
-  const { data: channels, error: channelsError } = await supabase.from("channels").select("id, name").order("created_at");
+  const [{ data: channels, error: channelsError }, { data: workflows }] = await Promise.all([supabase.from("channels").select("id, name").order("created_at"), supabase.from("workflows").select("id, name, template_key").order("name")]);
   const { error } = await searchParams;
   return <section className="product-page shell">
     <h1>Open a production.</h1>
@@ -17,6 +17,7 @@ export default async function FrontOfficePage({ searchParams }: { searchParams: 
         <h2>Open a production</h2>
         {channelsError ? <p className="form-error" role="alert">Unable to load channels.</p> : channels?.length ? <form action={createProduction} className="stack-form">
           <label>Channel<select name="channel_id" required defaultValue=""><option value="" disabled>Select channel</option>{channels.map((channel) => <option value={channel.id} key={channel.id}>{channel.name}</option>)}</select></label>
+          <label>Workflow template<select name="workflow_id" defaultValue=""><option value="">Use production default</option>{(workflows ?? []).map((workflow) => <option value={workflow.id} key={workflow.id}>{workflow.name}{workflow.template_key ? " · template" : ""}</option>)}</select></label>
           <label>Working title<input name="title" maxLength={120} required placeholder="Episode 01 — The Signal" /></label>
           <label>Brief<textarea name="brief" maxLength={10000} rows={7} required placeholder="What must this film make the audience feel, understand, or do?" /></label>
           <label>Audience<textarea name="audience" maxLength={500} rows={3} /></label>

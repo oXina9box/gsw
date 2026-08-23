@@ -12,7 +12,23 @@ test("signed-out visitors are sent to login", async ({ page }) => {
   await expect(page).toHaveURL(/\/login\?next=%2Fapp$/);
 });
 
-for (const route of ["/app/studio", "/app/assets", "/app/marketing", "/app/staffing"]) {
+for (const route of [
+  "/app/studio",
+  "/app/assets",
+  "/app/marketing",
+  "/app/staffing",
+  "/app/orchestration",
+  "/app/onboarding",
+  "/app/universe",
+  "/app/social",
+  "/app/front-office",
+  "/app/channels",
+  "/app/agents",
+  "/app/builder",
+  "/app/billing",
+  "/app/integrations",
+  "/account",
+]) {
   test(`signed-out visitors cannot open ${route}`, async ({ page }) => {
     expect(hasSupabase, "CI must provide Supabase configuration for protected-route smoke tests").toBe(true);
     await page.goto(route);

@@ -1,8 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
-import { notFound } from "next/navigation";
 import { CreateForm } from "@/components/product/create-form";
 import { ExecutionLive } from "@/components/product/execution-live";
-import { createWorkflow, createHandoffRule, deleteHandoffRule, deleteWorkflow, startWorkflowExecution } from "@/app/(product)/actions";
+import { createDefaultWorkflow, createWorkflow, createHandoffRule, deleteHandoffRule, deleteWorkflow, startWorkflowExecution } from "@/app/(product)/actions";
 
 export const metadata = { title: "Orchestration" };
 
@@ -50,7 +49,6 @@ type ExecutionStep = {
 };
 
 export default async function OrchestrationPage({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
-  if (process.env.EXPERIMENTAL_ORCHESTRATION !== "true") notFound();
   const supabase = await createClient();
   const [{ data: workflows }, { data: lanes }, { data: agents }, { data: executions }, { data: steps }, { data: rules }] = await Promise.all([
     supabase.from("workflows").select("id, name, description").order("name"),
@@ -79,7 +77,7 @@ export default async function OrchestrationPage({ searchParams }: { searchParams
       <section className="builder-section">
         <div className="section-head">
           <h2>Workflows</h2>
-          <CreateForm action={createWorkflow} label="New workflow" field="name" placeholder="Campaign pipeline" />
+          <div className="inline-form"><CreateForm action={createWorkflow} label="New workflow" field="name" placeholder="Campaign pipeline" /><form action={createDefaultWorkflow}><button className="button button-outline" type="submit">Add default template</button></form></div>
         </div>
         {workflowList.map((workflow) => (
           <article className="panel" key={workflow.id}>
@@ -142,6 +140,7 @@ export default async function OrchestrationPage({ searchParams }: { searchParams
                     </select>
                   </label>
                   <label>Conditions (JSON)<input name="conditions" placeholder='[{"field":"status","value":"approved"}]' /></label>
+                  <label>Payload mapping (JSON)<input name="payload_mapping" placeholder='{"documents":"documents"}' /></label>
                   <button className="button button-primary" type="submit">Add rule</button>
                 </form>
               </details>
