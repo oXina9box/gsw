@@ -1,76 +1,76 @@
-# Beta Execution Plan — Full-Function Live Product
+# Beta Execution Plan — Delta to Full-Function Live Product
 
-**Status:** Ready for owner review
-**Depends on:** `planning/lane-theory-spec.md`, `planning/future-live-product-execution-blueprint.md`
-**Goal:** Fully functional site the owner runs real productions on with live data. "Beta" = owner stress-testing all functions before public launch. No dummy mode, no closed-off shortcuts that force a rearchitect later.
+**Status:** Re-cut 2026-08-23 against the real `production`-branch codebase (replaces the pre-slice plan written against placeholder pages).
+**Depends on:** `lane-theory-spec.md` (workflow law, incl. §9 implementation state), `site-workflow-spec.md` (routes/contracts/security), `planning/README.md` (governance order), `post-launch.md` (additivity contract).
+**Goal:** Owner runs real productions on live data with every function working. No stubs — features ship working or as interfaces awaiting a backend (e.g., provider generation) that doesn't exist yet.
 
-## Non-negotiables
+## Clean-start protocol (for a fresh session)
 
-- Every function works: onboarding, channel setup, department/lane/agent building, development lanes, casting + Universe, GenPlay, production lanes, social cycle, account management.
-- All non-production agents run real AI via BYOK (OpenAI/Anthropic-based) with a credit-system hook coded but launchable disabled.
-- Production image/video gen is off-site handoff (paste-back) with a provider backend interface ready to swap in.
-- Self-hosted vs. cloud is a deployment-mode flag from day one; cloud-only depth gates exist in schema/feature flags.
-- Fresh start: no demo/seed records imported.
-- No service secrets in browser code or Git.
+1. Read in order: root `AGENTS.md` → `planning/README.md` → this file → `lane-theory-spec.md` → `site-workflow-spec.md`.
+2. Gate 0 (below) is RESOLVED — do not re-ask the owner; rulings are recorded.
+3. **Phase 1 is fully task-cut:** execute `planning/beta-phase1-tasks.md` task-by-task (TDD, checkbox-tracked).
+4. Phases 2–7 are plan-of-record only: before implementing each, write its detailed task plan (same format as Phase 1's) from the phase description below plus spec/lane-theory, then execute. Phase ordering: 2 (lane theory core) → 3 (casting/Universe tiers) → 4 (onboarding) → 5 (production completion) → 6 (social) → 7 (hardening).
+5. Verify repo state before acting: `git branch` must show `production`; if the owner says "scan repo", re-survey before editing.
 
-## Phase 1 — Data model & migrations (supabase/)
+**What already works and is NOT re-planned:** auth + MFA, workspace bootstrap, channels/marketing CRUD, builder + six-file agent editor, agent catalog hiring with entitlement gating, Universe versioned DNA records, production detail with approvals/job enqueue/GenPlay shot contracts/clip uploads, ffmpeg master assembly, orchestration engine, BYOK integrations with envelope encryption, credit ledger + Stripe checkout/webhook, account export/deletion, capability/policy/audit/caps core, test suites, day-0 security scripts.
 
-New migrations (workspace-scoped, RLS everywhere):
+## Gate 0 — Spec reconciliation (RESOLVED 2026-08-23)
 
-- `studio_settings` — studio identity (name, logo storage ref, colors, tagline, content type), onboarding state.
-- `flows` / `flow_templates` — user-customizable lane structures + baseline templates (owner's 13-dept flow is *a* template). Departments, lanes, collaboration mode (forward / round-table + pass order per lane).
-- `agents` / `agent_files` — role, type (worker/supervisor), six `.md` files, recommended model tier, model override.
-- `channels` — identity, strategy, format preset, season/episode scope, schedule, budget, process depth (extend existing).
-- `productions` — channel ref, lane instance state, status derived from lane progress (replaces `step` counter).
-- `lane_instances` / `lane_tasks` — per-production spawned lanes and agent tasks: input payload, work product (JSON/markdown), pass-order state for round tables, done/approved/kickback status.
-- `dna_records` — per blueprint §6.3 (JSONB, versioned, `dna_id` law, tier A/B, promotion events).
-- `dna_sheets` — master look sheets per episode, linked to production + DNA records.
-- `genplay_masters` / `genplay_binders` — per blueprint §6.4; server-side compile from `genplay/` Python logic.
-- `provider_configs` — BYOK keys encrypted at rest (pgcrypto or Edge-held), provider routing prefs.
-- `social_posts` / `social_signals` — chop list, post records, review/report/interact log, signal feedback link to next production.
-- `production_events` — audit trail for all of the above.
+Owner rulings, all now reflected in `site-workflow-spec.md` and `spec-contract-coverage.md`:
 
-## Phase 2 — Agent runtime (web/lib/agents/)
+1. **Flow customization is core** (ruled during interviews): workflow definitions become user-owned, versioned workspace data; the 13-stage flow ships as the default template, not hard-coded law. Post-launch Stage 7's "template versioning/validation" hardening still applies later; the capability itself is beta scope.
+2. **Video editor = assembly workbench** on production detail: ordered shots, trims, audio choices → edit decision list + assembly package for off-site editing; results return through the same artifact slots the worker uses. Full in-browser editor is a provider-era upgrade on the same interface.
+3. **Legal/clearance desk: deferred** — no legal advisors engaged; do not build until counsel input exists. Recorded in spec §8 open questions.
+4. **Orchestration promoted to the supported workflow builder** (Studio module surface) per the amended spec section.
 
-- Provider-agnostic router: OpenAI + Anthropic adapters now; adapter interface so Google/OpenRouter are config-only additions.
-- BYOK path (decrypt server-side, per-workspace) + credit path (metering stub behind flag).
-- Role runner: agent `.md` files → system prompt; lane context → user payload; streamed response → work product artifact.
-- Recommended-model profiles per role template with user override.
-- Manual/off-site backend implementing the same interface for production image/video tasks (emit GenPlay page prompt, accept pasted/uploaded result).
+## Phase 1 — Defects and truthfulness (small, immediate)
 
-## Phase 3 — Onboarding & studio setup
+- Fix `/app/universe/[id]` dead Manage links (route or remove buttons).
+- Edit/delete for created entities: channels, lanes, agents, workflows (spec allows channel deletion only via Account — honor that; others get their surfaces).
+- Enforce CAP_LIMITS at the real enforcement points (worker, uploads) — currently a seam.
+- Orchestration conditions: reject unsupported ops loudly instead of silently failing rules.
+- Make `/app/dna` and `/app/genplay` the spec'd Assets subviews/redirects instead of passive "after migration" pages.
+- Auto run-modes: define the advance loop for `semi_auto`/`auto` (worker poll cadence, approval gates honored) so auto doesn't stall.
 
-- Post-signup onboarding wizard: studio assistant agent (guided/fast modes) driving the identity fields; marketing studio-role handoffs; lane education woven in.
-- First-channel creation flow with format presets, season/episode scope, scheduling, budget, process depth.
-- Hiring fair: department config from core four + optional teams; template picker; baseline = owner's flow.
+## Phase 2 — Lane theory core (the workflow law)
 
-## Phase 4 — Builder & workspace UI
+- **Doc-chain semantics:** agent receives complete prior doc set, adds/creates, passes full set forward; supervisor/expert final desk reviews; kickback by agent or user per setting **manual / semi-auto / auto**.
+- **Round-table mode:** per-lane pass orders (1-2-3, 2-1, repeated cycles) as first-class collaboration mode alongside forward lanes.
+- **Flows-as-data in `/app/orchestration`** (now the supported workflow builder per Gate 0 ruling 4): promote from flag-gated diagnostics to Studio navigation; workflow/department/lane definitions become user-owned, versioned workspace data; owner's 13-stage flow ships as the default template; baseline template picker at production/channel creation.
+- Extend orchestration condition ops to the set the UI already accepts (and validate input).
 
-- Full CRUD: departments, lanes, agents, six-file editor (port demo UX), collaboration mode + per-lane pass order.
-- Studio overview, channels, channel detail with identity/strategy editing.
-- Empty states for fresh accounts (no seeds).
+## Phase 3 — Casting gate + Universe tiers
 
-## Phase 5 — Production workflow
+- DNA tier field (A/B), B→A promotion flow with audit, casting additions.
+- Casting workbench: search Universe for look/feel/persona/lore fit vs. spawn from minimum template; scouts (location/asset) same pattern; feeds worker context (seam already exists).
+- DNA groups: add Studio/Channel/Season/Socials/FDNA types to the generic `dna_records` model (new schema files, no migration churn); Universe UI organizes by group.
 
-- Development pipeline runner: seed → storyboards → plot → continuity → script → screenplay → GenPlay draft as lane instances; forward and round-table execution with real AI runs; work products viewable/versioned.
-- Casting gate UI: Universe search (look/feel/persona/lore), reuse vs. spawn, B-tier spawn from minimum template, B→A promotion flow, casting additions.
-- GenPlay compile server-side; lock/version semantics preserved.
-- Production lanes per episode spawned from GenPlay needs: DNA sheets, imaging (off-site handoff), shots, review, b-roll, continuity, reshoot.
+## Phase 4 — Onboarding wizard
 
-## Phase 6 — Social cycle & account
+- Post-signup guided flow: studio assistant agent (guided/fast modes) → studio identity (name, logo, colors, tagline, content type) → first channel (format preset, season/episode scope, schedule, process depth) → hiring fair (department config from templates).
+- Assistant educates on lanes while configuring; runs on in-site AI (BYOK).
 
-- Chop-up tool, post prep, lead-in marketing, post records, review/report/interact log.
-- Signal board feeding next-production briefs.
-- Account page completion: profile, password, sessions, deletion via trusted function.
+## Phase 5 — Production completion
 
-## Phase 7 — Hardening & verification
+- Per-episode production lanes sized by GenPlay needs (DNA sheets, imaging, shots, review, b-roll, continuity, reshoot) — flows from Phase 2 data model.
+- DNA data sheets: master look sheet compiled per entity, stored, carried forward.
+- GenPlay compile server-side from shot contracts (port `genplay/` validation; keep lock/version semantics).
+- Off-site generation handoff: emit provider-ready page prompts, accept pasted/uploaded results into the same artifact slots the worker uses — identical interface to future provider wiring.
+- Assembly workbench per Gate 0 ruling 2: ordered shot sequence, trim/keep decisions, audio choices → edit decision list + assembly package for off-site editing.
+- Model tier recommendations: free/mid/best per role template with user override; budget as user-managed guideline tracking (no enforcement).
 
-- Real scripts to match README: `lint`, `test`, `test:coverage`, `test:e2e`, `security-gate.sh`, `test-migrations.sh` (fix or remove README claims).
-- RLS negative tests (cross-workspace isolation), route inventory/footer checks, secret scan.
-- Deployment-mode flag wiring (self-hosted vs cloud feature gates).
+## Phase 6 — Social cycle close
 
-## Open items
+- Publication prep/lead-ins, platform packaging (YT/X/TikTok/IG/FB first), explicit publish confirmation, report/interact capture, signal records structured for later A/B comparison analysis.
+- Signal → next-brief promotion path (marketing consumes signals — seam exists via manual signals).
 
-- `planning/post-launch.md` — owner to drop in; schema/hook review against it before Phase 1 migrations are finalized.
-- Exact BYOK provider list (OpenAI/Anthropic-based, TBD).
-- Credit system metering details (post-launch gated).
+## Phase 7 — Beta hardening
+
+- E2E coverage for the real CRUD flows (currently policy-heavy, page-light).
+- Day-0 checklist run with evidence; doubt review per `planning/README.md`; restore rehearsal.
+- Launch per governance: no "mostly ready."
+
+## Owner open items
+
+- Final legal/Gallery/Core Values content (spec §8) — before public-user launch, not before beta. Legal desk design deferred until counsel exists (Gate 0 ruling 3).
+- Exact BYOK provider list (OpenAI/Anthropic-based; adapters are generic already).

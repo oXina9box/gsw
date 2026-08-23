@@ -387,6 +387,8 @@ Secondary routes `/app/agents` and `/app/builder` remain reachable through the a
 
 **Displays:** Brief, channel, lane/agent progress, approvals, artifacts, GenPlay documents, shot versions, events, budget, schedule, and release readiness.
 
+**Assembly workbench (owner ruling 2026-08-23):** Production detail includes an assembly workbench — ordered shot sequence, trim/keep decisions, audio/music choices — that produces an edit decision list and assembly package for off-site editing, with pasted/uploaded results stored in the same artifact slots the worker uses. A full in-browser timeline editor is a later provider-era upgrade on the same interface, not beta scope.
+
 **Result:** One authorized source of truth for production decisions and history.
 
 ### `/app/assets` — Assets warehouse
@@ -401,13 +403,13 @@ Secondary routes `/app/agents` and `/app/builder` remain reachable through the a
 
 `/app/universe` and `/app/dna` become Assets subviews. `/app/genplay` is not a primary page; it redirects to an Assets-filtered view or production document view.
 
-### `/app/orchestration` — Conditional workflow diagnostics
+### `/app/orchestration` — Workflow builder (owner ruling 2026-08-23)
 
-**Need:** Inspect generic workflow rules and execution steps only when owner explicitly enables the experimental feature.
+**Need:** Configure, run, and inspect the studio's production workflows. This is the supported surface for customizable flows: departments, lanes, handoff rules, collaboration modes, and execution state.
 
-**Flow:** Feature flag permits the route; owner inspects workflow, handoffs, executions, and errors. Disabled state returns not-found and never appears in navigation.
+**Flow:** Start from a template (the 13-stage Gem Studio default, or a trimmed/bespoke definition); edit workflow definitions, lanes, and handoff rules; run productions through them; inspect executions, steps, and errors.
 
-**Result:** Experimental diagnostics cannot become an accidental fifth module or replace the supported 13-stage production flow.
+**Result:** Workflow definitions are user-owned, versioned workspace data. The fixed 13-stage flow ships as the default template, not hard-coded law; built-in and custom definitions run through the same engine. This remains inside the Studio module — it does not add a fifth module.
 
 ## 6. Account pages
 
@@ -467,3 +469,4 @@ Dry launch must verify:
 - Premium agent protection and entitlement rules.
 - Self-hosted packaging and supported limits.
 - Data retention, deletion, and model-training policy.
+- Legal/clearance desk design (owner ruling 2026-08-23: deferred — no legal advisors engaged; do not build until counsel input exists).

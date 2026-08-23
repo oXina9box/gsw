@@ -27,7 +27,7 @@ No implementation may silently invent behavior where one of these contracts is m
 | `/app/builder`, `/app/studio`, `/app/front-office`, `/app/productions/[productionId]`, `/app/assets`, `/app/universe`, `/app/dna` | Studio | Authenticated workspace | Configure lanes, run productions, manage warehouse | State transitions, lineage, Storage policy |
 | `/account`, `/app/billing`, `/app/integrations` | Account | Authenticated account/workspace | Secure identity, data, providers, and usage | MFA, export/delete, secret masking, read-only dry billing |
 | `/app/genplay` | Studio compatibility | Authenticated workspace | Redirect legacy GenPlay entry into Assets/document view | Redirect and authorization |
-| `/app/orchestration` | Studio conditional | Feature flag + authenticated | Inspect experimental workflow execution | Hidden when disabled; RLS when enabled |
+| `/app/orchestration` | Studio | Authenticated workspace | Workflow builder: configure/run/inspect customizable production workflows; 13-stage default template (owner ruling 2026-08-23) | Definition CRUD, execution states, RLS, default template integrity |
 | `/dashboard`, not-found, error | Compatibility/system | Context-dependent | Preserve safe migration and recovery | Redirect, generic 404, retry, no leakage |
 
 ## 3. Shared interface contracts

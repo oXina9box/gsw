@@ -1,8 +1,10 @@
 # Lane Theory — Studio Operating Model
 
-**Status:** Owner-dictated spec, ready for review
+**Status:** Owner-approved direction; implementation-state annotations below
 **Source:** Owner interviews, 2026-08-22/23
-**Role:** The core workflow model for the live product. Supersedes the demo's fixed 13-department step counter as the product law.
+**Role:** The workflow-behavior law for the live product (how work flows through lanes/desks). `site-workflow-spec.md` remains the authority for routes, modules, contracts, and security; where the two conflict on workflow behavior, this document reflects the owner's latest direction and the conflict must be resolved spec-first (see `beta-execution-plan.md` Gate 0).
+
+**Building metaphor:** studio = building · department = floor · stage = segment on the floor · lane = working team · desk = agent.
 
 ## 1. Principle
 
@@ -64,4 +66,23 @@ Finished production is chopped up by the social team: prep posts → market with
 
 ## 8. Post-launch hooks
 
-`planning/post-launch.md` (pending — owner will drop it). Architecture must leave room for those items so nothing needs a rearchitect after launch. Schema/hook design review happens against that list when it lands.
+`planning/post-launch.md` defines the staged commercial roadmap (owner-only → invited beta → paid cloud → agent marketplace → public signup → self-hosted → teams → workflow customization → platform expansion). Architecture must keep those stages additive: capability resolver, operational policy, durable effects, provider adapters, server-authoritative billing facts, audited security changes, data classification, expand/contract migrations, stable view models (its §1 foundation contract). No owner-launch decision may close a door the roadmap opens.
+
+## 9. Implementation state vs. this spec (2026-08-23)
+
+Owner rulings since first draft: **no stubs anywhere** (features ship working, or as interfaces awaiting a backend that doesn't exist yet); season structure fully built-in and flexible (film / set seasons / open-ended — user decides); lore keeper = continuity role spanning scenes/seasons/channels (Johnny stays divorced); budget = free/mid/best model-tier recommendations + user-managed guideline tracking only, real controls deferred until credits exist.
+
+| This spec | Current code (`production` branch) | Gap |
+|---|---|---|
+| §2 Onboarding wizard (studio assistant, guided/fast, first channel, hiring fair) | None — signup drops into cold app | **Missing** |
+| §1/§2 Flow templates, build-from-scratch, bolster/trim | 13 stages hard-coded in `lib/studio/domain.ts`; orchestration workflows exist but marked experimental diagnostics in the site spec | **Resolved 2026-08-23** — customization is core; spec amended; 13-stage flow becomes default template |
+| §3.1 Forward lanes + round-table pass orders (per lane) | Orchestration handoff rules (ordered source→target, payload mapping); no doc-chain semantics, no round-table, conditions only `eq/neq/exists` | **Partial** |
+| §3.2 Casting gate, A/B tiers, B→A promotion | Universe CRUD with versioned/lockable records; worker consumes continuity DNA cast; no tiers/promotion/casting flow | **Partial** |
+| §7 DNA groups (Big 3 + Studio/Channel/Season/Socials/FDNA) | Big 3 only (`dna_records`); deferred groups unrepresented | **Partial** |
+| §4 Production lanes sized by GenPlay | Production detail page + job enqueue + GenPlay shot contracts + ffmpeg `assemble_master` | Exists (13-stage shape) |
+| §6 In-site AI, BYOK + credits, recommended models per role | Real worker via OpenAI-compatible BYOK (`provider_configs`, AES-256-GCM), credit ledger + Stripe checkout, protected inference for premium agents; **no** free/mid/best recommendations, no auto-advance loop, worker needs external poller | **Partial** |
+| §5 Social cycle | Manual signals only; posting/analytics "not enabled in this build" | **Partial** |
+| Video editor (assembly) | `assemble_master` concatenates selected MP4s — no timeline/trim/sequence UI | **Resolved 2026-08-23** — assembly workbench for beta; full editor is provider-era upgrade |
+| Legal/clearance desk | None | **Resolved 2026-08-23** — deferred; no legal advisors engaged, do not build until counsel input exists |
+
+Known defects to fix alongside: `/app/universe/[id]` Manage buttons 404 (route absent); most entities (channels, lanes, agents, workflows) lack edit/delete; CAP_LIMITS defined+tested but not enforced at enforcement points; orchestration conditions silently fail for unsupported ops; `/app/dna` and `/app/genplay` are passive "after migration" views while spec says they become Assets subviews.
