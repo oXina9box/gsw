@@ -1,7 +1,6 @@
 import { SiteFooter } from "@/components/shell/site-footer";
 import { SiteHeader } from "@/components/shell/site-header";
-import { MobileMenuController } from "@/components/shell/mobile-menu";
 
 export default function MarketingLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <><SiteHeader /><MobileMenuController /><main>{children}</main><SiteFooter /></>;
+  return <><SiteHeader /><main>{children}</main><SiteFooter /></>;
 }

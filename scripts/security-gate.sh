@@ -2,13 +2,13 @@
 # scripts/security-gate.sh - vendored red-team audit gate.
 #
 # Runs the in-repo scanner against the working tree in `local` threat mode,
-# then fails (exit 1) if any high-or-worse finding lives in TRACKED code that
+# then fails (exit 1) if any high-or-worse finding lives in VERSIONABLE code that
 # is not quarantined under `_attic/` and is not the vendored scanner under
 # `scripts/vendor/`.
 #
 # Exclusions are intentional and principled, not arbitrary:
-#   * Uncommitted / gitignored build artifacts (web/.next/, web/out/, *.tsbuildinfo,
-#     web/.env*) are not shipped code - `git ls-files` membership drops them.
+#   * Gitignored build artifacts (web/.next/, web/out/, *.tsbuildinfo, web/.env*)
+#     are not shipped code. New, untracked source is scanned before first commit.
 #   * `_attic/` is the <7-day quarantine (pre-existing sinks kept out of the gate).
 #   * `scripts/vendor/` is the vendored scanner; its own regex literals would
 #     self-match CODE008/CODE009 - it is ignored by its own DEFAULT_IGNORED_DIRS
@@ -39,10 +39,10 @@ threshold_rank = rank[thresh]
 
 report = json.load(open("security-audit-report/report.json"))
 
-# Tracked = committed to the index (excludes .next/ build output, untracked
-# source, and gitignored .env files).
+# Versionable = tracked plus untracked, non-ignored files. This prevents new
+# source from bypassing the gate before its first commit.
 tracked = set(os.path.normpath(p) for p in subprocess.check_output(
-    ["git", "ls-files"], text=True, cwd=os.getcwd()).splitlines())
+    ["git", "ls-files", "--cached", "--others", "--exclude-standard"], text=True, cwd=os.getcwd()).splitlines())
 
 in_scope = [
     f for f in report["findings"]
@@ -56,7 +56,7 @@ for f in in_scope:
     print(f"{f['severity']:<8} {f['id']:<9} {f['file']}:{f['line']}  {f['title']}")
 
 print(
-    f"gate: {len(in_scope)} findings at/above {thresh} in tracked code "
+    f"gate: {len(in_scope)} findings at/above {thresh} in versionable code "
     f"(outside _attic/ and scripts/vendor/)"
 )
 sys.exit(1 if in_scope else 0)

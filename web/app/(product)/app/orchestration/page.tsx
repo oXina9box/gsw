@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { notFound } from "next/navigation";
 import { CreateForm } from "@/components/product/create-form";
 import { ExecutionLive } from "@/components/product/execution-live";
 import { createWorkflow, createHandoffRule, deleteHandoffRule, startWorkflowExecution } from "@/app/(product)/actions";
@@ -49,6 +50,7 @@ type ExecutionStep = {
 };
 
 export default async function OrchestrationPage({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
+  if (process.env.EXPERIMENTAL_ORCHESTRATION !== "true") notFound();
   const supabase = await createClient();
   const [{ data: workflows }, { data: lanes }, { data: agents }, { data: executions }, { data: steps }, { data: rules }] = await Promise.all([
     supabase.from("workflows").select("id, name, description").order("name"),
@@ -71,7 +73,6 @@ export default async function OrchestrationPage({ searchParams }: { searchParams
       : agentList.find((a) => a.id === rule.target_agent_id)?.name ?? "agent";
   return (
     <section className="product-page shell">
-      <p className="kicker">Workspace / orchestration</p>
       <h1>Orchestration</h1>
       {params.error && <p className="form-error" role="alert">Unable to save that orchestration record.</p>}
 

@@ -19,3 +19,7 @@ supabase/functions/.env
 *.pem
 *.key
 security-audit-report/
+
+# Supabase CLI local runtime state
+supabase/.temp/
+supabase/.branches/

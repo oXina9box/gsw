@@ -1,13 +1,12 @@
 import Link from "next/link";
-import { createChannel } from "@/app/(product)/actions";
-import { createClient } from "@/lib/supabase/server";
-import { CreateForm } from "@/components/product/create-form";
+import { getWorkspaceContext } from "@/lib/studio/workspace";
 
 export const metadata = { title: "Channels" };
 
-export default async function ChannelsPage({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
-  const supabase = await createClient();
-  const { data: channels, error } = await supabase.from("channels").select("id, name, status").order("created_at", { ascending: false });
-  const params = await searchParams;
-  return <section className="product-page shell"><p className="kicker">Workspace / channels</p><h1>Channels</h1>{(error || params.error === "channel") && <p className="form-error" role="alert">Unable to save or load channels.</p>}<CreateForm action={createChannel} label="New channel" field="name" placeholder="Sci-fi shorts" />{channels?.length ? <div className="grid">{channels.map((channel) => <Link className="card" href={`/app/channels/${channel.id}`} key={channel.id}><p className="kicker">{channel.status}</p><h2>{channel.name}</h2></Link>)}</div> : <div className="panel"><h2>No channels yet.</h2><p className="muted">Create the first channel for this workspace.</p></div>}</section>;
+export default async function ChannelsPage() {
+  const { supabase } = await getWorkspaceContext();
+  const { data: channels, error } = await supabase.from("channels").select("id, name, status, audience, voice, cadence, pillars, productions(id, status)").order("created_at", { ascending: false });
+  return <section className="product-page shell"><div className="section-head"><div><h1>Recurring outlets.</h1></div><Link className="button button-primary" href="/app/marketing">Create channel</Link></div>
+    {error ? <p className="form-error" role="alert">Unable to load channels.</p> : channels?.length ? <div className="grid channel-grid">{channels.map((channel) => { const productions = Array.isArray(channel.productions) ? channel.productions : []; const active = productions.filter((production) => production.status === "active").length; return <Link className="card channel-card" href={`/app/channels/${channel.id}`} key={channel.id}><span className="channel-tag">{channel.status} · {productions.length} productions</span><h2>{channel.name}</h2><p>{channel.audience || "Audience not defined."}</p><dl><div><dt>Voice</dt><dd>{channel.voice || "Open"}</dd></div><div><dt>Cadence</dt><dd>{channel.cadence || "Open"}</dd></div><div><dt>Active</dt><dd>{active}</dd></div></dl></Link>; })}</div> : <div className="panel empty-state"><h2>No channels yet.</h2><p>A channel is a recurring outlet or series under your Studio brand.</p><Link className="button button-primary" href="/app/marketing">Create the first channel</Link></div>}
+  </section>;
 }

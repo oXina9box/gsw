@@ -199,7 +199,13 @@ export async function startExecution(
     return { ok: true, executionId: created.id };
   }
 
-  const first = await runRule(supabase, created, rules[0], actorId);
+  const firstRule = rules.find((rule) => evaluateConditions(created.context, rule.conditions));
+  if (!firstRule) {
+    await supabase.from("executions").update({ status: "completed", completed_at: now, updated_at: now }).eq("id", created.id);
+    await logEvent(supabase, workspaceId, created.id, "execution_completed", null, { reason: "no_matching_rule" });
+    return { ok: true, executionId: created.id };
+  }
+  const first = await runRule(supabase, created, firstRule, actorId);
   if (!first.ok) return first;
   return { ok: true, executionId: created.id };
 }
@@ -237,8 +243,12 @@ export async function advanceExecution(
     return { ok: true };
   }
 
-  const next = sourceRules.find((rule) => rule.trigger_event === trigger);
-  if (!next) return { ok: true }; // waiting for a different trigger
+  const triggerRules = sourceRules.filter((rule) => rule.trigger_event === trigger);
+  const next = triggerRules.find((rule) => evaluateConditions(current.context, rule.conditions));
+  if (!next) {
+    if (triggerRules.length) await logEvent(supabase, current.workspace_id, current.id, "handoff_conditions_unmet", actorId, { trigger });
+    return { ok: true };
+  }
   return runRule(supabase, current, next, actorId);
 }
 

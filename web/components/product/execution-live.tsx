@@ -44,7 +44,7 @@ export type HandoffRule = {
   trigger_event: string;
 };
 
-export function ExecutionLive({ executions, steps, rules }: { executions: Execution[]; steps: ExecutionStep[]; rules: HandoffRule[] }) {
+export function ExecutionLive({ executions, steps }: { executions: Execution[]; steps: ExecutionStep[]; rules: HandoffRule[] }) {
   const [latestExecutions, setLatestExecutions] = useState<Execution[]>(executions);
   const [latestSteps, setLatestSteps] = useState<ExecutionStep[]>(steps);
 
@@ -96,7 +96,7 @@ export function ExecutionLive({ executions, steps, rules }: { executions: Execut
             <div className="section-head">
               <div>
                 <span className="eyebrow">Execution {execution.id.slice(0, 8)}</span>
-                <h3>Status: <span style={{ color: execution.status === "completed" ? "var(--lime)" : execution.status === "failed" ? "#ff4d4f" : "var(--cyan)" }}>{execution.status}</span></h3>
+                <h3>Status: <span className={`execution-status execution-status-${execution.status}`}>{execution.status}</span></h3>
               </div>
               <div style={{ display: "flex", gap: "0.5rem" }}>
                 {execution.status === "running" && (
@@ -115,15 +115,15 @@ export function ExecutionLive({ executions, steps, rules }: { executions: Execut
               </div>
             </div>
 
-            <div style={{ marginTop: "1rem" }}>
+            <div className="context-panel">
               <p className="muted"><strong>Context:</strong> <code>{JSON.stringify(execution.context)}</code></p>
             </div>
 
             {activeStep && (
-              <div className="panel" style={{ marginTop: "1rem", borderColor: "var(--cyan)" }}>
+              <div className="panel active-step-panel">
                 <h4>Active Step: {activeStep.id.slice(0, 8)} ({activeStep.target_kind})</h4>
-                <div style={{ display: "flex", gap: "0.5rem", marginTop: "0.5rem" }}>
-                  <form action={completeExecutionStep} className="inline-form" style={{ marginTop: 0 }}>
+                <div className="active-step-actions">
+                  <form action={completeExecutionStep} className="inline-form inline-form-compact">
                     <input type="hidden" name="step_id" value={activeStep.id} />
                     <input name="output" placeholder='Output JSON e.g. {"result": "ok"}' defaultValue="{}" />
                     <button type="submit" className="button button-primary">Complete step</button>
@@ -131,7 +131,7 @@ export function ExecutionLive({ executions, steps, rules }: { executions: Execut
                   <form action={failExecutionStep} className="inline-form" style={{ marginTop: 0 }}>
                     <input type="hidden" name="step_id" value={activeStep.id} />
                     <input name="error_message" placeholder="Failure reason" defaultValue="Step rejected" />
-                    <button type="submit" className="button button-outline" style={{ color: "#ff4d4f", borderColor: "#ff4d4f" }}>Fail step</button>
+                    <button type="submit" className="button button-outline danger-button">Fail step</button>
                   </form>
                 </div>
               </div>

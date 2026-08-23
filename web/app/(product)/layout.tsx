@@ -1,12 +1,9 @@
-import { SiteFooter } from "@/components/shell/site-footer";
-import { SiteHeader } from "@/components/shell/site-header";
-import { MobileMenuController } from "@/components/shell/mobile-menu";
-import { createClient } from "@/lib/supabase/server";
-import { redirect } from "next/navigation";
+import { StudioNav } from "@/components/product/studio-nav";
+import { getWorkspaceContext } from "@/lib/studio/workspace";
 
 export default async function ProductLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect("/login?next=/app");
-  return <><SiteHeader /><MobileMenuController /><main>{children}</main><SiteFooter /></>;
+  const { membership } = await getWorkspaceContext();
+  const workspace = membership.workspaces as { name?: unknown } | null;
+  const studioName = typeof workspace?.name === "string" ? workspace.name : "Gem Studio";
+  return <><StudioNav studioName={studioName} orchestrationEnabled={process.env.EXPERIMENTAL_ORCHESTRATION === "true"} /><main>{children}</main></>;
 }
