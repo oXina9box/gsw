@@ -1,5 +1,6 @@
 // ponytail: inline styles retained — lint passes, extract to CSS module if drift flagged
 import Link from "next/link";
+import { CAP_LIMITS } from "@/lib/studio/caps";
 
 export const metadata = {
   title: "Pricing & Editions",
