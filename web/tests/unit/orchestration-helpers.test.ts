@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { evaluateConditions, mapPayload } from "../../lib/orchestration/engine";
+import { evaluateConditions, mapPayload, validateConditions } from "../../lib/orchestration/engine";
 
 describe("mapPayload", () => {
   it("maps nested values without changing the input", () => {
@@ -31,6 +31,7 @@ describe("evaluateConditions", () => {
     expect(evaluateConditions(context, [{ field: "owner", op: "exists" }])).toBe(false);
   });
 
+
   it("returns false when a condition does not match", () => {
     expect(evaluateConditions(context, [{ field: "status", op: "eq", value: "draft" }])).toBe(false);
     expect(evaluateConditions(context, [{ field: "metadata.score", op: "neq", value: 8 }])).toBe(false);
@@ -45,5 +46,17 @@ describe("evaluateConditions", () => {
     expect(evaluateConditions(context, [{}])).toBe(false);
     expect(evaluateConditions(context, [{ field: 12 }])).toBe(false);
     expect(evaluateConditions(context, [{ field: "status", op: "equals", value: "approved" }])).toBe(false);
+  });
+});
+
+describe("validateConditions", () => {
+  it("accepts unrestricted and supported conditions", () => {
+    expect(validateConditions(null)).toEqual([]);
+    expect(validateConditions([{ field: "status", value: "approved" }, { field: "score", op: "neq", value: 7 }, { field: "owner", op: "exists" }])).toEqual([]);
+  });
+  it("reports malformed conditions", () => {
+    expect(validateConditions({ field: "status" })).toEqual(["Conditions must be a JSON array."]);
+    expect(validateConditions([{ field: "status", op: "equals", value: "approved" }])).toEqual(["Condition 1 operator must be one of: eq, neq, exists."]);
+    expect(validateConditions(["status"])).toEqual(["Condition 1 must be an object."]);
   });
 });

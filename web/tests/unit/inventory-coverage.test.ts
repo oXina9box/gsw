@@ -77,9 +77,8 @@ describe("inventory coverage", () => {
     for (const file of files) {
       const content = readFileSync(path.join(migDir, file), "utf-8");
       const re = /create table(?: if not exists)?\s+([a-z0-9_."]+)/gi;
-      let m: RegExpExecArray | null;
-      while ((m = re.exec(content))) {
-        const name = m[1].replace(/"/g, "").toLowerCase();
+      for (const match of content.matchAll(re)) {
+        const name = match[1].replace(/"/g, "").toLowerCase();
         if (name.startsWith("public.")) tables.add(name);
       }
     }

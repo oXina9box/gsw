@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { NextResponse } from "next/server";
 import { createAuditEvent } from "@/lib/studio/foundations";
+import { evaluateJobAdmission } from "@/lib/studio/caps";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { executeStudioJob } from "@/lib/studio/worker";
 import { verifyWorkerAuthorization } from "@/lib/studio/worker-auth";
@@ -19,6 +20,15 @@ export async function POST(request: Request) {
   const job = jobs?.[0];
   if (error) return NextResponse.json({ error: "Could not claim work" }, { status: 500 });
   if (!job) return NextResponse.json({ processed: false }, { status: 200 });
+  const [{ count: workspaceRunning, error: workspaceCountError }, { count: globalRunning, error: globalCountError }] = await Promise.all([
+    admin.from("job_queue").select("id", { count: "exact", head: true }).eq("status", "running").eq("workspace_id", job.workspace_id).neq("id", job.id),
+    admin.from("job_queue").select("id", { count: "exact", head: true }).eq("status", "running").neq("id", job.id),
+  ]);
+  const admission = evaluateJobAdmission({ workspaceRunning: workspaceRunning ?? 0, globalRunning: globalRunning ?? 0, policyAvailable: !workspaceCountError && !globalCountError });
+  if (!admission.admit) {
+    console.log(JSON.stringify(createAuditEvent({ actorId: "worker", workspaceId: job.workspace_id, action: "job_admission_deferred", target: job.id, outcome: "denied", metadata: { reason: admission.reason } })));
+    return NextResponse.json({ processed: false, deferred: true, reason: admission.reason }, { status: 200 });
+  }
   try {
     const result = await executeStudioJob(admin, job, encryptionKey);
     const { data: settled, error: finishError } = await admin.rpc("finish_studio_job", { target_job: job.id, worker_id: workerId, succeeded: true, job_result: result, failure_message: "", actual_credits: job.credit_reservation });

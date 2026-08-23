@@ -1,7 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { evaluateConditions, mapPayload } from "./helpers";
 
-export { evaluateConditions, mapPayload } from "./helpers";
+export { evaluateConditions, mapPayload, validateConditions } from "./helpers";
 
 export type TriggerEvent = "completion" | "approval" | "manual" | "timeout";
 export type NodeKind = "lane" | "agent";

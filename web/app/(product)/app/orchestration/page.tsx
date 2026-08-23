@@ -2,7 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
 import { CreateForm } from "@/components/product/create-form";
 import { ExecutionLive } from "@/components/product/execution-live";
-import { createWorkflow, createHandoffRule, deleteHandoffRule, startWorkflowExecution } from "@/app/(product)/actions";
+import { createWorkflow, createHandoffRule, deleteHandoffRule, deleteWorkflow, startWorkflowExecution } from "@/app/(product)/actions";
 
 export const metadata = { title: "Orchestration" };
 
@@ -91,6 +91,11 @@ export default async function OrchestrationPage({ searchParams }: { searchParams
                 <button className="button button-outline" type="submit">Start execution</button>
               </form>
             </div>
+              <form action={deleteWorkflow} className="inline-form">
+                <input type="hidden" name="workflow_id" value={workflow.id} />
+                <label className="check-row"><input name="confirm_delete" type="checkbox" required />Delete workflow</label>
+                <button className="button button-outline" type="submit">Delete workflow</button>
+              </form>
             <p className="muted">{workflow.description || "No description"}</p>
             <div className="section-head" style={{ marginTop: "1.5rem" }}>
               <h4>Handoff rules</h4>
@@ -136,6 +141,7 @@ export default async function OrchestrationPage({ searchParams }: { searchParams
                       <option value="timeout">On timeout</option>
                     </select>
                   </label>
+                  <label>Conditions (JSON)<input name="conditions" placeholder='[{"field":"status","value":"approved"}]' /></label>
                   <button className="button button-primary" type="submit">Add rule</button>
                 </form>
               </details>

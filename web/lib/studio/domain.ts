@@ -67,3 +67,14 @@ export function textField(formData: FormData, name: string, maxLength = 120) {
   const value = String(formData.get(name) ?? "").trim();
   return value && value.length <= maxLength ? value : null;
 }
+
+export type AdvancementReason = "job_failed" | "complete" | "manual" | "awaiting_approval" | "advanced";
+export type AdvancementDecision = Readonly<{ advanceStep: boolean; enqueueNext: boolean; reason: AdvancementReason }>;
+
+export function decideAdvancement(input: Readonly<{ runMode: RunMode; currentStep: number; totalSteps: number; pendingApprovals: number; lastJobSucceeded: boolean }>): AdvancementDecision {
+  if (!input.lastJobSucceeded) return Object.freeze({ advanceStep: false, enqueueNext: false, reason: "job_failed" });
+  if (input.currentStep >= input.totalSteps) return Object.freeze({ advanceStep: false, enqueueNext: false, reason: "complete" });
+  if (input.runMode === "manual") return Object.freeze({ advanceStep: false, enqueueNext: false, reason: "manual" });
+  if (input.pendingApprovals > 0) return Object.freeze({ advanceStep: false, enqueueNext: false, reason: "awaiting_approval" });
+  return Object.freeze({ advanceStep: true, enqueueNext: input.runMode === "auto", reason: "advanced" });
+}

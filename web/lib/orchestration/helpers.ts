@@ -40,3 +40,19 @@ export function evaluateConditions(context: Record<string, unknown>, conditions:
     }
   });
 }
+
+const CONDITION_OPS: Record<string, true> = { eq: true, neq: true, exists: true };
+
+export function validateConditions(conditions: unknown): readonly string[] {
+  if (conditions === null || conditions === undefined) return [];
+  if (!Array.isArray(conditions)) return ["Conditions must be a JSON array."];
+  const errors: string[] = [];
+  conditions.forEach((entry, index) => {
+    const label = `Condition ${index + 1}`;
+    if (entry === null || typeof entry !== "object" || Array.isArray(entry)) { errors.push(`${label} must be an object.`); return; }
+    const condition = entry as Condition;
+    if (typeof condition.field !== "string" || condition.field.length === 0) errors.push(`${label} needs a field.`);
+    if (condition.op !== undefined && !CONDITION_OPS[condition.op]) errors.push(`${label} operator must be one of: eq, neq, exists.`);
+  });
+  return errors;
+}

@@ -23,14 +23,15 @@ Owner rulings, all now reflected in `site-workflow-spec.md` and `spec-contract-c
 3. **Legal/clearance desk: deferred** — no legal advisors engaged; do not build until counsel input exists. Recorded in spec §8 open questions.
 4. **Orchestration promoted to the supported workflow builder** (Studio module surface) per the amended spec section.
 
-## Phase 1 — Defects and truthfulness (small, immediate)
+## Phase 1 — Defects and truthfulness (COMPLETE 2026-08-23)
 
-- Fix `/app/universe/[id]` dead Manage links (route or remove buttons).
-- Edit/delete for created entities: channels, lanes, agents, workflows (spec allows channel deletion only via Account — honor that; others get their surfaces).
-- Enforce CAP_LIMITS at the real enforcement points (worker, uploads) — currently a seam.
-- Orchestration conditions: reject unsupported ops loudly instead of silently failing rules.
-- Make `/app/dna` and `/app/genplay` the spec'd Assets subviews/redirects instead of passive "after migration" pages.
-- Auto run-modes: define the advance loop for `semi_auto`/`auto` (worker poll cadence, approval gates honored) so auto doesn't stall.
+- `/app/universe/[id]` Manage destination renders workspace-scoped, lock-aware DNA editing.
+- Agents, lanes, workflows support confirmed deletion; channels support editing only.
+- Worker concurrency plus clip file/daily caps enforce at worker and registration boundaries.
+- Handoff conditions validate before persistence; unsupported operators reject.
+- `/app/dna` and `/app/genplay` redirect to canonical Studio surfaces.
+- `semi_auto` and `auto` advancement behavior is implemented in `finish_studio_job`; worker helper tests define decision contract.
+- Verification: `npm run typecheck`, `npm run lint`, `npm test` (21 files / 102 tests), `npm run build`, `scripts/test-migrations.sh`, and `scripts/security-gate.sh` (0 in-scope high findings).
 
 ## Phase 2 — Lane theory core (the workflow law)
 
