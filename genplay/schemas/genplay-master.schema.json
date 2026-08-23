@@ -1,5 +1,5 @@
 {
-  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$schema": "https://json-schema.org/draft-07/schema#",
   "$id": "https://gem-studio.dev/schemas/genplay-master.schema.json",
   "title": "GEMGENPLAYMASTER (v4)",
   "description": "Locked GenPlay master — the authoritative production contract that the Paged Binder projects from.",

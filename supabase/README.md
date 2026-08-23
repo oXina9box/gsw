@@ -1,7 +1,7 @@
 # Gem Studio Supabase
 
-Future live-product database migrations for the Next.js application in `web/`.
+Apply `migrations/*.sql` in filename order to a development project, then production after a backup and migration dry run.
 
-Apply migrations to a development Supabase project before testing account creation. The initial migration creates private individual workspaces, workspace-scoped channels/productions, and versioned JSONB DNA records with RLS.
+Account deletion is intentionally not an Edge Function. The web app schedules a recoverable request, and the separately authenticated `/api/maintenance/purge` worker removes private Storage objects before deleting the Auth user after 30 days.
 
-The current repository demo data is intentionally not seeded. Examples/templates under `dna/` and `genplay/` are migration inputs only until explicitly classified and imported.
+The invite-only beta also requires public signup to be disabled in Supabase Auth. Configure production site/callback URLs, SMTP, email confirmation, password recovery, and TOTP before launch. Never expose secret/service-role keys to browser code.

@@ -1,17 +1,73 @@
 import Link from "next/link";
 
-const desks = [
-  ["01", "Marketing department", "Find the angle.", "Turn a loose brief into a point of view, campaign shape, and reason to keep watching.", "/studio"],
-  ["02", "Creative department", "Make it feel inevitable.", "Build the visual language, world, and detail that makes a frame yours.", "/studio"],
-  ["03", "Production department", "Move the frame.", "Generate, direct, refine, and finish without losing the original spark.", "/system"],
-  ["04", "Social workshop", "Keep it alive.", "Turn one piece of work into native formats, conversations, and feedback.", "/social-workshop"],
-];
+import { HeroStage } from "@/components/marketing/hero-stage";
+import { SignalBoard } from "@/components/marketing/signal-board";
+import { createClient } from "@/lib/supabase/server";
 
-export default function HomePage() {
-  return <div className="shell">
-    <section className="hero"><div><p className="eyebrow">Online AI film studio · Open for briefs</p><h1>Make the <em>impossible</em> feel scheduled.</h1><p className="lede">Gem Studio brings the thinking, making, moving, and sharing of a film into one connected creative floor.</p><div className="actions"><Link className="button button-primary" href="/signup">Create your account ↗</Link><Link className="button button-outline" href="#studio">Walk the floor ↓</Link></div></div><div className="panel"><p className="kicker">Current frame / live system</p><h2>Story → frame → signal</h2><p className="muted">Every brief carries its context forward. No black box between the thought and the finished frame.</p></div></section>
-    <section className="section" id="studio"><div className="section-head"><div><p className="kicker">The studio</p><h2>Four desks. <span>One moving picture.</span></h2></div><p className="intro">Not a toolbox. A creative floor where every department can see what the next one needs.</p></div><div className="grid">{desks.map(([number, label, title, copy, href]) => <article className="card" key={number}><p className="kicker">{number} · {label}</p><h3>{title}</h3><p>{copy}</p><Link className="text-link" href={href}>Explore this desk ↗</Link></article>)}</div></section>
-    <section className="section" id="system"><div className="section-head"><div><p className="kicker">The handoff</p><h2>The system is <span>the creative.</span></h2></div><p className="intro">Every brief carries its context forward. No black box between the thought and the finished frame.</p></div><div className="flow">{[["01","Brief","Find the signal",""],["02","Build","Shape the world",""],["03","Cut","Move the frame","cyan"],["04","Release","Open the loop","lime"]].map(([n,title,copy,color]) => <div key={n}><span className={`dot ${color}`}></span><strong>{n} · {title}</strong><small>{copy}</small></div>)}</div><Link className="text-link" href="/system">See the full handoff system ↗</Link></section>
-    <section className="section" id="social"><div className="panel"><p className="kicker">Signal room</p><h2>The afterlife of a good frame.</h2><p className="lede">Native cuts, conversation prompts, and audience signals become inputs for the next treatment, cut, or world.</p><div className="actions"><Link className="button button-outline" href="/social-workshop">Open the social workshop ↗</Link></div></div></section>
-  </div>;
+const studioGroups = [
+  { number: "01", className: "desk-marketing", label: "Front Office & strategy", title: "Find the angle.", copy: "Shape the brief, audience, channel, rights confirmation, schedule, run mode, and credit ceiling before work begins.", items: ["Research & marketing", "Channel strategy", "Approval planning"], href: "/studio" },
+  { number: "02", className: "desk-creative", label: "Story & continuity", title: "Build a world that holds.", copy: "Develop story, storyboard, script, and screenplay while casting from your private, versioned Studio Universe.", items: ["Script & screenplay", "Private CDNA", "Storyboard continuity"], href: "/studio" },
+  { number: "03", className: "desk-production", label: "AI & video production", title: "Move the frame.", copy: "Turn approved work into read-only GenPlay prompts, upload exact shot versions, and assemble selected media into finished masters.", items: ["Hybrid model routing", "Shot versioning", "Native assembly"], href: "/system" },
+  { number: "04", className: "desk-social", label: "Launch & signals", title: "Keep it alive.", copy: "Plan platform-specific packages and return useful audience signals to the next brief. Direct posting stays gated until platform adapters are approved.", items: ["Release planning", "Manual signal capture", "Private signal loop"], href: "/social-workshop" },
+] as const;
+
+const flow = [
+  ["01", "Brief", "Scope the signal", ""],
+  ["02", "Build", "Story and continuity", "amber"],
+  ["03", "Assemble", "Select and finish", "cyan"],
+  ["04", "Release", "Plan and learn", "lime"],
+] as const;
+
+export default async function HomePage() {
+  let authenticated = false;
+  try { authenticated = Boolean((await (await createClient()).auth.getUser()).data.user); } catch { /* The public site also renders without local Supabase credentials. */ }
+  const entryHref = authenticated ? "/app" : "/signup";
+
+  return <>
+    <section className="hero shell">
+      <div className="hero-copy">
+        <p className="eyebrow"><span className="eyebrow-rule" /><span className="pulse-dot" /> Invite-only AI film studio · Beta credits included</p>
+        <h1>Make the <span className="hero-emphasis">impossible</span> feel scheduled.</h1>
+        <p className="hero-lede">Turn a brief into a structured production across 13 departments—with hired AI agents, human approvals, private continuity, and native assembly.</p>
+        <div className="hero-actions">
+          <Link className="button button-primary" href={entryHref}>{authenticated ? "Open your Studio" : "Create your Studio"} ↗</Link>
+          <Link className="button button-outline" href="#studio">Walk the floor</Link>
+          <Link className="text-link" href="#system">See the handoff ↓</Link>
+        </div>
+        <div className="hero-footnote"><span>One Studio. Multiple channels.</span><span>01 — 13</span></div>
+      </div>
+      <HeroStage />
+    </section>
+
+    <div className="ticker" aria-hidden="true"><div className="ticker-track">
+      {[0, 1].map((copy) => <span key={copy}>Research <b>✦</b> Marketing <b>✦</b> Creative <b>✦</b> Story <b>✦</b> Storyboard <b>✦</b> Script <b>✦</b> Screenplay <b>✦</b> AI Conversion <b>✦</b> Video Production <b>✦</b> Launch <b>✦</b> Social <b>✦</b> Reporting <b>✦</b></span>)}
+    </div></div>
+
+    <section className="studio-section shell" id="studio">
+      <div className="section-head"><h2>Thirteen departments. <span>One moving picture.</span></h2><p className="section-intro">A fixed production floor with configurable lanes, hired agents, explicit handoffs, and approvals that stay visible.</p></div>
+      <div className="desk-grid">
+        {studioGroups.map((group) => <article className={`desk-card ${group.className}`} key={group.number}>
+          <div className="desk-card-head"><span className="desk-number">{group.number}</span><span className="desk-signal" /></div>
+          <p className="desk-label">{group.label}</p><h3>{group.title}</h3><p>{group.copy}</p>
+          <ul>{group.items.map((item) => <li key={item}>{item}</li>)}</ul>
+          <Link className="card-arrow" href={group.href} aria-label={`Explore ${group.label}`}>↗</Link>
+        </article>)}
+      </div>
+    </section>
+
+    <section className="system-section shell" id="system">
+      <div className="section-head section-head-system"><h2>The system is <span>the creative.</span></h2><p className="section-intro">Manual, semi-automatic, or automatic runs move only within the approvals, provider limits, and credit cap you set.</p></div>
+      <div className="flow-board"><div className="flow-line" aria-hidden="true" />{flow.map(([number, title, copy, tone]) => <div className="flow-step" key={number}><span className="flow-index">{number}</span><span className={`flow-dot ${tone ? `flow-dot-${tone}` : ""}`} /><div><strong>{title}</strong><small>{copy}</small></div></div>)}</div>
+      <div className="quote-panel"><p>“Automation can move the work. <span>Human judgment decides what ships.</span>”</p><div><span className="quote-line" /> Gem Studio / operating principle</div></div>
+    </section>
+
+    <section className="social-section shell" id="social">
+      <div className="social-workbench">
+        <div className="workbench-copy"><div className="workbench-orbit" aria-hidden="true">↗</div><h3>The afterlife of a good frame.</h3><p>Plan release variants and metadata, then save available performance and conversation as private signals for the next production.</p><Link className="button button-outline" href="/social-workshop">Explore the workshop ↗</Link></div>
+        <SignalBoard />
+      </div>
+    </section>
+
+    <section className="closing-section shell"><div className="closing-rule" /><div className="closing-layout"><h2>Bring the frame <span>before it exists.</span></h2><Link className="button button-primary" href={entryHref}>{authenticated ? "Open your Studio" : "Create your Studio"} ↗</Link></div></section>
+  </>;
 }

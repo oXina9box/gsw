@@ -2,23 +2,38 @@
   "name": "gem-studio-web",
   "private": true,
   "version": "0.1.0",
+  "license": "AGPL-3.0-or-later",
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev -p 8080 -H 0.0.0.0",
     "build": "next build",
     "start": "next start",
-    "typecheck": "tsc --noEmit"
+    "lint": "eslint . --max-warnings=0",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "test:e2e": "playwright test",
+    "typecheck": "next typegen && tsc --noEmit"
   },
+  "engines": {
+    "node": "22.22.2"
+  },
+  "packageManager": "npm@12.0.2",
   "dependencies": {
     "@supabase/ssr": "^0.7.0",
     "@supabase/supabase-js": "^2.57.0",
-    "next": "^15.5.0",
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0"
+    "langfuse": "^3.38.20",
+    "next": "^16.3.1",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
   },
   "devDependencies": {
+    "@playwright/test": "^1.55.0",
     "@types/node": "^22.0.0",
-    "@types/react": "^19.0.0",
-    "@types/react-dom": "^19.0.0",
-    "typescript": "^5.8.0"
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.4",
+    "@vitest/coverage-v8": "^3.2.4",
+    "eslint": "^9.0.0",
+    "eslint-config-next": "^16.3.1",
+    "typescript": "^5.8.0",
+    "vitest": "^3.2.4"
   }
 }

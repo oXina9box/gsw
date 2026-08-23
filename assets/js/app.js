@@ -5,7 +5,8 @@
 /* Gem Studio · app shell · localStorage store (swap for API later) */
 const LS = 'gem-studio-v1';
 const DEPTS = ['Research','Marketing','Creative','Story','Storyboard','Script','Screenplay','AI Conversion','Video Production','Launch','Social Posting','Social Management','Reporting'];
-const uid = p => p + Math.random().toString(36).slice(2, 7);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid = p => p + crypto.getRandomValues(new Uint32Array(1))[0].toString(36);
 
 const agentFiles = (n, t) => ({
   role: `You are the ${n}. ${t === 'supervisor' ? 'You supervise the lane; approve or kick back work.' : 'You produce work and hand it to the next agent.'}`,
@@ -71,17 +72,17 @@ function studioView() {
   </div>
   <p class="desk-label">Channels</p>
   <div class="ch-grid">${db.channels.map(c => `
-    <a class="ch-card" href="#/channel/${c.id}">
-      <div class="ch-top"><b>${c.name}</b><span class="dot ${c.status}"></span></div>
-      <small>${c.identity.voice}</small>
-      <small>${c.strategy.cadence} · ${c.strategy.pillars.slice(0, 2).join(' · ')}</small>
+    <a class="ch-card" href="#/channel/${esc(c.id)}">
+      <div class="ch-top"><b>${esc(c.name)}</b><span class="dot ${c.status}"></span></div>
+      <small>${esc(c.identity.voice)}</small>
+      <small>${esc(c.strategy.cadence)} · ${esc(c.strategy.pillars.slice(0, 2).join(' · '))}</small>
       <div class="ch-count">${db.productions.filter(p => p.ch === c.id).length} productions</div>
     </a>`).join('')}
   </div>
   <p class="desk-label">Active productions</p>
   <div class="prod-list">${act.map(p => `
-    <a class="prod-row" href="#/production/${p.id}">
-      <span class="prod-name">${p.title}</span><span class="prod-dept">${DEPTS[p.step]}</span>${pipe(p.step)}
+    <a class="prod-row" href="#/production/${esc(p.id)}">
+      <span class="prod-name">${esc(p.title)}</span><span class="prod-dept">${DEPTS[p.step]}</span>${pipe(p.step)}
     </a>`).join('')}
   </div>`;
   bindAdd();
@@ -92,17 +93,17 @@ function channelView(id) {
   const prods = db.productions.filter(p => p.ch === id);
   root.innerHTML = `
   <div class="app-head">
-    <div><p class="section-kicker"><a class="text-link" href="#/">← Studio</a></p><h1 class="app-title">${c.name}</h1></div>
-    <button class="button button-primary" data-add="production" data-ch="${c.id}">+ Production</button>
+    <div><p class="section-kicker"><a class="text-link" href="#/">← Studio</a></p><h1 class="app-title">${esc(c.name)}</h1></div>
+    <button class="button button-primary" data-add="production" data-ch="${esc(c.id)}">+ Production</button>
   </div>
   <div class="id-grid">
-    <div class="panel"><p class="desk-label">Identity</p><small>Audience — ${c.identity.audience}</small><small>Voice — ${c.identity.voice}</small></div>
-    <div class="panel"><p class="desk-label">Strategy</p><small>Cadence — ${c.strategy.cadence}</small><small>Pillars — ${c.strategy.pillars.join(' · ')}</small></div>
+    <div class="panel"><p class="desk-label">Identity</p><small>Audience — ${esc(c.identity.audience)}</small><small>Voice — ${esc(c.identity.voice)}</small></div>
+    <div class="panel"><p class="desk-label">Strategy</p><small>Cadence — ${esc(c.strategy.cadence)}</small><small>Pillars — ${esc(c.strategy.pillars.join(' · '))}</small></div>
   </div>
   <p class="desk-label">Productions</p>
   <div class="prod-list">${prods.map(p => `
-    <a class="prod-row" href="#/production/${p.id}">
-      <span class="prod-name">${p.title}</span><span class="prod-dept">${p.step < DEPTS.length ? DEPTS[p.step] : 'Shipped'}</span>${pipe(p.step)}
+    <a class="prod-row" href="#/production/${esc(p.id)}">
+      <span class="prod-name">${esc(p.title)}</span><span class="prod-dept">${p.step < DEPTS.length ? DEPTS[p.step] : 'Shipped'}</span>${pipe(p.step)}
     </a>`).join('') || '<small class="muted">None yet.</small>'}
   </div>`;
   bindAdd();
@@ -112,8 +113,8 @@ function productionView(id) {
   const p = db.productions.find(x => x.id === id); if (!p) return studioView();
   root.innerHTML = `
   <div class="app-head">
-    <div><p class="section-kicker"><a class="text-link" href="#/channel/${p.ch}">← Channel</a></p><h1 class="app-title">${p.title}</h1></div>
-    ${p.step < DEPTS.length ? `<button class="button button-primary" data-advance="${p.id}">Advance → ${DEPTS[p.step]}</button>` : '<span class="prod-dept">SHIPPED</span>'}
+    <div><p class="section-kicker"><a class="text-link" href="#/channel/${esc(p.ch)}">← Channel</a></p><h1 class="app-title">${esc(p.title)}</h1></div>
+    ${p.step < DEPTS.length ? `<button class="button button-primary" data-advance="${esc(p.id)}">Advance → ${DEPTS[p.step]}</button>` : '<span class="prod-dept">SHIPPED</span>'}
   </div>
   <div class="dept-flow">${DEPTS.map((d, i) => `
     <div class="dept-step ${i < p.step ? 'done' : i === p.step ? 'now' : ''}"><i></i><strong>${d}</strong></div>`).join('')}
@@ -129,14 +130,14 @@ function builderView() {
   </div>
   ${db.departments.map(d => `
     <section class="b-dept">
-      <div class="b-dept-head"><strong>${d.name}</strong>
-        <button class="button button-outline" data-add="lane" data-dept="${d.id}">+ Lane</button></div>
+      <div class="b-dept-head"><strong>${esc(d.name)}</strong>
+        <button class="button button-outline" data-add="lane" data-dept="${esc(d.id)}">+ Lane</button></div>
       ${d.lanes.map(l => `
         <div class="b-lane">
-          <div class="b-lane-head"><b>${l.name}</b>
-            <button class="button button-outline" data-add="agent" data-dept="${d.id}" data-lane="${l.id}">+ Agent</button></div>
+          <div class="b-lane-head"><b>${esc(l.name)}</b>
+            <button class="button button-outline" data-add="agent" data-dept="${esc(d.id)}" data-lane="${esc(l.id)}">+ Agent</button></div>
           <div class="b-agents">${l.agents.map(a => `
-            <button class="chip ${a.type}" data-agent="${a.id}" data-lane="${l.id}" data-dept="${d.id}">${a.name}<em>${a.type === 'supervisor' ? '★' : '·'}</em></button>`).join('') || '<small class="muted">No agents yet.</small>'}
+            <button class="chip ${a.type}" data-agent="${esc(a.id)}" data-lane="${esc(l.id)}" data-dept="${esc(d.id)}">${esc(a.name)}<em>${a.type === 'supervisor' ? '★' : '·'}</em></button>`).join('') || '<small class="muted">No agents yet.</small>'}
           </div>
         </div>`).join('')}
     </section>`).join('')}`;
@@ -150,10 +151,10 @@ function builderView() {
 /* ---- agent editor: the six files ---- */
 function editAgent(a) {
   const d = document.createElement('dialog'); d.className = 'command-dialog dialog-wide';
-  d.innerHTML = `<div class="dialog-topline"><span>${a.name} · ${a.type}</span><button class="dialog-close" data-x>×</button></div>
+  d.innerHTML = `<div class="dialog-topline"><span>${esc(a.name)} · ${esc(a.type)}</span><button class="dialog-close" data-x>×</button></div>
   <form class="modal-form" method="dialog">
     ${['role', 'soul', 'jobdescription', 'skills', 'memory', 'user'].map(k => `
-      <label><span>${k}.md</span><textarea name="${k}" rows="${k === 'jobdescription' ? 6 : 3}">${a.files[k] || ''}</textarea></label>`).join('')}
+      <label><span>${k}.md</span><textarea name="${k}" rows="${k === 'jobdescription' ? 6 : 3}">${esc(a.files[k] || '')}</textarea></label>`).join('')}
     <button class="button button-primary" value="ok">Save agent</button>
   </form>`;
   root.appendChild(d); d.showModal();
@@ -167,9 +168,9 @@ function editAgent(a) {
 /* ---- easy-add modals ---- */
 function ask(title, fields, cb) {
   const d = document.createElement('dialog'); d.className = 'command-dialog';
-  d.innerHTML = `<div class="dialog-topline"><span>${title}</span><button class="dialog-close" data-x>×</button></div>
+  d.innerHTML = `<div class="dialog-topline"><span>${esc(title)}</span><button class="dialog-close" data-x>×</button></div>
   <form class="modal-form" method="dialog">
-    ${fields.map(f => `<label><span>${f.label}</span><input name="${f.name}" placeholder="${f.ph || ''}" required></label>`).join('')}
+    ${fields.map(f => `<label><span>${esc(f.label)}</span><input name="${esc(f.name)}" placeholder="${esc(f.ph || '')}" required></label>`).join('')}
     <button class="button button-primary" value="ok">Create</button>
   </form>`;
   root.appendChild(d); d.showModal();
@@ -197,7 +198,7 @@ function bindAdd() {
       { name: 'type', label: 'Type (worker | supervisor)', ph: 'worker' }
     ], v => {
       const t = /sup/i.test(v.type) ? 'supervisor' : 'worker';
-      db.departments.find(x => x.id === b.dataset.dept).lanes.find(x => x.id === b.dataset.lane)
+      db.departments.find(d => d.id === b.dataset.dept).lanes.find(x => x.id === b.dataset.lane)
         .agents.push({ id: uid('a'), name: v.name, type: t, files: agentFiles(v.name, t) });
       save(); render();
     });
