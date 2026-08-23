@@ -1,64 +1,47 @@
-# Gem Studio — Website-frame
+# Gem Studio
 
-Atmospheric AI film studio front site + dashboard. **Vanilla HTML/CSS/JS only** — no
-frameworks, no build step, no dependencies.
+Gem Studio is a solo, all-inclusive AI film studio: front-office briefs, 13 production departments, role-matched agents, private DNA continuity, GenPlay shot prompts, clip assembly, release planning, and audience signals in one workspace.
 
-Production data lives in MongoDB and is the registry of record; this tree holds
-only the surface layer. It references characters/productions by their `CHAR-` /
-`AST-` / `LOC-` IDs — it never vendors JSON copies into app code (that is how a
-second, drifting identity system is born).
+The basic platform is open core. Protected agent configurations and credit packs are commercial add-ons. See `LICENSE`.
 
-## Folder map
+## Repository map
 
-```
-Website-frame/
-├── .gitignore              # excludes tool/OS artifacts (never versioned)
-├── README.md               # this file
-├── scripts/
-│   └── structure-audit.sh  # CI + pre-commit guard against layout drift
-├── dna/                    # PRODUCTION — DNA schemas & seeders (read-only)
-├── genplay/                # PRODUCTION — gen-play outputs (read-only)
-└── Gem-Studio/             # the studio app — single home, one entry point
-    ├── index.html          # canonical landing page (entry point)
-    ├── dashboard.html      # the studio dashboard (hash-routed /builder, /channel, …)
-    ├── assets/
-    │   ├── img/            # logo.png, gem-mark.png
-    │   ├── css/
-    │   │   ├── tokens.css  # design tokens ONLY (:root vars + font import)
-    │   │   └── app.css     # layout + components (merged workbench + app layers)
-    │   └── js/
-    │       └── app.js      # all client logic (studio shell + landing interactions)
-    └── _attic/             # superseded files — quarantined 7 days, then purged
+| Path | Purpose |
+|---|---|
+| `web/` | Canonical Next.js production app |
+| `supabase/` | Database migrations and server functions |
+| `dna/` | CDNA, LDNA, and PDNA contracts/examples |
+| `genplay/` | GenPlay contracts, validators, and examples |
+| `index.html`, `dashboard.html`, `assets/` | Approved visual reference demo; retire only after owner sign-off |
+| `planning/` | Reviewed implementation plans |
+| `scripts/` | Repository and security checks |
+
+## Local setup
+
+```bash
+cd web
+cp .env.example .env.local
+npm install
+npm run typecheck
+npm test
+npm run dev
 ```
 
-## Studio brief (preserved from the hallmark preflight)
+Use Node 22.22.2. Apply every migration in `supabase/migrations/` to a development Supabase project before exercising authenticated features.
 
-- Theme: custom OLED studio — dark / geometric-sans / warm + cool chromatic
-- Anchor hue: hot pink
-- Nav: N13 inline command pill (⌘K) · Footer: Ft5 statement
-- Enrichment: Tier-A CSS art · Motion: CSS transitions + small vanilla JS
-- Fonts: Syne · Space Grotesk · DM Mono
+## Verification
 
-## Where new stuff goes
+```bash
+cd web
+npm run lint
+npm run typecheck
+npm run test:coverage
+npm run build
+npm run test:e2e
+cd ..
+bash scripts/structure-audit.sh
+bash scripts/security-gate.sh
+bash scripts/test-migrations.sh
+```
 
-| New thing       | Goes in                                                          |
-|---------------|------------------------------------------------------------------|
-| A page         | `Gem-Studio/*.html`, linked from `index.html`                    |
-| Styles / tokens | `Gem-Studio/assets/css/app.css` / `tokens.css`                  |
-| Logic          | `Gem-Studio/assets/js/app.js` (add `js/modules/` only if it outgrows it) |
-| Images         | `Gem-Studio/assets/img/`                                         |
-| DNA records    | MongoDB via seeders (dna/) — never vendored into app folders     |
-
-## Hygiene / governance
-
-- `scripts/structure-audit.sh` fails CI and pre-commit on drift: loose files at
-  the repo root, assets outside `Gem-Studio/assets/`, missing canonicals, or more
-  than one file per role (the old `styles.css` vs `app.css` vs `tokens.css`
-  split was exactly a clone/typo failure — now: one `app.css`, one `tokens.css`).
-- `dna/` and `genplay/` are locked to seeder/pipeline paths. A PR touching them
-  from any other path should fail CI (enforce in your CI policy; the audit script
-  guards the surface layout).
-- `_attic/` is a 7-day quarantine, not a warehouse: at weekly wrap, purge or
-  promote its contents.
-- Serve + link-check before merging any file move (`python -m http.server 8000`
-  inside `Gem-Studio/`, watch for 404s).
+Deployment still requires owner-controlled Supabase, Stripe, email, provider, social-platform, worker, domain, legal, and Core Values configuration. Never commit service-role keys, provider credentials, OAuth secrets, or Stripe secrets.
