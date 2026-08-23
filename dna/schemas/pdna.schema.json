@@ -1,5 +1,5 @@
 {
-  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$schema": "https://json-schema.org/draft-07/schema#",
   "$id": "https://gemstudio.internal/dna/schemas/pdna.schema.json",
   "title": "Prop DNA (PDNA) v2.2 — Prop Master Registry",
   "description": "PDNA is a PROP MASTER registry, not an asset warehouse. An object becomes PDNA only if it passes the 6-question gate: (1) handled/carried by characters, (2) moves between locations, (3) changes state (damage/repair/destroy), (4) is plot-important, (5) is a channel/brand asset, (6) is a vehicle or animal. Everything else belongs in LDNA set_dressing. Refactored from ADNA: asset_name -> prop_name, asset_type -> prop_type. prop_type enum is EXACTLY ChannelAsset | HeroProp | HandProp | Electronics | Vehicle | Animal. Removed and routed elsewhere: Costume (CDNA wardrobe), Weather (LDNA climate/time_state), Decor / generic furniture / installed TVs (LDNA set_dressing). Clone prevention: metadata.core_signature must include the VARIANT TRAIT (color, size, model); metadata.variant_group groups intentional siblings.",

@@ -1,5 +1,5 @@
 {
-  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$schema": "https://json-schema.org/draft-07/schema#",
   "$id": "https://gemstudio.internal/dna/schemas/ldna.schema.json",
   "title": "Location DNA (LDNA) v2.1 — Exhaustive-but-Trimmed, Visually Deterministic",
   "description": "Master record for a persistent location. Every block belongs to one of three classes documented in its description: FACT (what physically exists), RELATIONSHIP (how things relate spatially), RENDER (how the AI should depict the facts). Classes are documentation only — no class field in the data. Boundary rules: (1) recurring/plot-important objects are PDNA records referenced in set_dressing.prop_bindings, never described inline; (2) named/recurring people are CDNA records referenced in character_connections/casting_profile — human_presence describes ONLY anonymous crowd/environmental people; (3) full cinematography belongs to future Film DNA — default_view and rendering_constraints hold only the minimum needed to render the Location Data Sheet. Naming note: this schema's atmosphere block means MOOD; physical air effects (haze/fog/mist/dust) live in climate.",

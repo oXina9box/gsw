@@ -1,0 +1,58 @@
+import { describe, expect, it } from "vitest";
+import {
+  DEPARTMENTS,
+  JOB_KINDS,
+  MAX_CLIP_BYTES,
+  creditBalance,
+  isAssemblyClip,
+  isJobKind,
+  normalizeRunMode,
+  normalizeProviderBaseUrl,
+  safeInternalPath,
+  validateCreditAmount,
+} from "./domain";
+
+describe("studio domain", () => {
+  it("keeps the canonical production order", () => {
+    expect(DEPARTMENTS).toHaveLength(13);
+    expect(DEPARTMENTS[0]).toBe("Research");
+    expect(DEPARTMENTS.at(-1)).toBe("Reporting");
+  });
+
+  it("normalizes unknown run modes to manual", () => {
+    expect(normalizeRunMode("semi_auto")).toBe("semi_auto");
+    expect(normalizeRunMode("anything")).toBe("manual");
+  });
+
+  it("allows local redirects and rejects protocol-relative redirects", () => {
+    expect(safeInternalPath("/app/productions/123", "/app")).toBe("/app/productions/123");
+    expect(safeInternalPath("//evil.example", "/app")).toBe("/app");
+    expect(safeInternalPath("https://evil.example", "/app")).toBe("/app");
+  });
+
+  it("uses integer credits and rejects non-positive values", () => {
+    expect(validateCreditAmount(25)).toBe(25);
+    expect(() => validateCreditAmount(0)).toThrow("positive integer");
+    expect(() => validateCreditAmount(1.5)).toThrow("positive integer");
+    expect(creditBalance([{ amount: 100 }, { amount: -30 }, { amount: -20 }])).toBe(50);
+  });
+
+  it("accepts only executable job kinds", () => {
+    expect(JOB_KINDS).toContain("assemble_master");
+    expect(isJobKind("generate_text")).toBe(true);
+    expect(isJobKind("drop database")).toBe(false);
+  });
+
+  it("accepts only bounded MP4 assembly clips", () => {
+    expect(isAssemblyClip("video/mp4", MAX_CLIP_BYTES)).toBe(true);
+    expect(isAssemblyClip("video/webm", 1024)).toBe(false);
+    expect(isAssemblyClip("video/mp4", MAX_CLIP_BYTES + 1)).toBe(false);
+  });
+
+  it("accepts public HTTPS provider URLs and blocks private targets", () => {
+    expect(normalizeProviderBaseUrl("https://api.example.com/v1/", false, ["api.example.com"])).toBe("https://api.example.com/v1");
+    expect(() => normalizeProviderBaseUrl("https://api.example.com/v1", false)).toThrow("allowlisted");
+    expect(() => normalizeProviderBaseUrl("http://127.0.0.1:8000/v1", false, ["127.0.0.1"])).toThrow("public HTTPS");
+    expect(() => normalizeProviderBaseUrl("https://[fc00::1]/v1", false, ["[fc00::1]"])).toThrow("public HTTPS");
+  });
+});

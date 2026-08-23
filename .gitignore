@@ -9,3 +9,17 @@ __pycache__/
 
 # Node (managed per-project when needed)
 node_modules/
+
+# Local credentials
+.env
+.env.*
+!.env.example
+supabase/functions/.env
+# Security gate + credential hygiene (never commit secrets or audit output)
+*.pem
+*.key
+security-audit-report/
+
+# Supabase CLI local runtime state
+supabase/.temp/
+supabase/.branches/

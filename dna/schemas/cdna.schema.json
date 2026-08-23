@@ -1,5 +1,5 @@
 {
-  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$schema": "https://json-schema.org/draft-07/schema#",
   "$id": "https://gemstudio.internal/dna/schemas/cdna.schema.json",
   "title": "Character DNA (CDNA) v2 — Exhaustive Digital Twin",
   "description": "Master God-view record for a persistent character. Morphological detail lives in the 7 physical domains; v2 production blocks (wardrobe, temporal, voice_identity, casting, relationships, data_sheet) are optional but highly structured. The physical block retains legacy anchors (skin, head, eyes, nose, lips, hair) for backward compatibility with the formal CDNA schema and the Pre-Prompt Enricher.",
