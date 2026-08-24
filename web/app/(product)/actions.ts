@@ -60,8 +60,8 @@ export async function updateLaneCollaboration(formData: FormData) {
   const order = text(formData, "pass_order").split(",").map(Number).filter(Number.isInteger);
   const cycles = Number.parseInt(text(formData, "pass_cycles"), 10) || 1;
   if (!laneId || validatePassOrder(mode, order, cycles).length) redirect("/app/builder?error=lane");
-  const { supabase } = await workspace();
-  const { error } = await supabase.from("lanes").update({ collaboration_mode: mode, pass_order: mode === "round_table" ? order : [], pass_cycles: cycles }).eq("id", laneId);
+  const { supabase, id: workspaceId } = await workspace();
+  const { error } = await supabase.from("lanes").update({ collaboration_mode: mode, pass_order: mode === "round_table" ? order : [], pass_cycles: cycles }).eq("id", laneId).eq("workspace_id", workspaceId);
   if (error) redirect("/app/builder?error=lane");
   revalidatePath("/app/builder"); redirect("/app/builder");
 }
@@ -78,8 +78,8 @@ export async function createAgent(formData: FormData) {
 export async function updateProductionStatus(formData: FormData) {
   const productionId = text(formData, "production_id"); const status = text(formData, "status");
   if (!productionId || !new Set(["draft", "active", "paused", "shipped", "archived"]).has(status)) redirect(`/app/productions/${productionId}?error=production`);
-  const { supabase } = await workspace();
-  const { error } = await supabase.from("productions").update({ status, updated_at: new Date().toISOString() }).eq("id", productionId);
+  const { supabase, id: workspaceId } = await workspace();
+  const { error } = await supabase.from("productions").update({ status, updated_at: new Date().toISOString() }).eq("id", productionId).eq("workspace_id", workspaceId);
   if (error) redirect(`/app/productions/${productionId}?error=production`);
   revalidatePath(`/app/productions/${productionId}`); redirect(`/app/productions/${productionId}`);
 }
@@ -87,8 +87,8 @@ export async function updateProductionStatus(formData: FormData) {
 export async function updateProductionMode(formData: FormData) {
   const productionId = text(formData, "production_id");
   if (!productionId) redirect("/app?error=production");
-  const { supabase } = await workspace();
-  const { error } = await supabase.from("productions").update({ run_mode: normalizeRunMode(formData.get("run_mode")), updated_at: new Date().toISOString() }).eq("id", productionId);
+  const { supabase, id: workspaceId } = await workspace();
+  const { error } = await supabase.from("productions").update({ run_mode: normalizeRunMode(formData.get("run_mode")), updated_at: new Date().toISOString() }).eq("id", productionId).eq("workspace_id", workspaceId);
   if (error) redirect(`/app/productions/${productionId}?error=production`);
   revalidatePath(`/app/productions/${productionId}`); redirect(`/app/productions/${productionId}`);
 }
@@ -114,7 +114,7 @@ export async function updateAgentFiles(formData: FormData) {
 export async function updateAgentModel(formData: FormData) {
   const agentId = textField(formData, "agent_id"); const recommendation = text(formData, "recommended_tier"); const override = text(formData, "model_tier_override");
   if (!agentId || !["free", "mid", "quality"].includes(recommendation) || (override && !["free", "mid", "quality"].includes(override))) redirect("/app/builder?error=agent");
-  const { supabase } = await workspace(); const { error } = await supabase.from("agents").update({ recommended_tier: recommendation, model_tier_override: override || null, updated_at: new Date().toISOString() }).eq("id", agentId);
+  const { supabase, id: workspaceId } = await workspace(); const { error } = await supabase.from("agents").update({ recommended_tier: recommendation, model_tier_override: override || null, updated_at: new Date().toISOString() }).eq("id", agentId).eq("workspace_id", workspaceId);
   if (error) redirect("/app/builder?error=agent"); revalidatePath("/app/builder"); redirect("/app/builder");
 }
 
@@ -171,13 +171,13 @@ export async function createReleasePackage(formData: FormData) {
 
 export async function approveReleasePackage(formData: FormData) {
   const packageId = textField(formData, "package_id"); if (!packageId || formData.get("confirm") !== "on") redirect("/app/social?error=approval");
-  const { supabase } = await workspace(); const { data: current } = await supabase.from("release_packages").select("status").eq("id", packageId).maybeSingle(); if (!current || transitionRelease(current.status, "approved") !== "approved") redirect("/app/social?error=approval"); const { error } = await supabase.from("release_packages").update({ status: "approved", approved_at: new Date().toISOString(), updated_at: new Date().toISOString() }).eq("id", packageId).eq("status", "ready");
+  const { supabase, id: workspaceId } = await workspace(); const { data: current } = await supabase.from("release_packages").select("status").eq("id", packageId).eq("workspace_id", workspaceId).maybeSingle(); if (!current || transitionRelease(current.status, "approved") !== "approved") redirect("/app/social?error=approval"); const { error } = await supabase.from("release_packages").update({ status: "approved", approved_at: new Date().toISOString(), updated_at: new Date().toISOString() }).eq("id", packageId).eq("status", "ready").eq("workspace_id", workspaceId);
   if (error) redirect("/app/social?error=approval"); revalidatePath("/app/social"); redirect("/app/social");
 }
 
 export async function confirmReleasePublished(formData: FormData) {
   const packageId = textField(formData, "package_id"); if (!packageId || formData.get("confirm") !== "on") redirect("/app/social?error=publish");
-  const { supabase } = await workspace(); const { data: current } = await supabase.from("release_packages").select("status").eq("id", packageId).maybeSingle(); if (!current || !canPublish(current.status, true) || transitionRelease(current.status, "published") !== "published") redirect("/app/social?error=publish"); const { error } = await supabase.from("release_packages").update({ status: "published", published_at: new Date().toISOString(), updated_at: new Date().toISOString() }).eq("id", packageId).eq("status", "approved");
+  const { supabase, id: workspaceId } = await workspace(); const { data: current } = await supabase.from("release_packages").select("status").eq("id", packageId).eq("workspace_id", workspaceId).maybeSingle(); if (!current || !canPublish(current.status, true) || transitionRelease(current.status, "published") !== "published") redirect("/app/social?error=publish"); const { error } = await supabase.from("release_packages").update({ status: "published", published_at: new Date().toISOString(), updated_at: new Date().toISOString() }).eq("id", packageId).eq("status", "approved").eq("workspace_id", workspaceId);
   if (error) redirect("/app/social?error=publish"); revalidatePath("/app/social"); redirect("/app/social");
 }
 
@@ -339,8 +339,8 @@ export async function deleteLane(formData: FormData) {
 export async function deleteWorkflow(formData: FormData) {
   const workflowId = textField(formData, "workflow_id");
   if (!workflowId || formData.get("confirm_delete") !== "on") redirect("/app/orchestration?error=workflow");
-  const { supabase } = await workspace();
-  const { error } = await supabase.from("workflows").delete().eq("id", workflowId);
+  const { supabase, id: workspaceId } = await workspace();
+  const { error } = await supabase.from("workflows").delete().eq("id", workflowId).eq("workspace_id", workspaceId);
   if (error) redirect("/app/orchestration?error=workflow");
   revalidatePath("/app/orchestration"); redirect("/app/orchestration");
 }
@@ -371,9 +371,9 @@ export async function createHandoffRule(formData: FormData) {
 export async function updateChannel(formData: FormData) {
   const channelId = textField(formData, "channel_id"); const name = text(formData, "name");
   if (!channelId || !valid(name)) redirect(`/app/channels/${channelId ?? ""}?error=channel`);
-  const { supabase } = await workspace();
+  const { supabase, id: workspaceId } = await workspace();
   const pillars = text(formData, "pillars").split(",").map((item) => item.trim()).filter(Boolean).slice(0, 12);
-  const { error } = await supabase.from("channels").update({ name, audience: text(formData, "audience").slice(0, 500), voice: text(formData, "voice").slice(0, 500), cadence: text(formData, "cadence").slice(0, 120), pillars }).eq("id", channelId);
+  const { error } = await supabase.from("channels").update({ name, audience: text(formData, "audience").slice(0, 500), voice: text(formData, "voice").slice(0, 500), cadence: text(formData, "cadence").slice(0, 120), pillars }).eq("id", channelId).eq("workspace_id", workspaceId);
   if (error) redirect(`/app/channels/${channelId}?error=channel`);
   revalidatePath(`/app/channels/${channelId}`); revalidatePath("/app/channels"); redirect(`/app/channels/${channelId}`);
 }
@@ -442,7 +442,7 @@ export async function saveOnboardingStep(formData: FormData) {
 
 export async function deleteHandoffRule(formData: FormData) {
   const ruleId = text(formData, "rule_id"); if (!ruleId) redirect("/app/orchestration?error=handoff");
-  const { supabase } = await workspace(); const { error } = await supabase.from("handoff_rules").delete().eq("id", ruleId);
+  const { supabase, id: workspaceId } = await workspace(); const { error } = await supabase.from("handoff_rules").delete().eq("id", ruleId).eq("workspace_id", workspaceId);
   if (error) redirect("/app/orchestration?error=handoff"); revalidatePath("/app/orchestration"); redirect("/app/orchestration");
 }
 

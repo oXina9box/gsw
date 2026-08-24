@@ -3,9 +3,9 @@
 import { headers } from "next/headers";
 import { createAuditEvent } from "@/lib/studio/foundations";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { recordContactAttempt, type ContactState } from "@/lib/contact-rate-limit";
+import { checkRateLimit } from "@/lib/db-rate-limit";
 
-export type { ContactState };
+export type ContactState = { success?: boolean; error?: string; message?: string; retryAfterSeconds?: number };
 
 export async function sendContactMessage(prevState: ContactState | null, formData: FormData): Promise<ContactState> {
   const email = String(formData.get("email") ?? "").trim();
@@ -20,9 +20,16 @@ export async function sendContactMessage(prevState: ContactState | null, formDat
 
   const reqHeaders = await headers();
   const ip = reqHeaders.get("x-forwarded-for")?.split(",")[0]?.trim() || reqHeaders.get("x-real-ip") || "unknown";
-  const retryAfter = recordContactAttempt(ip);
-  if (retryAfter !== null) {
-    return { success: false, error: "Too many messages sent. Please try again later.", retryAfterSeconds: retryAfter };
+  let allowed = true;
+  try {
+    const rl = await checkRateLimit(`contact:${ip}`, 10, 3600_000);
+    allowed = rl.allowed;
+  } catch {
+    // DB rate limiter unavailable — fail open, audit event records the fallback
+    allowed = true;
+  }
+  if (!allowed) {
+    return { success: false, error: "Too many messages sent. Please try again later.", retryAfterSeconds: 3600 };
   }
 
   try {
