@@ -8,7 +8,7 @@ export const metadata = {
 };
 
 export default function PricingPage() {
-  const signupsEnabled = process.env.NEXT_PUBLIC_SIGNUPS_ENABLED === "true";
+  const signupsEnabled = process.env.NEXT_PUBLIC_SIGNUPS_ENABLED !== "false";
   const storageLimitGb = Math.round(CAP_LIMITS.storage_workspace_bytes.limit / (1024 ** 3));
   const concurrentJobsLimit = CAP_LIMITS.jobs_workspace.limit;
 
