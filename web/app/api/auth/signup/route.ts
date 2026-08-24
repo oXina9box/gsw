@@ -6,11 +6,11 @@ export async function POST(request: Request) {
   const body = (await request.json().catch(() => null)) as { inviteCode?: string } | null;
   const inviteCode = body?.inviteCode?.trim() ?? request.headers.get("x-invite-code")?.trim() ?? "";
   const policy = {
-    signup: (process.env.NEXT_PUBLIC_SIGNUPS_ENABLED === "true"
-      ? "enabled"
+    signup: (process.env.NEXT_PUBLIC_SIGNUPS_ENABLED === "false"
+      ? "disabled"
       : process.env.BETA_INVITE_REQUIRED === "true"
         ? "invite_only"
-        : "disabled") as "enabled" | "invite_only" | "disabled",
+        : "enabled") as "enabled" | "invite_only" | "disabled",
     maintenance: process.env.MAINTENANCE === "true",
   };
   const hasInvite = Boolean(inviteCode);

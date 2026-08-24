@@ -40,7 +40,7 @@ export default defineConfig({
     env: {
       ...process.env,
       SITE_CONTENT_APPROVED: process.env.SITE_CONTENT_APPROVED ?? "false",
-      NEXT_PUBLIC_SIGNUPS_ENABLED: process.env.NEXT_PUBLIC_SIGNUPS_ENABLED ?? "false",
+      NEXT_PUBLIC_SIGNUPS_ENABLED: process.env.NEXT_PUBLIC_SIGNUPS_ENABLED ?? "true",
     },
   },
 });
