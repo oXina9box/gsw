@@ -8,72 +8,73 @@
 
 ## 1. Objective
 
-Build a **fresh LLM-first wiki** in Obsidian that mirrors Gem Studio's knowledge — product definition, workflow law, architecture, operations — as atomic, densely-linked notes usable by both humans and AI agents for fast retrieval.
+Build a fresh LLM-first wiki in Obsidian documenting **the actual Gem Studio system** — derived from the codebase alone. The wiki answers "how does this actually work?" for humans and AI agents without re-reading the repo.
 
-The repo stays the **single source of truth**. The wiki is a **derived view**: it summarizes, links, and navigates; it never becomes a second place where policy lives.
+**The code is the only source of truth.** Planning/working docs are not inputs to this wiki. Notes describe what the code does, not what anything intends to do.
 
 ## 2. Trigger
 
-Start when **one** of these fires:
-
-- **Primary:** Codex's lane-theory implementation is merged to `dev` and passes Puff's review (spec §9 gap table + Phase B alignment), and `MASTER-TODO.md` reflects post-merge state. Docs generated from completed reality, not intent.
-- **Early (ox override):** ox calls the checkpoint early to get the scaffold seeded from the two anchor docs (`lane-theory-spec.md` + `MASTER-TODO.md`) alone.
+ox fires it. Suggested checkpoint: after the current lane-theory implementation lands on `dev` and passes review — so v1 documents the finished state, not a moving target.
 
 ## 3. Target setup
 
-- **Vault:** `~/Documents/Obsidian/Gem Studio Wiki/` — brand new vault (machine currently has only an empty Archive Vault).
-- **Anchor sources (pinned to commit):**
-  - `planning/site-workflow-spec.md` — product definition
-  - `planning/lane-theory-spec.md` — workflow law
-  - `planning/MASTER-TODO.md` — current state + remaining work
-  - `planning/spec-contract-coverage.md`, `commercial-service-architecture.md`, `service-level-requirements.md`, `day-zero-public-hosting-security.md`
-  - `AGENTS.md`, `docs/ARCHITECTURE.md`, `.ai/project-map.md`, `.ai/current-state.md`
+- **Vault:** `~/Documents/Obsidian/Gem Studio Wiki/` — brand new vault (machine has only an empty Archive Vault).
+- **Sources (pinned to commit):**
+  - `web/lib/studio/` — capability/policy resolution, secrets, caps, worker, domain constants
+  - `web/lib/orchestration/` — workflow engine, handoff rules, executions
+  - `web/app/` — route tree, server actions, API endpoints
+  - `web/components/`, `web/lib/auth/`, `web/lib/billing/`
+  - `supabase/migrations/` — schema, RLS, RPCs
+  - `scripts/` — quality/security gates
 
 ## 4. Structure (v1 — Pazz refines in Phase 1)
 
 ```text
 Gem Studio Wiki/
 ├── 00 Home.md                  # Root MOC (map of content)
-├── 10 Product/                 # Four modules, routes, page contracts, flows
-├── 20 Workflow Law/            # Lanes, desks, round-table, casting gate,
-│                               #   DNA sheets, onboarding spine, social cycle
-├── 30 Architecture/            # Capability resolver, seams, data model,
-│                               #   migrations, BYOK secrets, orchestration engine
-├── 40 Operations/              # SLOs, caps table, release gates, runbooks
-├── 50 Status/                  # Point-in-time snapshots of MASTER-TODO phases
+├── 10 System Map/              # Modules, route inventory, request lifecycle
+├── 20 Domain/                  # Workspaces, channels, productions, lanes,
+│                               #   casting, Universe/DNA, assets, socials,
+│                               #   credits/BYOK — behavior as coded
+├── 30 Engine/                  # Orchestration engine, job_queue lifecycle,
+│                               #   worker, pass orders, merge semantics
+├── 40 Data/                    # Schema map, RLS enforcement points,
+│                               #   migration timeline, storage policies
+├── 50 Ops & Security/          # Caps, rate limits, encryption path,
+│                               #   auth flow, audit events, kill switches
 └── 90 Meta/                    # Conventions, sync log, stale-note registry
 ```
 
 **Note rules (LLM-wiki format):**
 - One concept per note; atomic and self-contained.
-- Every note has frontmatter: `title`, `source` (repo path @ commit), `updated`, `tags`, `status`.
+- Every note has frontmatter: `title`, `source` (repo paths @ commit), `updated`, `tags`, `status`.
 - Hub-and-spoke: MOCs link out; notes link laterally; orphans are defects.
-- Summarize + link to the repo file — never copy normative text wholesale (drift risk).
-- No invented policy. If the repo doesn't say it, the wiki doesn't say it.
+- Describe behavior with evidence — name the function/file where the behavior lives.
+- No invention. If the code doesn't do it, the wiki doesn't say it.
 
 ## 5. Pazz work plan
 
 | Phase | Work | Output |
 |---|---|---|
-| 1. Inventory & taxonomy | Read all anchor sources at pinned commit; propose final note map + naming/tag conventions | Note-map proposal → ox/Puff approval |
+| 1. Repo survey | Walk the codebase at pinned commit; propose final note map + naming/tag conventions | Note-map proposal → ox/Puff approval |
 | 2. Skeleton | Create vault, folders, frontmatter template, Home MOC | Empty structured vault |
-| 3. Seed pass | Notes from the two anchor docs (workflow law + status) first — they're freshest | ~15–25 core notes |
-| 4. Deep pass | Product routes, architecture seams, ops/SLO notes | Full v1 wiki |
-| 5. Verification | Source-link audit, orphan/backlink report, spot-check summaries against specs | Sign-off report |
+| 3. Core pass | Domain notes first (workspaces → productions → lanes → engine), each backed by named code | ~20–30 core notes |
+| 4. Deep pass | Data/RLS map, ops/security, full route inventory | Full v1 wiki |
+| 5. Verification | Source-link audit, orphan/backlink report, spot-check claims against code | Sign-off report |
 
 ## 6. Handoff contract (task-handoff format)
 
 ```text
 OBJECTIVE       LLM-wiki v1 per sections 3–5.
-CONTEXT         Repo = truth; wiki = derived view. Trigger = section 2.
-RELEVANT FILES  Anchor sources in section 3; skills: hermes-architect,
-                obsidian (CLI), task-handoff.
-CONSTRAINTS     Fresh vault only; no edits to repo planning docs;
-                no invented product policy; pin every note to a commit.
-ACCEPTANCE      Every note: valid frontmatter, resolvable source link,
-                ≥1 inbound link. Zero orphans. Spot-checks match specs.
+CONTEXT         Code = only truth. Wiki = derived documentation of the
+                codebase. No planning docs as inputs.
+RELEVANT FILES  Section 3 source list; skills: hermes-architect, obsidian.
+CONSTRAINTS     Fresh vault only; no edits to the repo; pin every note
+                to a commit; cite functions/files as evidence.
+ACCEPTANCE      Every note: valid frontmatter, resolvable source links,
+                ≥1 inbound link. Zero orphans. Claims traceable to code.
 VERIFICATION    Backlink/orphan report; Puff spot-checks 5 random notes
-                against repo at pinned commit.
+                against the pinned commit.
 RESOURCE POLICY Hermes + ox-alpha. Free. Do not escalate.
 RETURN          RESULT / CHANGES / VERIFICATION / IMPORTANT / DECISIONS /
                 LEARNINGS / FOLLOW-UP per task-handoff success format.
@@ -81,6 +82,5 @@ RETURN          RESULT / CHANGES / VERIFICATION / IMPORTANT / DECISIONS /
 
 ## 7. Maintenance protocol (after v1)
 
-- Refresh at each named checkpoint: post-Phase-B, post-Phase-C/D infra, pre-beta.
-- Diff-driven: update only notes whose source changed since last sync commit; log in `90 Meta/sync log`.
+- Refresh at named checkpoints (ox/Puff calls them): diff-driven — update only notes whose source code changed since last sync commit; log in `90 Meta/sync log`.
 - Superseded snapshots move to vault archive folder — never deleted.
