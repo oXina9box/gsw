@@ -8,7 +8,7 @@ The workflow is gated; do not skip directly to implementation or launch.
 
 ## 1. Master Execution Plan
 
-- `MASTER-TODO.md` — The single source of truth for completed baseline state and all remaining tasks across content, UI refinement, staging/production infrastructure, multi-tenant integration, and post-launch commercial stages.
+- `TODO.md` — The current task list, derived from codebase state.
 
 ---
 
@@ -22,16 +22,16 @@ Read and approve:
 4. `commercial-service-architecture.md` — Architectural seams that must exist now so plans, roles, providers, support, operations, and customer scale remain additive.
 5. `service-level-requirements.md` — Internal availability, performance, recovery, incident, capacity, cost, and support objectives.
 
-If product intent changes, update spec first, then contracts, architecture, and `MASTER-TODO.md`.
+If product intent changes, update spec first, then contracts, architecture, and `TODO.md`.
 
-The staged commercial roadmap (Stages 0–8) is consolidated into `MASTER-TODO.md` Phase E; full text archived at `planning/archive/post-launch.md`. Day-0 public-hosting security is never deferred.
+The staged commercial roadmap (Stages 0–8) is summarized in `TODO.md` §5; full text archived at `planning/archive/post-launch.md`. Day-0 public-hosting security is never deferred.
 
 ---
 
 ## 3. Security, Operations, and Runbooks
 
 7. `day-zero-public-hosting-security.md` — Mandatory production security/operations standard.
-8. Release checklist, restore-rehearsal runbook, and Supabase auth-hook procedure: templates/archived snapshots in `planning/archive/` (`day-zero-release-checklist.md`, `restore-rehearsal.md`, `supabase-auth-hook.md`) — execute per `MASTER-TODO.md` C.4 / C.6 / D.3.
+8. Release checklist, restore-rehearsal runbook, and Supabase auth-hook procedure: templates/archived snapshots in `planning/archive/` (`day-zero-release-checklist.md`, `restore-rehearsal.md`, `supabase-auth-hook.md`) — execute per `TODO.md` §§3–4.
 
 ---
 
