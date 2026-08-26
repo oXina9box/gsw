@@ -35,7 +35,7 @@ export default function PricingPage() {
                 <li>Unlimited local channels and lanes</li>
                 <li>Standard custom agent definitions (6-file contract)</li>
                 <li>Storage bounded only by your local disk</li>
-                <li>Full commercial output rights</li>
+                <li>Output rights subject to applicable license and provider terms</li>
                 <li>Community documentation & issue tracker</li>
               </ul>
             </div>
@@ -58,7 +58,7 @@ export default function PricingPage() {
                 <li>Up to {concurrentJobsLimit} concurrent workspace generation jobs</li>
                 <li>Access to official protected agents catalog</li>
                 <li>Automated encrypted credential vault</li>
-                <li>Full commercial output rights</li>
+                <li>Output rights subject to applicable license and provider terms</li>
                 <li>Direct support & automated backup rehearsals</li>
               </ul>
             </div>
@@ -75,6 +75,9 @@ export default function PricingPage() {
             </div>
           </article>
         </div>
+        <p style={{ marginTop: "1.5rem", color: "var(--text-muted, #888)", textAlign: "center" }}>
+          Public signup and checkout may be invite-only during launch. This page describes the intended editions; no purchase is completed here.
+        </p>
       </section>
 
       <section className="detail-cta shell">

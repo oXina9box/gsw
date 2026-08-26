@@ -3,6 +3,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { ProductionProgress } from "@/components/product/production-progress";
 import { ShotUploader } from "@/components/product/shot-uploader";
+import { ProviderExportButtons } from "@/components/product/provider-export-buttons";
 import {
   updateProductionStatus,
   updateProductionMode,
@@ -12,12 +13,14 @@ import {
   selectShotClip,
   saveAssemblyDecision,
   attachProductionDna,
+  spawnCastingDna,
   createProductionLanePlan,
   saveProviderHandoffArtifact,
   compileProductionDnaSheet,
   saveProductionBudgetGuideline,
 } from "@/app/(product)/actions";
 import { DEPARTMENTS, JOB_KINDS } from "@/lib/studio/domain";
+import { castingFitScore } from "@/lib/studio/casting-fit";
 
 type ShotClipRecord = {
   id: string;
@@ -50,7 +53,7 @@ export default async function ProductionPage({
 
   const { data: production, error: productionError } = await supabase
     .from("productions")
-    .select("id, workspace_id, title, status, current_step, step_count, run_mode, data, channel_id")
+    .select("id, workspace_id, title, brief, status, current_step, step_count, run_mode, data, channel_id")
     .eq("id", productionId)
     .single();
 
@@ -332,9 +335,10 @@ export default async function ProductionPage({
       <div className="panel"><h2>Model budget guideline</h2><form action={saveProductionBudgetGuideline} className="inline-form"><input type="hidden" name="production_id" value={production.id} /><label>Guideline credits<input name="guideline_credits" type="number" min="0" defaultValue={budgetGuideline?.guideline_credits ?? ""} /></label><label>Notes<input name="notes" maxLength={2000} defaultValue={budgetGuideline?.notes ?? ""} /></label><button className="button button-outline" type="submit">Save guideline</button></form></div>
 
       <div className="panel">
-        <div className="section-head"><div><h2>Casting gate</h2><p className="muted">Search Universe records, then attach fitting entities to production context.</p></div></div>
+        <div className="section-head"><div><h2>Casting gate</h2><p className="muted">Fit score compares casting brief words against look, feel, persona, lore, and summary.</p></div></div>
         {dnaError ? <p className="form-error" role="alert">Unable to load Universe records.</p> : null}
-        {(dnaRecords ?? []).length ? <div className="catalog-list">{(dnaRecords as Array<{ id: string; dna_id: string; dna_type: string; tier: string; record: { name?: string; summary?: string } | null }>).map((dna) => <article className="catalog-row" key={dna.id}><div><strong>{dna.record?.name ?? dna.dna_id}</strong><p className="muted">{dna.dna_type} · {dna.tier}-tier · {dna.record?.summary ?? "No summary"}</p></div><form action={attachProductionDna} className="inline-form"><input type="hidden" name="production_id" value={production.id} /><input type="hidden" name="dna_record_id" value={dna.id} /><button className="button button-outline" type="submit">Cast</button></form></article>)}</div> : <p className="muted">No Universe records yet. Create one in Universe.</p>}
+        {(dnaRecords ?? []).length ? <div className="catalog-list">{(dnaRecords as Array<{ id: string; dna_id: string; dna_type: string; tier: string; record: Record<string, unknown> | null }>).map((dna) => <article className="catalog-row" key={dna.id}><div><strong>{String(dna.record?.name ?? dna.dna_id)}</strong><p className="muted">{dna.dna_type} · {dna.tier}-tier · Fit {castingFitScore(production.brief ?? production.title, dna)}% · {String(dna.record?.summary ?? "No summary")}</p></div><form action={attachProductionDna} className="inline-form"><input type="hidden" name="production_id" value={production.id} /><input type="hidden" name="dna_record_id" value={dna.id} /><button className="button button-outline" type="submit">Cast</button></form></article>)}</div> : <p className="muted">No Universe records yet.</p>}
+        <form action={spawnCastingDna} className="stack-form compact-form"><h3>Spawn from minimum template (B-tier)</h3><input type="hidden" name="production_id" value={production.id} /><label>Type<select name="dna_type"><option value="CDNA">Character</option><option value="LDNA">Location</option><option value="PDNA">Prop</option></select></label><label>Name<input name="name" maxLength={120} required /></label><label>Minimum look / persona / lore<textarea name="summary" maxLength={5000} rows={3} required /></label><button className="button button-outline" type="submit">Spawn and cast</button></form>
         <Link className="button button-outline" href="/app/universe">Create DNA in Universe</Link>
         <form action={compileProductionDnaSheet} className="inline-form"><input type="hidden" name="production_id" value={production.id} /><button className="button button-outline" type="submit">Compile master DNA sheet</button></form>
       </div>
@@ -361,6 +365,7 @@ export default async function ProductionPage({
                     <span className="muted">Status: {shot.status}</span>
                   </div>
                   <p style={{ fontSize: "0.875rem", color: "var(--text-secondary, #ccc)", marginBottom: "1rem" }}>{shot.prompt}</p>
+                  <ProviderExportButtons shot={{ shot_number: shot.shot_number, prompt: shot.prompt, duration_ms: shot.duration_ms }} />
 
                   <ShotUploader workspaceId={production.workspace_id} productionId={production.id} shotId={shot.id} />
 

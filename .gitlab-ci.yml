@@ -41,9 +41,26 @@ migration-tests:
   stage: test
   image: postgres:16-alpine
   before_script:
-    - apk add --no-cache bash nodejs npm
+    - apk add --no-cache bash su-exec
+    - mkdir -p /run/postgresql && chown postgres:postgres /run/postgresql
   script:
-    - bash scripts/test-migrations.sh
+    - |
+      chown -R postgres:postgres "$CI_PROJECT_DIR/supabase"
+      su-exec postgres bash -c '
+        set -eu
+        export PGDATA=/tmp/pgdata
+        initdb -U postgres -A trust >/dev/null
+        pg_ctl -D "$PGDATA" -o "-c listen_addresses=" -w start >/dev/null
+        trap "pg_ctl -D \$PGDATA -m fast stop >/dev/null" EXIT
+        psql -U postgres -v ON_ERROR_STOP=1 -q -f "$CI_PROJECT_DIR/supabase/tests/bootstrap.sql"
+        for migration in "$CI_PROJECT_DIR"/supabase/migrations/*.sql; do
+          echo "checking \$(basename "\$migration")"
+          psql -U postgres -v ON_ERROR_STOP=1 -q -f "\$migration"
+        done
+        psql -U postgres -v ON_ERROR_STOP=1 -q -f "$CI_PROJECT_DIR/supabase/tests/studio_invariants.sql"
+        sh "$CI_PROJECT_DIR/supabase/tests/storage_quota_concurrency.sh"
+        echo "migration invariants passed"
+      '
 
 security-gate:
   stage: security

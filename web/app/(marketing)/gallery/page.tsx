@@ -9,8 +9,11 @@ export const metadata = {
 type GalleryItem = {
   id: string;
   title: string;
-  description?: string | null;
-  media_url?: string | null;
+  description: string;
+  media_url: string;
+  credits: string;
+  rights_status: string;
+  publication_state: "published";
   created_at: string;
 };
 
@@ -22,12 +25,23 @@ export default async function GalleryPage() {
     const supabase = await createClient();
     const { data, error } = await supabase
       .from("public_gallery")
-      .select("id, title, description, media_url, created_at")
+      .select("id, title, description, media_url, credits, rights_status, publication_state, created_at")
       .eq("approved", true)
+      .eq("publication_state", "published")
       .order("created_at", { ascending: false });
 
     if (!error && Array.isArray(data)) {
-      items = data;
+      const publicItems = data.filter((item): item is GalleryItem =>
+        typeof item?.id === "string" &&
+        typeof item?.title === "string" &&
+        typeof item?.description === "string" &&
+        typeof item?.media_url === "string" &&
+        typeof item?.credits === "string" &&
+        typeof item?.rights_status === "string" &&
+        item?.publication_state === "published" &&
+        typeof item?.created_at === "string",
+      );
+      if (publicItems.length > 0) items = publicItems;
     } else if (error) {
       const code = typeof error === "object" && error !== null && "code" in error ? (error as unknown as { code: unknown }).code : null;
       if (code === "42P01") {
@@ -58,8 +72,17 @@ export default async function GalleryPage() {
           <div className="detail-grid shell">
             {items.map((item) => (
               <article key={item.id}>
+                {/* External, rights-cleared editorial URLs; optimization host is not configured. */}
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={item.media_url}
+                  alt={item.title}
+                  loading="lazy"
+                  referrerPolicy="no-referrer"
+                />
                 <h2>{item.title}</h2>
-                {item.description && <p>{item.description}</p>}
+                <p>{item.description}</p>
+                <p>{item.credits} · {item.rights_status}</p>
               </article>
             ))}
           </div>

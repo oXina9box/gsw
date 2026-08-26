@@ -23,6 +23,7 @@ export default function DocsPage() {
             <a href="#channels" style={{ color: "var(--color-primary, #60a5fa)", textDecoration: "underline" }}>Channels</a>
             <a href="#productions" style={{ color: "var(--color-primary, #60a5fa)", textDecoration: "underline" }}>Productions</a>
             <a href="#assets" style={{ color: "var(--color-primary, #60a5fa)", textDecoration: "underline" }}>Assets</a>
+            <a href="#agents" style={{ color: "var(--color-primary, #60a5fa)", textDecoration: "underline" }}>Agents & usage</a>
             <a href="#account" style={{ color: "var(--color-primary, #60a5fa)", textDecoration: "underline" }}>Account</a>
           </div>
         </nav>
@@ -56,10 +57,17 @@ export default function DocsPage() {
             </p>
           </section>
 
+          <section id="agents">
+            <h2 style={{ fontSize: "1.75rem", marginBottom: "0.75rem" }}>Agents & usage</h2>
+            <p style={{ lineHeight: "1.6", color: "var(--text-secondary, #ccc)" }}>
+              Agents run inside department lanes. You can bring your own provider connection; managed workspaces also expose the protected catalog. Generation is subject to workspace policy, safety caps, and (when enabled) credit reservations. Human approval gates remain in the production flow.
+            </p>
+          </section>
+
           <section id="account">
             <h2 style={{ fontSize: "1.75rem", marginBottom: "0.75rem" }}>Account & Privacy</h2>
             <p style={{ lineHeight: "1.6", color: "var(--text-secondary, #ccc)" }}>
-              Workspace owners can export their entire studio data manifest at any time, manage provider encryption keys, and request irreversible account deletion with a 15-day grace period.
+              Workspace owners can export their studio data manifest, manage encrypted provider connections, and request account deletion. Deletion reconciles pending work before workspace data is purged; export and deletion controls are available from Account.
             </p>
           </section>
         </div>

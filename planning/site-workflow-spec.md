@@ -155,7 +155,7 @@ Protected footer links redirect to authentication and preserve the requested des
 
 Owner-only access does not mean unlimited access. All product writes, uploads, jobs, provider calls, exports, and publishing use server-side capability and operational policy. Provisional launch values live in `service-level-requirements.md` section 5 and are enforced centrally: provider spend, Storage, bandwidth, job concurrency, request/auth rates, upload size/count, and retry budget. Values include UTC reset windows, warning thresholds, hard-stop behavior, global emergency ceilings, and audited expiring overrides.
 
-The owner may bypass payment entitlement because commerce is disabled, but never safety caps, rate limits, abuse controls, reservations, or suspension/maintenance stops. A denied or capped action returns a stable reason and truthful UI state; it never creates a fake success or hidden partial external effect. Accepted private assets target a 15-minute RPO; service RTO target is four hours. Exact evidence requirements are in `day-zero-release-checklist.md`.
+The owner may bypass payment entitlement because commerce is disabled, but never safety caps, rate limits, abuse controls, reservations, or suspension/maintenance stops. A denied or capped action returns a stable reason and truthful UI state; it never creates a fake success or hidden partial external effect. Accepted private assets target a 15-minute RPO; service RTO target is four hours. Exact evidence requirements are in `planning/day-zero-public-hosting-security.md` §11 and `planning/archive/day-zero-release-checklist.md`.
 
 ### 2.3 Page-state contract
 
