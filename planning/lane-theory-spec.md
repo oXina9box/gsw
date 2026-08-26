@@ -66,7 +66,7 @@ Finished production is chopped up by the social team: prep posts → market with
 
 ## 8. Post-launch hooks
 
-`planning/post-launch.md` defines the staged commercial roadmap (owner-only → invited beta → paid cloud → agent marketplace → public signup → self-hosted → teams → workflow customization → platform expansion). Architecture must keep those stages additive: capability resolver, operational policy, durable effects, provider adapters, server-authoritative billing facts, audited security changes, data classification, expand/contract migrations, stable view models (its §1 foundation contract). No owner-launch decision may close a door the roadmap opens.
+`planning/archive/post-launch.md` defines the staged commercial roadmap (owner-only → invited beta → paid cloud → agent marketplace → public signup → self-hosted → teams → workflow customization → platform expansion), consolidated into task form in `MASTER-TODO.md` Phase E. Architecture must keep those stages additive: capability resolver, operational policy, durable effects, provider adapters, server-authoritative billing facts, audited security changes, data classification, expand/contract migrations, stable view models (its §1 foundation contract). No owner-launch decision may close a door the roadmap opens.
 
 ## 9. Implementation state vs. this spec (2026-08-23)
 
