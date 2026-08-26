@@ -22,7 +22,7 @@ export function SignalBoard() {
       {([['all', 'All'], ['native', 'Native cut'], ['conversation', 'Conversation']] as const).map(([value, label]) => <button className={`signal-tab ${filter === value ? "is-active" : ""}`} type="button" aria-pressed={filter === value} onClick={() => setFilter(value)} key={value}>{label}</button>)}
     </div>
     <p className="board-status" aria-live="polite">Showing {visibleSignals.length} signal card{visibleSignals.length === 1 ? "" : "s"}</p>
-    <div className="board-cards">
+    <div className="board-cards" key={filter}>
       {visibleSignals.map((signal) => <article className="board-card" key={signal.number}>
         <div className="board-card-top"><span>{signal.label}</span><span>{signal.number}</span></div>
         <h4>{signal.title}</h4><p>{signal.body}</p>
