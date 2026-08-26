@@ -43,10 +43,10 @@ export default async function HomePage() {
       {[0, 1].map((copy) => <span key={copy}>Research <b>✦</b> Marketing <b>✦</b> Creative <b>✦</b> Story <b>✦</b> Storyboard <b>✦</b> Script <b>✦</b> Screenplay <b>✦</b> AI Conversion <b>✦</b> Video Production <b>✦</b> Launch <b>✦</b> Social <b>✦</b> Reporting <b>✦</b></span>)}
     </div></div>
 
-    <section className="studio-section shell" id="studio">
+    <section className="studio-section shell reveal-on-scroll" id="studio">
       <div className="section-head"><h2>Thirteen departments. <span>One moving picture.</span></h2><p className="section-intro">A fixed production floor with configurable lanes, hired agents, explicit handoffs, and approvals that stay visible.</p></div>
       <div className="desk-grid">
-        {studioGroups.map((group) => <article className={`desk-card ${group.className}`} key={group.number}>
+        {studioGroups.map((group) => <article className={`desk-card ${group.className} reveal-on-scroll`} key={group.number}>
           <div className="desk-card-head"><span className="desk-number">{group.number}</span><span className="desk-signal" /></div>
           <p className="desk-label">{group.label}</p><h3>{group.title}</h3><p>{group.copy}</p>
           <ul>{group.items.map((item) => <li key={item}>{item}</li>)}</ul>
@@ -55,19 +55,19 @@ export default async function HomePage() {
       </div>
     </section>
 
-    <section className="system-section shell" id="system">
+    <section className="system-section shell reveal-on-scroll" id="system">
       <div className="section-head section-head-system"><h2>The system is <span>the creative.</span></h2><p className="section-intro">Manual, semi-automatic, or automatic runs move only within the approvals, provider limits, and credit cap you set.</p></div>
       <div className="flow-board"><div className="flow-line" aria-hidden="true" />{flow.map(([number, title, copy, tone]) => <div className="flow-step" key={number}><span className="flow-index">{number}</span><span className={`flow-dot ${tone ? `flow-dot-${tone}` : ""}`} /><div><strong>{title}</strong><small>{copy}</small></div></div>)}</div>
       <div className="quote-panel"><p>“Automation can move the work. <span>Human judgment decides what ships.</span>”</p><div><span className="quote-line" /> Gem Studio / operating principle</div></div>
     </section>
 
-    <section className="social-section shell" id="social">
+    <section className="social-section shell reveal-on-scroll" id="social">
       <div className="social-workbench">
         <div className="workbench-copy"><div className="workbench-orbit" aria-hidden="true">↗</div><h3>The afterlife of a good frame.</h3><p>Plan release variants and metadata, then save available performance and conversation as private signals for the next production.</p><Link className="button button-outline" href="/social-workshop">Explore the workshop ↗</Link></div>
         <SignalBoard />
       </div>
     </section>
 
-    <section className="closing-section shell"><div className="closing-rule" /><div className="closing-layout"><h2>Bring the frame <span>before it exists.</span></h2><Link className="button button-primary" href={entryHref}>{authenticated ? "Open your Studio" : "Create your Studio"} ↗</Link></div></section>
+    <section className="closing-section shell reveal-on-scroll"><div className="closing-rule" /><div className="closing-layout"><h2>Bring the frame <span>before it exists.</span></h2><Link className="button button-primary" href={entryHref}>{authenticated ? "Open your Studio" : "Create your Studio"} ↗</Link></div></section>
   </>;
 }
