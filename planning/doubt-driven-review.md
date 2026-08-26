@@ -60,7 +60,7 @@
 2. Run the smallest check that can falsify the assumption.
 3. Record evidence in implementation issue/test output.
 4. Fix root contract, not only visible symptom.
-5. Mark resolved, deferred to `post-launch.md`, or launch-blocking.
+5. Mark resolved, deferred to `MASTER-TODO.md` Phase E, archived in `planning/archive/post-launch.md`, or launch-blocking.
 
 Implementation may start only when no launch-blocking doubt lacks an owner decision, test, or mitigation.
 

@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { encryptSecret, maskSecret } from "@/lib/studio/secrets";
+import { decryptSecret, resolveSecretKey } from "@/lib/studio/secrets";
 import { isJobKind, normalizeProviderBaseUrl, normalizeRunMode, textField, validateAssemblyTrim } from "@/lib/studio/domain";
 import { getWorkspaceContext } from "@/lib/studio/workspace";
 import { advanceExecution, cancelExecution, completeStep, failStep, startExecution, validateConditions, validatePassOrder } from "@/lib/orchestration/engine";
@@ -295,8 +296,12 @@ export async function updateDnaRecord(formData: FormData) {
   const voice = text(formData, "voice_behavior").slice(0, 500);
   const contentChanged = String(body.summary ?? "") !== summary || (Array.isArray(body.anchors) ? body.anchors.join(", ") : "") !== anchors.join(", ") || String(body.voice_behavior ?? "") !== voice;
   if (record.locked && contentChanged) redirect(`/app/universe/${recordId}?error=locked`);
+  const group = text(formData, "group_type");
+  const groupType = ["Universe", "Studio", "Channel", "Season", "Socials", "FDNA"].includes(group) ? group : "Universe";
   const { error } = await supabase.rpc("update_dna_record", { target_workspace: id, target_record: recordId, next_record: { ...body, summary, anchors, voice_behavior: voice }, lock_version: formData.get("lock_version") === "on" });
   if (error) redirect(`/app/universe/${recordId}?error=dna`);
+  const { error: groupError } = await supabase.from("dna_records").update({ group_type: groupType }).eq("id", recordId).eq("workspace_id", id);
+  if (groupError) redirect(`/app/universe/${recordId}?error=dna`);
   revalidatePath(`/app/universe/${recordId}`); revalidatePath("/app/universe"); redirect(`/app/universe/${recordId}`);
 }
 
@@ -318,6 +323,20 @@ export async function attachProductionDna(formData: FormData) {
   revalidatePath(`/app/productions/${productionId}`); redirect(`/app/productions/${productionId}`);
 }
 
+export async function spawnCastingDna(formData: FormData) {
+  const productionId = textField(formData, "production_id");
+  const recordType = text(formData, "dna_type");
+  const name = textField(formData, "name");
+  const summary = textField(formData, "summary", 5_000);
+  if (!productionId || !name || !summary || !["CDNA", "LDNA", "PDNA"].includes(recordType)) redirect(`/app/productions/${productionId ?? ""}?error=casting`);
+  const { supabase, id } = await workspace();
+  const { data: recordId, error: createError } = await supabase.rpc("create_dna_record", { target_workspace: id, record_type: recordType, record_name: name, record_summary: summary });
+  if (createError || !recordId) redirect(`/app/productions/${productionId}?error=casting`);
+  const { error: attachError } = await supabase.rpc("attach_production_dna", { target_workspace: id, target_production: productionId, target_record: recordId });
+  if (attachError) redirect(`/app/productions/${productionId}?error=casting`);
+  revalidatePath(`/app/productions/${productionId}`); revalidatePath("/app/universe"); redirect(`/app/productions/${productionId}`);
+}
+
 export async function deleteAgent(formData: FormData) {
   const agentId = textField(formData, "agent_id"); const laneId = textField(formData, "lane_id");
   if (!agentId || !laneId || formData.get("confirm_delete") !== "on") redirect("/app/builder?error=builder");
@@ -336,11 +355,29 @@ export async function deleteLane(formData: FormData) {
   revalidatePath("/app/builder"); redirect("/app/builder");
 }
 
+export async function updateLane(formData: FormData) {
+  const laneId = textField(formData, "lane_id"); const name = text(formData, "name");
+  if (!laneId || !valid(name)) redirect("/app/builder?error=builder");
+  const { supabase, id } = await workspace();
+  const { error } = await supabase.from("lanes").update({ name, updated_at: new Date().toISOString() }).eq("id", laneId).eq("workspace_id", id);
+  if (error) redirect("/app/builder?error=builder");
+  revalidatePath("/app/builder"); redirect("/app/builder");
+}
+
 export async function deleteWorkflow(formData: FormData) {
   const workflowId = textField(formData, "workflow_id");
   if (!workflowId || formData.get("confirm_delete") !== "on") redirect("/app/orchestration?error=workflow");
   const { supabase, id: workspaceId } = await workspace();
   const { error } = await supabase.from("workflows").delete().eq("id", workflowId).eq("workspace_id", workspaceId);
+  if (error) redirect("/app/orchestration?error=workflow");
+  revalidatePath("/app/orchestration"); redirect("/app/orchestration");
+}
+
+export async function updateWorkflow(formData: FormData) {
+  const workflowId = textField(formData, "workflow_id"); const name = text(formData, "name");
+  if (!workflowId || !valid(name)) redirect("/app/orchestration?error=workflow");
+  const { supabase, id } = await workspace();
+  const { error } = await supabase.from("workflows").update({ name, updated_at: new Date().toISOString() }).eq("id", workflowId).eq("workspace_id", id);
   if (error) redirect("/app/orchestration?error=workflow");
   revalidatePath("/app/orchestration"); redirect("/app/orchestration");
 }
@@ -400,6 +437,33 @@ export async function createDefaultWorkflow() {
     if (error) redirect("/app/orchestration?error=workflow");
   }
   revalidatePath("/app/orchestration"); redirect("/app/orchestration");
+}
+
+export type OnboardingAssistantState = Readonly<{ ok: boolean; message: string }>;
+
+export async function requestOnboardingGuidance(_: OnboardingAssistantState, formData: FormData): Promise<OnboardingAssistantState> {
+  const prompt = textField(formData, "prompt", 2_000); const connectionId = textField(formData, "connection_id");
+  if (!prompt || !connectionId) return { ok: false, message: "Choose a text provider and ask a setup question." };
+  const key = process.env.PROVIDER_SECRET_ENCRYPTION_KEY;
+  if (!key) return { ok: false, message: "Provider secrets are not configured." };
+  const { id } = await workspace(); const admin = createAdminClient();
+  const { data } = await admin.from("provider_connections").select("id, base_url, default_model, provider_secrets(ciphertext, iv, tag, key_version)").eq("id", connectionId).eq("workspace_id", id).eq("status", "active").contains("capabilities", ["text"]).maybeSingle();
+  const connection = data as { base_url?: string; default_model?: string; provider_secrets?: { ciphertext: string; iv: string; tag: string; key_version: string } | { ciphertext: string; iv: string; tag: string; key_version: string }[] } | null;
+  const secret = Array.isArray(connection?.provider_secrets) ? connection?.provider_secrets[0] : connection?.provider_secrets;
+  if (!connection?.base_url || !connection.default_model || !secret) return { ok: false, message: "Selected text provider is unavailable." };
+  try {
+    const allowed = (process.env.PROVIDER_HOST_ALLOWLIST ?? "").split(",").map((host) => host.trim().toLowerCase()).filter(Boolean);
+    const baseUrl = normalizeProviderBaseUrl(connection.base_url, process.env.NODE_ENV !== "production", allowed);
+    const secretKey = resolveSecretKey(secret.key_version, process.env.PROVIDER_SECRET_KEY_VERSION ?? "v1", key, process.env.PROVIDER_SECRET_KEYS_JSON);
+    const apiKey = decryptSecret({ ciphertext: secret.ciphertext, iv: secret.iv, tag: secret.tag, keyVersion: secret.key_version }, secretKey);
+    const endpoint = new URL("chat/completions", `${baseUrl}/`);
+    if (endpoint.origin !== new URL(baseUrl).origin) return { ok: false, message: "Provider URL is invalid." };
+    const response = await fetch(endpoint, { method: "POST", headers: { authorization: `Bearer ${apiKey}`, "content-type": "application/json" }, body: JSON.stringify({ model: connection.default_model, messages: [{ role: "system", content: "You are Gem Studio's onboarding assistant. Give short practical advice about studio identity, channels, departments, lanes, or seasons. Never claim to create records." }, { role: "user", content: prompt }] }), signal: AbortSignal.timeout(120_000) });
+    if (!response.ok) return { ok: false, message: "Provider could not answer. Check its connection." };
+    const body = await response.json() as { choices?: Array<{ message?: { content?: string } }> };
+    const message = body.choices?.[0]?.message?.content?.trim().slice(0, 4_000);
+    return message ? { ok: true, message } : { ok: false, message: "Provider returned no guidance." };
+  } catch { return { ok: false, message: "Provider request failed." }; }
 }
 
 export async function saveOnboardingStep(formData: FormData) {

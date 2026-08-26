@@ -1,5 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { evaluateConditions, mapPayload, mergeDocumentSet, nextRoundTablePass } from "./helpers";
+import { evaluateConditions, mapPayload, mergeDocumentSet, nextRoundTablePass, validateConditions } from "./helpers";
 
 export { evaluateConditions, mapPayload, validateConditions, normalizeDocumentSet, mergeDocumentSet, validatePassOrder, nextRoundTablePass } from "./helpers";
 
@@ -191,6 +191,10 @@ export async function startExecution(
   if (!workflow) return { ok: false, error: "workflow_not_found" };
 
   const rules = await loadRules(supabase, workflowId);
+  // Reject malformed persisted rules instead of treating them as non-matches.
+  if (rules.some((rule) => validateConditions(rule.conditions).length > 0)) {
+    return { ok: false, error: "invalid_handoff_conditions" };
+  }
   const now = new Date().toISOString();
   const { data: execution, error } = await supabase
     .from("executions")
@@ -259,6 +263,10 @@ export async function advanceExecution(
   }
 
   const triggerRules = sourceRules.filter((rule) => rule.trigger_event === trigger);
+  if (triggerRules.some((rule) => validateConditions(rule.conditions).length > 0)) {
+    await logEvent(supabase, current.workspace_id, current.id, "handoff_conditions_invalid", actorId, { trigger });
+    return { ok: false, error: "invalid_handoff_conditions" };
+  }
   const next = triggerRules.find((rule) => evaluateConditions(current.context, rule.conditions));
   if (!next) {
     if (triggerRules.length) await logEvent(supabase, current.workspace_id, current.id, "handoff_conditions_unmet", actorId, { trigger });

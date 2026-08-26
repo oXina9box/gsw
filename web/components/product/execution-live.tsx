@@ -106,6 +106,16 @@ export function ExecutionLive({ executions, steps }: { executions: Execution[]; 
                       <input type="hidden" name="trigger_event" value="manual" />
                       <button type="submit" className="button button-outline">Manual trigger</button>
                     </form>
+                    <form action={advanceExecutionAction}>
+                      <input type="hidden" name="execution_id" value={execution.id} />
+                      <input type="hidden" name="trigger_event" value="approval" />
+                      <button type="submit" className="button button-outline">Supervisor approve</button>
+                    </form>
+                    <form action={advanceExecutionAction}>
+                      <input type="hidden" name="execution_id" value={execution.id} />
+                      <input type="hidden" name="trigger_event" value="timeout" />
+                      <button type="submit" className="button button-outline">Kick back</button>
+                    </form>
                     <form action={cancelExecutionAction}>
                       <input type="hidden" name="execution_id" value={execution.id} />
                       <button type="submit" className="button button-outline">Cancel</button>

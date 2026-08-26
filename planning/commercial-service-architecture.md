@@ -2,7 +2,7 @@
 
 **Purpose:** Ensure code built for owner launch becomes customer-ready through additive work, not major refactoring.  
 **Rule:** Day‑0 implementation must preserve every integration seam in this document, even when the corresponding commercial feature is disabled.  
-**Related:** `site-workflow-spec.md`, `service-level-requirements.md`, `day-zero-public-hosting-security.md`, `post-launch.md`.
+**Related:** `site-workflow-spec.md`, `service-level-requirements.md`, `day-zero-public-hosting-security.md`, `planning/archive/post-launch.md`.
 
 ## 1. Architectural principles
 
