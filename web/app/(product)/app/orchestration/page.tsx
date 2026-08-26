@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { CreateForm } from "@/components/product/create-form";
 import { ExecutionLive } from "@/components/product/execution-live";
-import { createDefaultWorkflow, createWorkflow, createHandoffRule, deleteHandoffRule, deleteWorkflow, startWorkflowExecution } from "@/app/(product)/actions";
+import { createDefaultWorkflow, createWorkflow, createHandoffRule, deleteHandoffRule, deleteWorkflow, startWorkflowExecution, updateWorkflow } from "@/app/(product)/actions";
 
 export const metadata = { title: "Orchestration" };
 
@@ -82,7 +82,7 @@ export default async function OrchestrationPage({ searchParams }: { searchParams
         {workflowList.map((workflow) => (
           <article className="panel" key={workflow.id}>
             <div className="section-head">
-              <h3>{workflow.name}</h3>
+              <div><h3>{workflow.name}</h3><form action={updateWorkflow} className="inline-form"><input type="hidden" name="workflow_id" value={workflow.id} /><input name="name" defaultValue={workflow.name} maxLength={120} required /><button className="button button-outline" type="submit">Rename</button></form></div>
               <form action={startWorkflowExecution} className="inline-form">
                 <input type="hidden" name="workflow_id" value={workflow.id} />
                 <label>Initial brief (JSON)<input name="brief" placeholder='{"channel": "main"}' defaultValue="{}" /></label>

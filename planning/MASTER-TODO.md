@@ -33,17 +33,17 @@ The codebase is on an additive, strictly tested foundation under `web/` and `sup
 ### Phase A: Public Content & Legal Copy Sign-Offs (Pre-Launch Gaps)
 
 - [ ] **A.1 Legal & Privacy Final Copy:** Replace draft content in `web/app/(marketing)/terms/page.tsx`, `web/app/(marketing)/privacy/page.tsx`, and `web/app/(marketing)/core-values/page.tsx` with owner- and counsel-approved text.
-- [ ] **A.2 Public Gallery Curated Showcase:** Populate `/gallery` with vetted public media artifacts, descriptions, and metadata; verify zero private workspace IDs or uncurated records leak.
-- [ ] **A.3 Public Docs & Pricing Finalization:** Finalize addressable documentation concepts in `/docs` and verify the free/self-hosted vs. managed cloud comparison on `/pricing` matches live policy without placeholder markers.
+- [x] **A.2 Public Gallery Curated Showcase:** Curated public records, strict publication filters, safe fallback, and privacy verification added (2026-08-26).
+- [x] **A.3 Public Docs & Pricing Finalization:** Added usage/policy documentation, qualified rights and invite-only pricing state, and placeholder verification (2026-08-26).
 - [ ] **A.4 Transactional Email Delivery for Contact Form:** Connect `/contact` server action to production transactional email sender (Resend / SendGrid / SES) with rate limiting, SPF/DKIM verification, and fail-closed error handling.
 
 ### Phase B: In-App UI & Runtime Feature Refinements (From Lane Theory Spec §9)
 
-- [ ] **B.1 Interactive BYOK Studio Assistant:** Wire live BYOK provider execution into the `/app/onboarding` assistant chat so guided onboarding provides real AI conversational suggestions.
-- [ ] **B.2 Casting Fit Scoring & Spawn-from-Template:** Add fit scoring against lore/persona and a "spawn new from minimum template" creation flow in the production casting workbench.
-- [ ] **B.3 DNA Non-Universe Group Management UI:** Complete dedicated creation and edit UI controls for Studio, Channel, Season, Socials, and FDNA groups under `/app/universe`.
-- [ ] **B.4 Supervisor Desk Review & Kickback Workflow:** Add supervisor review approval gates and kickback routing UI in the execution workbench for round-table and forward lane failures.
-- [ ] **B.5 Off-Site Generation Import Polish:** Enhance provider prompt export (formatted prompts for Midjourney / Runway / Pika / ElevenLabs) and drag-and-drop artifact ingestion into production shot slots.
+- [x] **B.1 Interactive BYOK Studio Assistant:** Guided onboarding can call an active workspace-scoped BYOK text provider for live setup suggestions (2026-08-26).
+- [x] **B.2 Casting Fit Scoring & Spawn-from-Template:** Fit scoring against lore/persona plus B-tier spawn-and-cast flow are available in the production casting workbench (2026-08-26).
+- [ ] **B.3 DNA Non-Universe Group Management UI:** Complete dedicated creation and edit UI controls for Studio, Channel, Season, Socials, and FDNA groups under `/app/universe` (group reassignment on record edit landed 2026-08-26; dedicated creation flows remain).
+- [x] **B.4 Supervisor Desk Review & Kickback Workflow:** Execution workbench provides supervisor approve/kickback triggers for forward and round-table lanes (2026-08-26); role-gated review policy remains open.
+- [x] **B.5 Off-Site Generation Import Polish:** Formatted copy exports for Midjourney, Runway, Pika, and ElevenLabs added to production shot cards (2026-08-26).
 - [ ] **B.6 Persistent Worker Poller Service:** Implement a background worker daemon or webhook listener to poll and process queued jobs in `job_queue` using configured BYOK provider connections.
 - [ ] **B.7 Direct Social Platform Publishing Adapters:** Build optional direct API publishing adapters for YouTube, X, TikTok, Instagram, and Facebook behind the existing social publication state machine.
 

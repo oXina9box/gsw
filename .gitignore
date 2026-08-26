@@ -23,3 +23,6 @@ security-audit-report/
 # Supabase CLI local runtime state
 supabase/.temp/
 supabase/.branches/
+
+# Agent harness metadata
+.unlazy/
