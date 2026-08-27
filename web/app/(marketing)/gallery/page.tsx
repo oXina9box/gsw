@@ -88,7 +88,7 @@ export default async function GalleryPage() {
           </div>
         ) : (
           <div style={{ textAlign: "center", padding: "3rem 1rem" }}>
-            <p style={{ fontSize: "1.125rem", color: "var(--text-muted, #888)", marginBottom: "1.5rem" }}>
+            <p style={{ fontSize: "1.125rem", color: "var(--color-text-muted)", marginBottom: "1.5rem" }}>
               No public gallery yet.
             </p>
             <Link className="button button-outline" href="/docs">

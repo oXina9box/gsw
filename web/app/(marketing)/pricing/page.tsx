@@ -74,7 +74,7 @@ export default function PricingPage() {
             </div>
           </article>
         </div>
-        <p style={{ marginTop: "1.5rem", color: "var(--text-muted, #888)", textAlign: "center" }}>
+        <p style={{ marginTop: "1.5rem", color: "var(--color-text-muted)", textAlign: "center" }}>
           Public signup and checkout may be invite-only during launch. This page describes the intended editions; no purchase is completed here.
         </p>
       </section>

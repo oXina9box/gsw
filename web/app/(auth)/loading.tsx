@@ -1,5 +1,3 @@
 export default function Loading() {
-  return <div className="shell" style={{ padding: "var(--space-16)", textAlign: "center" }}>
-    <p style={{ color: "var(--color-text-muted)" }}>Loading…</p>
-  </div>;
+  return <div className="shell loading-skeleton" aria-label="Loading" role="status"><span /><span /><span /></div>;
 }

@@ -1,3 +1,5 @@
+import { GemBrandIcon } from "@/components/shell/gem-brand-icon";
+
 export function HeroStage() {
   return <div className="hero-stage">
     <div className="stage-topline"><span>Current stage / 08 of 13</span><span className="stage-live"><span className="pulse-dot" /> Human-reviewed</span></div>
@@ -10,8 +12,8 @@ export function HeroStage() {
           <div className="visual-subject"><span /></div>
         </div>
       </figure>
-      <div className="signal-card signal-card-one"><span className="signal-icon signal-pink">✦</span><div><b>GenPlay ready</b><small>copy prompt / generate</small></div></div>
-      <div className="signal-card signal-card-two"><span className="signal-icon signal-cyan">◆</span><div><b>One Studio</b><small>channel → production</small></div></div>
+      <div className="signal-card signal-card-one"><span className="signal-icon signal-pink"><GemBrandIcon /></span><div><b>GenPlay ready</b><small>copy prompt / generate</small></div></div>
+      <div className="signal-card signal-card-two"><span className="signal-icon signal-cyan"><GemBrandIcon /></span><div><b>One Studio</b><small>channel → production</small></div></div>
       <div className="stage-stamp">GS <b>13</b></div>
     </div>
     <div className="stage-bottomline"><span>Brief → frame → release</span><span className="stage-bars"><i /><i /><i /><i /><i /></span></div>

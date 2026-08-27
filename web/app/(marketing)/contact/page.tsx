@@ -43,7 +43,6 @@ export default function ContactPage() {
                   maxLength={254}
                   placeholder="creator@example.com"
                   className="input"
-                  style={{ width: "100%", padding: "0.75rem", borderRadius: "6px", background: "var(--surface-muted, #111)", border: "1px solid var(--border-subtle, #333)", color: "inherit" }}
                 />
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
@@ -57,7 +56,6 @@ export default function ContactPage() {
                   rows={5}
                   placeholder="How can we assist your production workflow?"
                   className="textarea"
-                  style={{ width: "100%", padding: "0.75rem", borderRadius: "6px", background: "var(--surface-muted, #111)", border: "1px solid var(--border-subtle, #333)", color: "inherit", resize: "vertical" }}
                 />
               </div>
               <button

@@ -209,7 +209,7 @@ export default async function ProductionPage({
         {currentArtifacts.length > 0 ? (
           <div className="stack" style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
             {currentArtifacts.map((art) => (
-              <div key={art.id} style={{ padding: "0.75rem", borderRadius: "6px", background: "var(--surface-muted, #151515)", border: "1px solid var(--border-subtle, #333)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <div key={art.id} style={{ padding: "0.75rem", borderRadius: "6px", background: "var(--color-surface-2)", border: "1px solid var(--color-border)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <div>
                   <strong>Version {art.version} ({art.kind})</strong>
                   <span className="muted" style={{ marginLeft: "0.5rem" }}>Status: {art.status}</span>
@@ -236,7 +236,7 @@ export default async function ProductionPage({
           </div>
           <div className="stack" style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
             {approvals.map((appr) => (
-              <div key={appr.id} style={{ padding: "1rem", borderRadius: "6px", background: "var(--surface-muted, #151515)", border: "1px solid var(--border-subtle, #333)" }}>
+              <div key={appr.id} style={{ padding: "1rem", borderRadius: "6px", background: "var(--color-surface-2)", border: "1px solid var(--color-border)" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.5rem" }}>
                   <strong>Approval for Stage {appr.department_step + 1} ({DEPARTMENTS[appr.department_step] ?? ""})</strong>
                   <small className="muted">{new Date(appr.created_at).toLocaleString()}</small>
@@ -273,7 +273,7 @@ export default async function ProductionPage({
           <>
             {agentsError && <p className="form-error" role="alert">Unable to load agents — Refresh</p>}
             {connectionsError && <p className="form-error" role="alert">Unable to load connections — Refresh</p>}
-          <form action={enqueueProductionJob} className="inline-form" style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap", marginBottom: "1.5rem", padding: "1rem", borderRadius: "6px", background: "var(--surface-muted, #111)", border: "1px solid var(--border-subtle, #333)" }}>
+          <form action={enqueueProductionJob} className="inline-form" style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap", marginBottom: "1.5rem", padding: "1rem", borderRadius: "6px", background: "var(--color-surface-2)", border: "1px solid var(--color-border)" }}>
             <label>
               Job Kind
               <select name="kind" required defaultValue={currentStep === 8 ? "assemble_master" : "generate_text"}>
@@ -316,10 +316,10 @@ export default async function ProductionPage({
         {jobs && jobs.length > 0 ? (
           <div className="stack" style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
             {jobs.map((j) => (
-              <div key={j.id} style={{ padding: "0.75rem", borderRadius: "6px", background: "var(--surface-muted, #151515)", border: "1px solid var(--border-subtle, #333)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <div key={j.id} style={{ padding: "0.75rem", borderRadius: "6px", background: "var(--color-surface-2)", border: "1px solid var(--color-border)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <div>
                   <strong>{j.kind}</strong> — <span className={`tag tag-${j.status}`}>{j.status}</span>
-                  {j.error_message && <span style={{ color: "#ef4444", marginLeft: "0.5rem", fontSize: "0.875rem" }}>{j.error_message}</span>}
+                  {j.error_message && <span style={{ color: "var(--color-danger-soft)", marginLeft: "0.5rem", fontSize: "0.875rem" }}>{j.error_message}</span>}
                 </div>
                 <small className="muted">{new Date(j.created_at).toLocaleString()}</small>
               </div>
@@ -359,12 +359,12 @@ export default async function ProductionPage({
           {shots && shots.length > 0 ? (
             <div className="stack" style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
               {(shots as ShotRecord[]).map((shot) => (
-                <div key={shot.id} style={{ padding: "1rem", borderRadius: "6px", background: "var(--surface-muted, #151515)", border: "1px solid var(--border-subtle, #333)" }}>
+                <div key={shot.id} style={{ padding: "1rem", borderRadius: "6px", background: "var(--color-surface-2)", border: "1px solid var(--color-border)" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.5rem" }}>
                     <strong>Shot {shot.shot_number} ({Math.round(shot.duration_ms / 1000)}s)</strong>
                     <span className="muted">Status: {shot.status}</span>
                   </div>
-                  <p style={{ fontSize: "0.875rem", color: "var(--text-secondary, #ccc)", marginBottom: "1rem" }}>{shot.prompt}</p>
+                  <p style={{ fontSize: "0.875rem", color: "var(--color-text-muted)", marginBottom: "1rem" }}>{shot.prompt}</p>
                   <ProviderExportButtons shot={{ shot_number: shot.shot_number, prompt: shot.prompt, duration_ms: shot.duration_ms }} />
 
                   <ShotUploader workspaceId={production.workspace_id} productionId={production.id} shotId={shot.id} />
@@ -374,7 +374,7 @@ export default async function ProductionPage({
                       <span style={{ fontSize: "0.875rem", fontWeight: 500 }}>Uploaded Clips:</span>
                       <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem", marginTop: "0.5rem" }}>
                         {shot.shot_clips.map((clip) => (
-                          <div key={clip.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0.5rem", borderRadius: "4px", background: "var(--surface-muted, #111)" }}>
+                          <div key={clip.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0.5rem", borderRadius: "4px", background: "var(--color-surface-2)" }}>
                             <span>v{clip.version} — {(clip.byte_size / (1024 * 1024)).toFixed(1)} MB {clip.selected ? "✓ (Selected)" : ""}</span>
                             {!clip.selected && (
                               <form action={selectShotClip}>

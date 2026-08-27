@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { HeroStage } from "@/components/marketing/hero-stage";
 import { SignalBoard } from "@/components/marketing/signal-board";
+import { GemBrandIcon } from "@/components/shell/gem-brand-icon";
 import { createClient } from "@/lib/supabase/server";
 
 const studioGroups = [
@@ -40,7 +41,7 @@ export default async function HomePage() {
     </section>
 
     <div className="ticker" aria-hidden="true"><div className="ticker-track">
-      {[0, 1].map((copy) => <span key={copy}>Research <b>✦</b> Marketing <b>✦</b> Creative <b>✦</b> Story <b>✦</b> Storyboard <b>✦</b> Script <b>✦</b> Screenplay <b>✦</b> AI Conversion <b>✦</b> Video Production <b>✦</b> Launch <b>✦</b> Social <b>✦</b> Reporting <b>✦</b></span>)}
+      {[0, 1].map((copy) => <span key={copy}>Research <b><GemBrandIcon /></b> Marketing <b><GemBrandIcon /></b> Creative <b><GemBrandIcon /></b> Story <b><GemBrandIcon /></b> Storyboard <b><GemBrandIcon /></b> Script <b><GemBrandIcon /></b> Screenplay <b><GemBrandIcon /></b> AI Conversion <b><GemBrandIcon /></b> Video Production <b><GemBrandIcon /></b> Launch <b><GemBrandIcon /></b> Social <b><GemBrandIcon /></b> Reporting <b><GemBrandIcon /></b></span>)}
     </div></div>
 
     <section className="studio-section shell reveal-on-scroll" id="studio">
