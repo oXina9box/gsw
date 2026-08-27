@@ -128,7 +128,7 @@ The planning directory is organized into active normative specifications, operat
 ```text
 planning/
 ├── README.md                           # Planning index and governance order
-├── MASTER-TODO.md                      # This file — single source of truth for remaining work
+├── TODO.md                             # Current task list (code-derived)
 ├── site-workflow-spec.md               # Product definition, four-module sitemap, routes, security
 ├── lane-theory-spec.md                 # Studio operating model, workflow law, onboarding, casting
 ├── spec-contract-coverage.md           # Observable contract matrix
