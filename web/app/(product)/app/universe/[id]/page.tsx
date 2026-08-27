@@ -27,7 +27,7 @@ export default async function DnaRecordPage({ params, searchParams }: { params: 
   const { error } = await searchParams;
   const body = record.record;
 
-  return <section className="product-page shell">
+  return <section className="product-page shell" data-archetype="B2-B">
     <Link className="text-link" href="/app/universe">← Universe</Link>
     <h1>{body?.name || record.dna_id}</h1>
     <p className="muted">{record.dna_type} · {record.tier}-tier · v{record.version} · schema {record.schema_version} · <span className={`status-mark ${record.status}`}>{record.status}</span>{record.locked ? " · locked" : ""}</p>

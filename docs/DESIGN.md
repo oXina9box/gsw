@@ -183,36 +183,140 @@ graph TD
 
 ---
 
-## 4. Shell & Layout Architecture
+## 4. Shell Architecture & Core System (Invariants)
 
-### 4.1 Master Shell Layout
+Every page in Gem Studio is governed by a strict two-tier shell contract with zero custom third headers or footers.
+
 ```
-+------------------------------------------------------------------------------------+
-|  [Logo] Gem Studio   | Search (Cmd+K) | [Active Channel] | Credits: 4,850 | [Avatar] | (Header)
-+------------------------------------------------------------------------------------+
-| [Nav Rail]  |                                                        | [Inspector] |
-| - Overview  |  MAIN PRODUCTION CANVAS & WORKBENCH                    | - Shot Meta |
-| - Channels  |  - Active Shot List (GenPlay Binder)                   | - Seed/Prompt
-| - Pipeline  |  - Interactive Video Player / Assembly Preview         | - Agent Spec|
-| - Universe  |  - 13-Stage Pipeline Progress Bar                      | - Approvals |
-| - Assets    |  - Live Worker Log Stream (SSE / WebSocket)            |             |
-| - Settings  |                                                        |             |
-+------------------------------------------------------------------------------------+
-| Status: Worker Idle | Active Branch: dev | Storage: 4.2GB / 50GB | Latency: 42ms   | (Footer Bar)
-+------------------------------------------------------------------------------------+
+                      ┌─────────────────────────────────────────┐
+                      │            UNIVERSAL FOOTER             │
+                      │       (<SiteFooter /> on all pages)     │
+                      └────────────────────┬────────────────────┘
+                                           │
+                 ┌─────────────────────────┴─────────────────────────┐
+                 ▼                                                   ▼
+      ┌────────────────────┐                              ┌────────────────────┐
+      │      CORE A        │                              │      CORE B        │
+      │   (Logged Out)     │                              │   (Logged In)      │
+      │   .site-header     │                              │   .studio-header   │
+      └──────────┬─────────┘                              └──────────┬─────────┘
+                 │                                                   │
+        ┌────────┴────────┐               ┌──────────────────────────┼──────────────────────────┐
+        ▼                 ▼               ▼                          ▼                          ▼
+┌───────────────┐ ┌───────────────┐ ┌───────────┐              ┌───────────┐              ┌───────────┐
+│ A1: Flagship  │ │ A2: Reading / │ │    B1     │              │    B2     │              │    B3     │
+│     Marketing │ │     Docs/Auth │ │  FRONT    │              │  STUDIO   │              │  ACCOUNT  │
+└───────────────┘ └───────────────┘ │  OFFICE   │              │ WORKBENCH │              │ (Security)│
+                                    └─────┬─────┘              └─────┬─────┘              └─────┬─────┘
+                                          │                          │                          │
+                                    ┌─────┴─────┐              ┌─────┼─────┐              ┌─────┴─────┐
+                                    ▼           ▼              ▼     ▼     ▼              ▼           ▼
+                                   B1-A        B1-B           B2-A  B2-B  B2-C           B3-A        B3-B
+                                   (Hub)     (Index)        (Board)(Split)(Warehouse)  (Config)    (Ledger)
 ```
+
+### 4.1 Shell Invariants
+1. **Universal Container**: All page content is wrapped in `<main id="main-content">` inside `<div className="shell">` (`width: min(100% - 3rem, 88rem); margin-inline: auto;`).
+2. **Universal Footer**: `<SiteFooter />` (`.site-footer`) renders identically on every public, authenticated, and account route. Never customized or hidden.
+3. **Header A (Logged Out / Public)**: `<SiteHeader />` (`.site-header`) with brand mark, public nav (Gallery, Docs, Pricing), and Auth action buttons.
+4. **Header B (Logged In / Product)**: `<StudioNav />` (`.studio-header`) with studio dot, workspace title, `.studio-nav` module tabs (Front Office, Studio, Account), and `.studio-subnav` page tabs.
 
 ### 4.2 Responsive Breakpoints
-- **Mobile (< 640px):** Single-column stacked view. Navigation collapses into a full-height drawer (`mobile-menu.tsx`). Heavy workbench views switch to card-based tabbed steps.
-- **Tablet (640px – 1024px):** Compact icon-only navigation rail. Two-column layout (Sidebar + Canvas).
-- **Desktop (1024px – 1440px):** Full 3-pane workbench (Nav Rail + Canvas/Timeline + Collapsible Inspector).
-- **Ultrawide (> 1440px):** Full-width expanded IDE layout with dual live monitors (GenPlay shot viewer + Master Assembly preview).
+- **Mobile (< 640px):** Single-column stacked view (`width: min(100% - 1.5rem, 88rem)`). Navigation collapses into `.main-nav` dropdown or mobile menu drawer. Heavy workbench split switches to single-column stack.
+- **Tablet (640px – 1024px):** Connected grids collapse to 2 columns (`.desk-grid`, `.grid`).
+- **Desktop (1024px – 1440px):** Full 3-pane workbench / 2-column workspace split (`.workspace-split`).
+- **Ultrawide (> 1440px):** Max container width capped at `88rem` via `.shell` to maintain reading measure.
 
 ---
 
-## 5. UI Component Hierarchy & Patterns
+## 5. Template Book & Archetype Taxonomy
 
-### 5.1 Common Atoms & Primitives
+All routes must strictly select and implement one of the following canonical archetypes. No custom ad-hoc page geometry is permitted.
+
+### 5.1 CORE A: Logged Out / Public Pages (`.site-header`)
+
+#### Archetype A1: Marketing Flagship & Feature Showcase
+* **Routes**: `/`, `/studio`, `/system`, `/social-workshop`
+* **Slot Contract**:
+  * `Slot 1 (Hero)`: `.hero.shell` or `.detail-hero` (`.eyebrow` with `.pulse-dot` + `Syne` H1 with `.hero-emphasis` + `Space Grotesk` `.hero-lede` max `32-44rem` + `.hero-actions`).
+  * `Slot 2 (Visual Stage / Rail)`: `.hero-stage` (layered canvas with `.orbit` rings, `.stage-frame`, `.signal-card` overlays) or `.department-rail` (13-stage milestone bar).
+  * `Slot 3 (Connected Matrix)`: `.desk-grid` (2×2 connected `.desk-card` blocks with `.desk-number` 01-04, status dot, and `.card-arrow`) or `.detail-grid`.
+  * `Slot 4 (Closing Banner)`: `.closing-layout` or `.detail-cta` (Large `Syne` sign-off on left, `.button-primary` on right).
+
+#### Archetype A2: Reading, Docs & Auth Gateways
+* **Variant A2-A (Docs Layout — `/docs`)**:
+  * `Slot 1`: Two-column `.docs-layout.shell` (`14rem` sidebar + `1fr` content).
+  * `Slot 2`: Sticky `.docs-nav` sidebar with mono category headers and cyan hover links.
+  * `Slot 3`: Stacked `.docs-section` stream with hairline dividers, `Syne` H2/H3, and DM Mono code blocks.
+* **Variant A2-B (Editorial & Legal — `/terms`, `/privacy`, `/core-values`)**:
+  * `Slot 1`: Centered `.reading-page.shell` (`max-width: 58rem; margin-inline: auto`).
+  * `Slot 2`: `Syne` H1 + `.kicker` (effective date) + `.lede` (max `36rem`).
+  * `Slot 3`: Content stream with `.notice` callouts (`border-left: 2px solid var(--color-amber)`).
+* **Variant A2-C (Centered Form Gateway — `/login`, `/signup`, `/contact`, `/mfa`, `/forgot-password`)**:
+  * `Slot 1`: Centered canvas `.form-page` (`min-height: calc(100vh - 12rem); place-items: center`).
+  * `Slot 2`: Inset `.form-card` (`max-width: 28rem` to `36rem`, `.color-surface-70`).
+  * `Slot 3`: `Syne` H1 + `.stack-form` (DM Mono uppercase labels + dark inputs) + `.button-primary` + `.form-error`.
+
+---
+
+### 5.2 CORE B: Logged In / Product Pages (`.studio-header`)
+
+#### Core B1: Front Office (Control & Operations)
+* **Routes**: `/app`, `/app/channels`, `/app/marketing`, `/app/social`, `/app/staffing`, `/app/front-office`
+* **Variant B1-A (Executive Hub — `/app`, `/app/front-office`)**:
+  * `Slot 1 (Header)`: `.workspace-hero` (Left: `Syne` H1 + lede; Right: glowing cyan `.credit-pill` with tabular numbers).
+  * `Slot 2 (Metrics)`: 4-up `.stats-grid` (`DM Mono` label + `Syne` tabular numbers).
+  * `Slot 3 (Data)`: Striped `.production-list` (stacked `.production-row` items with channel tag, title, 13-stage mini progress bar, and `.status-mark`).
+  * `Slot 4 (Feed Split)`: 2-column `.workspace-split` (Two 50/50 `.panel` containers holding `.event-list` feed items).
+* **Variant B1-B (Entity Index / Catalog — `/app/channels`, `/app/staffing`)**:
+  * `Slot 1 (Header)`: `.section-head` (Left: `Syne` H1 + lede; Right: `.button-primary` creation action).
+  * `Slot 2 (Grid)`: Connected `.grid.channel-grid` (3-column cards with `<dl>` stat rows and hairline borders).
+  * `Slot 3 (Empty State)`: Inset `.panel.empty-state` with guidance and action button when count is zero.
+
+#### Core B2: Studio (Creative & Production Workbench)
+* **Routes**: `/app/studio`, `/app/productions/[id]`, `/app/builder`, `/app/universe`, `/app/universe/[id]`, `/app/assets`, `/app/orchestration`, `/app/agents`
+* **Variant B2-A (Production Pipeline & Shot Board — `/app/productions/[id]`, `/app/orchestration`)**:
+  * `Slot 1 (Stepper)`: 13-stage `.production-progress` stepper with active state dots.
+  * `Slot 2 (Gate Panel)`: `.active-step-panel` (Cyan glow border highlighting current approval gate or active job).
+  * `Slot 3 (Work Surface)`: Vertical `.shot-list` (`.shot-card` items with prompt preview and `.clip-row` version selectors).
+  * `Slot 4 (Assembly & Logs)`: Assembly decision controls + collapsible `.event-list details` JSON execution logs.
+* **Variant B2-B (Split Inspector Workbench — `/app/builder`, `/app/universe/[id]`, `/app/agents`, `/app/marketing`)**:
+  * `Slot 1 (Breadcrumb)`: Context header (`.text-link` back link + `Syne` H1 + `.status-mark`).
+  * `Slot 2 (Split Surface)`: 2-column `.workspace-split`:
+    * *Left (60%)*: Dark text editor (`.file-form`), visual asset canvas, or DNA sheet viewer.
+    * *Right (40%)*: Configuration stack (`.stack-form` with dropdowns, model selection, prompt overrides).
+  * `Slot 3 (Action Strip)`: `.actions` strip (`.button-primary` save + `.button-outline` + `.danger-button`).
+* **Variant B2-C (Asset Warehouse — `/app/assets`, `/app/universe`)**:
+  * `Slot 1 (Filter Bar)`: Search & filter `.inline-form` with tier and type dropdowns.
+  * `Slot 2 (Catalog Matrix)`: Connected `.catalog-list` or `.grid` with metadata badges.
+  * `Slot 3 (Batch Deck)`: Selection drawer with download, DNA casting, and tagging actions.
+
+#### Core B3: Account & Infrastructure (Settings & Security)
+* **Routes**: `/account`, `/app/billing`, `/app/integrations`, `/app/onboarding`
+* **Variant B3-A (Settings & Security — `/account`, `/app/onboarding`)**:
+  * `Slot 1 (Header)`: `Syne` H1 + `Space Grotesk` lede.
+  * `Slot 2 (Panels Stack)`: Vertical stack of `.panel` containers holding standard `.stack-form` inputs.
+  * `Slot 3 (Danger Zone)`: Bottom `.panel.danger-panel` with red border for key revocation or workspace deletion.
+* **Variant B3-B (Vault & Billing Ledger — `/app/billing`, `/app/integrations`)**:
+  * `Slot 1 (Header)`: `Syne` H1 + usage overview.
+  * `Slot 2 (Ledger / Connections)`: 2-up `.credit-hero` (Available vs Reserved) + connected `.connection-list` (provider rows with masked secrets, capabilities, and `.status-mark`).
+  * `Slot 3 (Revocation)`: Confirmation dialogs for credential rotation or disconnection.
+
+---
+
+### 5.3 Strict Anti-Patterns & Validation Gates
+
+1. **Font Role Inversion**: `Syne` is forbidden in body copy, buttons, inputs, and tables (Headings only). `Space Grotesk` is forbidden in data numbers and status tags (`DM Mono` only).
+2. **Uncontained Width**: Every page must be contained inside `.shell` (`88rem`) or `.reading-page` (`58rem`). Zero marginless full-bleed content.
+3. **Floating Island Cards**: Never create detached rounded cards with standard drop shadows. Always use connected 1px border grids (`border-top/left` on parent, `border-right/bottom` on children) with `--color-surface` fills.
+4. **Un-tokenized Colors**: Never use raw hex/RGB. Colors strictly constrained to Pink (`350`), Cyan (`205`), Lime (`145`), Amber (`75`), and Red (`25`).
+5. **Custom Header/Footer**: Never create custom headers or footers inside page routes. All pages use `<SiteFooter />` and either `<SiteHeader />` (Core A) or `<StudioNav />` (Core B).
+
+---
+
+## 6. UI Component Hierarchy & Patterns
+
+### 6.1 Common Atoms & Primitives
 - **Button System:**
   - `.button-primary`: Vibrant Pink background (`--color-pink`), dark text, subtle pink glow on hover.
   - `.button-secondary`: Subtle surface background (`--color-surface-2`), hairline border (`--color-border`), white text.
@@ -224,7 +328,7 @@ graph TD
 - **Status & Telemetry Badges:**
   - Pill shape (`--radius-pill`), 11px uppercase monospace font, soft background mix with saturated status dot.
 
-### 5.2 Composite Product Components
+### 6.2 Composite Product Components
 - **`HeroStage` (`marketing/hero-stage.tsx`):** Ambient interactive backdrop with canvas-driven particle lines, glowing radial light pulses, and dynamic action buttons.
 - **`SignalBoard` (`marketing/signal-board.tsx`):** Filterable telemetry grid displaying real-time generation signals, channel frequencies, and public proofs.
 - **`ProductionProgress` (`product/production-progress.tsx`):** Horizontal stepped pipeline tracker displaying current execution phase, gate status (Pending / Approved), and progress percentage.
@@ -233,7 +337,7 @@ graph TD
 
 ---
 
-## 6. Motion & Micro-interactions
+## 7. Motion & Micro-interactions
 
 Motion in Gem Studio is restrained, physics-based, and performance-optimized using CSS transforms and hardware-accelerated transitions.
 
@@ -248,7 +352,6 @@ Motion in Gem Studio is restrained, physics-based, and performance-optimized usi
 ### Accessibility Fallback (Reduced Motion)
 All animations are strictly wrapped with `@media (prefers-reduced-motion: reduce)`:
 ```css
-@media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
@@ -260,7 +363,7 @@ All animations are strictly wrapped with `@media (prefers-reduced-motion: reduce
 
 ---
 
-## 7. Accessibility (A11y) & Engineering Compliance
+## 8. Accessibility (A11y) & Engineering Compliance
 
 1. **Color Contrast Standards:**
    - Body copy (`--color-text` on `--color-bg`): Contrast ratio > `12.5:1` (Exceeds WCAG AAA).
@@ -276,8 +379,7 @@ All animations are strictly wrapped with `@media (prefers-reduced-motion: reduce
 
 ---
 
-## 8. File Structure Reference
-
+## 9. File Structure Reference
 ```
 web/
 ├── app/

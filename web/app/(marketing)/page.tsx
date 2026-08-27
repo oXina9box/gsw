@@ -23,7 +23,7 @@ export default async function HomePage() {
   try { authenticated = Boolean((await (await createClient()).auth.getUser()).data.user); } catch { /* The public site also renders without local Supabase credentials. */ }
   const entryHref = authenticated ? "/app" : "/signup";
 
-  return <>
+  return <div data-archetype="A1">
     <section className="hero shell">
       <div className="hero-copy">
         <p className="eyebrow"><span className="eyebrow-rule" /><span className="pulse-dot" /> Invite-only AI film studio · Beta credits included</p>
@@ -69,5 +69,5 @@ export default async function HomePage() {
     </section>
 
     <section className="closing-section shell reveal-on-scroll"><div className="closing-rule" /><div className="closing-layout"><h2>Bring the frame <span>before it exists.</span></h2><Link className="button button-primary" href={entryHref}>{authenticated ? "Open your Studio" : "Create your Studio"} ↗</Link></div></section>
-  </>;
+  </div>;
 }

@@ -131,6 +131,9 @@ button { cursor:pointer; }
 h1,h2,h3,h4,p { margin:0; }
 h1,h2,h3,h4 { min-width:0; overflow-wrap:anywhere; text-wrap:balance; }
 .shell { width:min(100% - 3rem,88rem); margin-inline:auto; }
+.shell .shell { width:100%; }
+.core-a,.core-b { width:100%; }
+[data-archetype] { min-width:0; }
 .site-header,main,.site-footer { position:relative; z-index:1; }
 main { min-height:calc(100vh - 12rem); }
 :focus-visible { outline:2px solid var(--color-focus); outline-offset:4px; }

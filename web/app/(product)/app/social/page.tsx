@@ -13,7 +13,7 @@ export default async function SocialPage({ searchParams }: { searchParams: Promi
     supabase.from("social_reports").select("id, release_package_id, report_type, notes, metrics, captured_at").order("captured_at", { ascending: false }).limit(30),
   ]);
   const { error } = await searchParams;
-  return <section className="product-page shell">
+  return <section className="product-page shell" data-archetype="B2-C">
     <h1>Release. Listen. Feed it back.</h1>
     <p className="lede">Plan releases and save manual audience signals as structured inputs for the next production. Direct posting and analytics sync are not enabled in this build.</p>
     {error ? <p className="form-error" role="alert">Social operation failed.</p> : null}

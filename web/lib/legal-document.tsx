@@ -102,7 +102,7 @@ export async function LegalDocument({ file }: LegalDocumentProps) {
   const html = renderMarkdown(source);
 
   return (
-    <article className="reading-page shell legal-document">
+    <article className="reading-page shell legal-document" data-archetype="A2">
       <p className="kicker">Legal / draft</p>
       <div className="notice">
         These repository-managed legal drafts require qualified legal review before publication as final terms.

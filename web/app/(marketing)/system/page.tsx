@@ -12,7 +12,7 @@ const steps = [
 ] as const;
 
 export default function SystemPage() {
-  return <article className="marketing-detail">
+  return <article className="marketing-detail" data-archetype="A1">
     <header className="detail-hero shell"><h1>The system is <span>the creative.</span></h1><p className="detail-lede">Gem Studio turns production into a visible sequence of decisions. Agents can keep work moving; users keep control of approvals, providers, credits, and release.</p><EntryActions /></header>
     <section className="process-list shell">{steps.map(([number, title, copy]) => <article key={number}><span>{number}</span><div><h2>{title}</h2><p>{copy}</p></div></article>)}</section>
     <section className="run-mode-panel shell"><div><h2>Choose where the system waits.</h2></div><div className="run-mode-list"><p><strong>Manual</strong><span>You start each next step.</span></p><p><strong>Semi-auto</strong><span>The workflow runs until a configured gate.</span></p><p><strong>Auto</strong><span>The workflow continues within policy, provider, and credit limits.</span></p></div></section>

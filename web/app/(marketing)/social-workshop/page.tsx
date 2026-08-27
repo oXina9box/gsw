@@ -4,7 +4,7 @@ import { SignalBoard } from "@/components/marketing/signal-board";
 export const metadata = { title: "Social Workshop", description: "Plan releases and return useful private audience signals to the next production." };
 
 export default function SocialWorkshopPage() {
-  return <article className="marketing-detail">
+  return <article className="marketing-detail" data-archetype="A1">
     <header className="detail-hero shell"><h1>The afterlife of <span>a good frame.</span></h1><p className="detail-lede">Plan how one master can become many platform-native points of entry, then carry the useful response into the next brief.</p><EntryActions /></header>
     <section className="social-detail-board shell"><div><h2>Cut for the platform. Learn for the next brief.</h2><p>These editorial examples show how native cuts and conversations become creative inputs. Private production signals stay inside the owner’s Studio.</p></div><SignalBoard /></section>
     <section className="detail-grid shell">

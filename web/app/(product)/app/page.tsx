@@ -36,7 +36,7 @@ export default async function AppPage() {
   ]);
   const loadError = channelsError || productionsError || dnaError || assetsError || creditsError || jobsError || signalsError;
 
-  return <section className="product-page shell">
+  return <section className="product-page shell" data-archetype="B1-A">
     <div className="workspace-hero"><div><h1>{workspaceName}</h1><p className="lede">Site-wide channel, production, asset, and audience overview.</p></div><div className="credit-pill"><strong>{creditsError ? "—" : credits?.available ?? 0}</strong><span>credits available</span><small>{creditsError ? "Balance unavailable" : `${credits?.reserved ?? 0} reserved`}</small></div></div>
     {loadError ? <p className="form-error" role="alert">Some Front Office data could not load. Refresh to try again.</p> : null}
     <DataSummary channels={channelsError ? "—" : channels ?? 0} productions={productionsError ? "—" : productionCount ?? 0} dna={dnaError ? "—" : dna ?? 0} assets={assetsError ? "—" : assets ?? 0} />

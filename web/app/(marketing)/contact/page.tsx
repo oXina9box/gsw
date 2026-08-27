@@ -8,7 +8,7 @@ export default function ContactPage() {
   const [state, formAction, isPending] = useActionState<ContactState, FormData>(sendContactMessage, {});
 
   return (
-    <article className="marketing-detail">
+    <article className="marketing-detail" data-archetype="A2">
       <header className="detail-hero shell">
         <h1>Get in touch. <span>We are here to help.</span></h1>
         <p className="detail-lede">
@@ -16,20 +16,20 @@ export default function ContactPage() {
         </p>
       </header>
 
-      <section className="detail-band shell">
-        <div style={{ maxWidth: "560px", margin: "0 auto", width: "100%" }}>
+      <section className="form-page shell">
+        <div className="form-card">
           {state?.success ? (
-            <div className="notice notice-success" role="status" style={{ padding: "1.5rem", borderRadius: "8px", background: "var(--surface-muted, #1a1a1a)", border: "1px solid var(--border-subtle, #333)", textAlign: "center" }}>
-              <h2 style={{ fontSize: "1.25rem", marginBottom: "0.5rem" }}>Message received</h2>
+            <div className="notice notice-success" role="status">
+              <h2>Message received</h2>
               <p>Thank you for reaching out. We will get back to you shortly.</p>
               <div style={{ marginTop: "1rem" }}>
                 <Link className="button button-outline" href="/docs">Browse Documentation ↗</Link>
               </div>
             </div>
           ) : (
-            <form action={formAction} className="stack" style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+            <form action={formAction} className="stack-form">
               {state?.error && (
-                <div role="alert" style={{ color: "#ef4444", fontSize: "0.875rem" }}>
+                <div className="form-error" role="alert">
                   {state.error}
                 </div>
               )}

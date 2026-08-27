@@ -7,7 +7,7 @@ export default async function IntegrationsPage({ searchParams }: { searchParams:
   const { supabase } = await getWorkspaceContext();
   const { data: connections } = await supabase.from("provider_connections").select("id, provider, label, base_url, default_model, capabilities, masked_secret, status, last_validated_at").order("created_at");
   const { error } = await searchParams;
-  return <section className="product-page shell">
+  return <section className="product-page shell" data-archetype="B3-B">
     <h1>Models matched to roles.</h1>
     <p className="lede">Add a recommended provider or any OpenAI-compatible endpoint. Credentials are encrypted and never shown again.</p>
     {error ? <p className="form-error" role="alert">{error === "configuration" ? "Server encryption is not configured." : "Provider connection could not be saved."}</p> : null}

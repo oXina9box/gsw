@@ -8,7 +8,7 @@ export default async function FrontOfficePage({ searchParams }: { searchParams: 
   const { supabase } = await getWorkspaceContext();
   const [{ data: channels, error: channelsError }, { data: workflows }] = await Promise.all([supabase.from("channels").select("id, name").order("created_at"), supabase.from("workflows").select("id, name, template_key").order("name")]);
   const { error } = await searchParams;
-  return <section className="product-page shell">
+  return <section className="product-page shell" data-archetype="B1-A">
     <h1>Open a production.</h1>
     <p className="lede">Set audience, rights, budget, schedule, and operating mode before agents enter the floor.</p>
     {error ? <p className="form-error" role="alert">The brief could not be saved. Check every required field.</p> : null}

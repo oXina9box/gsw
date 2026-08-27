@@ -15,7 +15,7 @@ export default async function AgentsPage({ searchParams }: { searchParams: Promi
   const { error } = await searchParams;
   const entitled = new Set((entitlements ?? []).map((row) => row.catalog_agent_id));
   const installed = new Set((hires ?? []).map((row) => row.catalog_agent_id));
-  return <section className="product-page shell">
+  return <section className="product-page shell" data-archetype="B2-C">
     <h1>Hire for the role.</h1>
     <p className="lede">Every agent arrives with a six-file identity and a declared model-capability fit. Premium files stay protected while outputs remain yours.</p>
     {error ? <p className="form-error" role="alert">{error === "entitlement" ? "Purchase this protected configuration before hiring it." : "Agent could not be hired."}</p> : null}

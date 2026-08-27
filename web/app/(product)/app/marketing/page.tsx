@@ -3,7 +3,7 @@ import { createChannel } from "@/app/(product)/actions";
 export const metadata = { title: "Marketing" };
 
 export default function MarketingPage() {
-  return <section className="product-page shell">
+  return <section className="product-page shell" data-archetype="B1-B">
     <h1>Channel positioning.</h1>
     <p className="lede">Define audience, voice, cadence, and content pillars before production starts.</p>
     <section className="panel marketing-brief">

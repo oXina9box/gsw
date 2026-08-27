@@ -5,7 +5,7 @@ import { EntryActions } from "@/components/marketing/entry-actions";
 export const metadata = { title: "The Studio", description: "A private AI film studio with channels, 13 connected departments, hired agents, continuity records, and human approvals." };
 
 export default function StudioPage() {
-  return <article className="marketing-detail">
+  return <article className="marketing-detail" data-archetype="A1">
     <header className="detail-hero shell"><h1>Thirteen departments. <span>One moving picture.</span></h1><p className="detail-lede">Gem Studio gives one creator one private Studio: recurring channels, configurable lanes, hired AI agents, production history, and the context each handoff needs.</p><EntryActions secondaryHref="/login" /></header>
     <section className="detail-band shell"><div><h2>A brief becomes an operating plan.</h2></div><p>Choose the channel, audience, goal, rights confirmation, schedule, credit cap, run mode, and quality preference before a production moves. Manual, semi-automatic, and automatic runs share the same visible approval history.</p></section>
     <section className="department-rail shell" aria-label="Studio departments">{DEPARTMENTS.map((department, index) => <div className="department-rail-item" key={department}><span>{String(index + 1).padStart(2, "0")}</span><strong>{department}</strong></div>)}</section>

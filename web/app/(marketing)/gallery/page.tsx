@@ -55,7 +55,7 @@ export default async function GalleryPage() {
   }
 
   return (
-    <article className="marketing-detail">
+    <article className="marketing-detail" data-archetype="A1">
       <header className="detail-hero shell">
         <h1>Studio Gallery. <span>Produced by Creators.</span></h1>
         <p className="detail-lede">

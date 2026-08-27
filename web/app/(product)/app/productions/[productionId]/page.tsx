@@ -125,7 +125,7 @@ export default async function ProductionPage({
   const decisions = (assemblyDecisions ?? []) as Array<{ shot_id: string; position: number; keep: boolean; trim_start_ms: number; trim_end_ms: number | null; audio_choice: string | null }>;
 
   return (
-    <section className="product-page shell">
+    <section className="product-page shell" data-archetype="B2-A">
       <Link className="text-link" href={`/app/channels/${production.channel_id}`}>
         ← Channel
       </Link>

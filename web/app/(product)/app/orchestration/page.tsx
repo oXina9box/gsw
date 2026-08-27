@@ -70,7 +70,7 @@ export default async function OrchestrationPage({ searchParams }: { searchParams
       ? laneList.find((l) => l.id === rule.target_lane_id)?.name ?? "lane"
       : agentList.find((a) => a.id === rule.target_agent_id)?.name ?? "agent";
   return (
-    <section className="product-page shell">
+    <section className="product-page shell" data-archetype="B2-A">
       <h1>Orchestration</h1>
       {params.error && <p className="form-error" role="alert">Unable to save that orchestration record.</p>}
 
