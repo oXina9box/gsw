@@ -15,7 +15,7 @@
 7. **Public-hosting contract:** `day-zero-public-hosting-security.md` controls are mandatory and evidence-backed before traffic.
 8. **Commercial evolution contract:** `commercial-service-architecture.md` seams prevent owner launch from becoming a single-user dead end.
 
-No implementation may silently invent behavior where one of these contracts is missing. Record an owner decision or defer the feature to `MASTER-TODO.md` Phase E (`planning/archive/post-launch.md`).
+No implementation may silently invent behavior where one of these contracts is missing. Record an owner decision or defer the feature to `TODO.md` (roadmap archived at `planning/archive/post-launch.md`).
 
 ## 2. Route and module coverage
 
@@ -125,7 +125,7 @@ Profile, Studio identity, sessions/MFA, export, deletion lifecycle, billing/usag
 | Assets | Asset/secrets contract | Storage/RLS/lineage tests |
 | Account | Account contract | MFA/export/delete/secret tests |
 | Dry launch | Launch requirements | Full owner E2E + security gate |
-| Deferred work | `MASTER-TODO.md` Phase E | Scope review; no launch dependency |
+| Deferred work | `TODO.md` | Scope review; no launch dependency |
 
 ## 6. Definition of contract-complete
 
