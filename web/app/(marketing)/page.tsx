@@ -69,6 +69,14 @@ export default async function HomePage() {
       </div>
     </section>
 
+    <section className="studio-section shell reveal-on-scroll" id="portfolio">
+      <div className="section-head"><h2>See what the floor <span>can make.</span></h2><p className="section-intro">A living reel of scenes, systems, and release packages made with Gem Studio. Browse the work, then trace each frame back to its production contract.</p></div>
+      <div className="desk-grid">
+        <article className="desk-card desk-creative"><div className="desk-card-head"><span className="desk-number">REEL</span><span className="desk-signal" /></div><p className="desk-label">Portfolio</p><h3>Finished frames.</h3><p>Explore public work from creators using connected departments, private continuity, and human approvals.</p><Link className="button button-outline" href="/portfolio">Open the portfolio ↗</Link></article>
+        <article className="desk-card desk-production"><div className="desk-card-head"><span className="desk-number">DNA</span><span className="desk-signal" /></div><p className="desk-label">Explore the system</p><h3>Follow the handoff.</h3><p>Read how a brief becomes a shot contract, a selected take, and a finished master without losing the thread.</p><Link className="button button-outline" href="/docs">Read the docs ↗</Link></article>
+      </div>
+    </section>
+
     <section className="closing-section shell reveal-on-scroll"><div className="closing-rule" /><div className="closing-layout"><h2>Bring the frame <span>before it exists.</span></h2><Link className="button button-primary" href={entryHref}>{authenticated ? "Open your Studio" : "Create your Studio"} ↗</Link></div></section>
   </div>;
 }

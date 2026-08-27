@@ -10,6 +10,8 @@ export const ROUTE_CONTRACTS = [
   ["/system", "Unknown User", "public"],
   ["/social-workshop", "Unknown User", "public"],
   ["/gallery", "Unknown User", "public"],
+  ["/portfolio", "Unknown User", "public"],
+  ["/do-not-click", "Unknown User", "public"],
   ["/docs", "Unknown User", "public"],
   ["/pricing", "Unknown User", "public"],
   ["/core-values", "Unknown User", "public"],
