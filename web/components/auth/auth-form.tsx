@@ -41,6 +41,25 @@ export function AuthForm({ mode }: { mode: Mode }) {
         router.refresh();
         return;
       }
+      // Auto-confirm email and sign in directly (testing mode)
+      const signUpUser = result.data && typeof result.data === "object" && "user" in result.data && result.data.user && typeof result.data.user === "object" && "id" in result.data.user ? (result.data.user as { id: string }) : null;
+      if (signUpUser?.id) {
+        try {
+          await fetch("/api/auth/signup", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ userId: signUpUser.id }),
+          });
+          const signInResult = await supabase.auth.signInWithPassword({ email, password });
+          if (!signInResult.error && signInResult.data?.session) {
+            router.replace(safeRedirectPath(params.get("next")));
+            router.refresh();
+            return;
+          }
+        } catch {
+          // fall through to manual confirm message
+        }
+      }
       setMessage("Account created. Check your email to confirm your account, or sign in.");
       return;
     }
