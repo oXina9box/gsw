@@ -7,7 +7,7 @@ import { shouldRedirectToOnboarding, type OnboardingStep } from "@/lib/studio/on
 import { getWorkspaceContext } from "@/lib/studio/workspace";
 
 export default async function ProductLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  const { supabase, membership } = await getWorkspaceContext();
+  const { supabase, user, membership } = await getWorkspaceContext();
   const { data: onboarding } = await supabase
     .from("onboarding_profiles")
     .select("mode, step, studio_identity, commercial_choice, provider_status, channel_setup, department_setup, lane_handoffs, missing_data_notes")
@@ -17,7 +17,8 @@ export default async function ProductLayout({ children }: Readonly<{ children: R
   const studioName = typeof workspace?.name === "string" ? workspace.name : "Gem Studio";
   return (
     <>
-      <StudioNav studioName={studioName} orchestrationEnabled />
+      <StudioNav studioName={studioName} userEmail={user.email ?? undefined} orchestrationEnabled />
+
       <main id="main-content"><CoreB>{children}</CoreB></main>
       <SiteFooter />
       <Suspense fallback={null}>
