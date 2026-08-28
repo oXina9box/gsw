@@ -4,9 +4,10 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { NAV_GROUPS, navGroupForPath, navItemIsActive } from "@/lib/studio/navigation";
 import { AccountDropdown } from "@/components/shell/account-dropdown";
-import { GemLogo, GemMark } from "@/components/shell/gem-brand-icon";
+import { GemLogo } from "@/components/shell/gem-brand-icon";
+import { StudioLogo } from "@/components/shell/studio-logo";
 
-export function StudioNav({ studioName, userEmail, orchestrationEnabled }: { studioName: string; userEmail?: string; orchestrationEnabled: boolean }) {
+export function StudioNav({ studioName, studioLogoUrl, userEmail, orchestrationEnabled }: { studioName: string; studioLogoUrl?: string | null; userEmail?: string; orchestrationEnabled: boolean }) {
   const pathname = usePathname();
   const group = navGroupForPath(pathname);
 
@@ -18,7 +19,7 @@ export function StudioNav({ studioName, userEmail, orchestrationEnabled }: { stu
       </nav>
       <div className="studio-header-actions">
         <div className="studio-identity" aria-label={`Studio ${studioName}`}>
-          <GemMark size={18} className="studio-identity-mark" />
+          <StudioLogo studioName={studioName} logoUrl={studioLogoUrl} size={28} />
           <span className="studio-identity-name">{studioName}</span>
         </div>
         <AccountDropdown userEmail={userEmail} />

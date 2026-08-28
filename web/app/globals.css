@@ -382,8 +382,11 @@ main { min-height:calc(100vh - 12rem); }
 .studio-header-actions { display:flex; align-items:center; gap:var(--space-3); color:var(--color-text-muted); font-size:var(--text-sm); white-space:nowrap; margin-left:auto; }
 .header-brand { flex:0 0 auto; }
 .header-brand .gem-logo { height:auto; display:block; }
-.studio-identity { display:inline-flex; align-items:center; gap:var(--space-2); padding:.35rem .6rem; border:1px solid var(--color-border); border-radius:var(--radius-pill); background:var(--color-surface-2); color:var(--color-text); font:500 var(--text-xs) var(--font-mono); max-width:14rem; }
-.studio-identity-mark { flex:0 0 auto; }
+.studio-identity { display:inline-flex; align-items:center; gap:var(--space-2); padding:.25rem .55rem .25rem .3rem; border:1px solid var(--color-border); border-radius:var(--radius-pill); background:var(--color-surface-2); color:var(--color-text); font:500 var(--text-xs) var(--font-mono); max-width:14rem; }
+.studio-logo { display:inline-grid; place-items:center; flex:0 0 auto; border-radius:6px; background:var(--color-surface-3); border:1px solid var(--color-hairline); overflow:hidden; }
+.studio-logo--placeholder { background:var(--color-surface-3); }
+.studio-logo--gem { background:transparent; border-color:transparent; }
+.studio-logo img { display:block; }
 .studio-identity-name { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .account-dropdown { position:relative; }
 .account-dropdown-trigger { display:inline-flex; align-items:center; gap:.35rem; min-height:2.25rem; padding:.45rem .7rem; border:1px solid var(--color-border-2); border-radius:var(--radius-pill); background:var(--color-surface); color:var(--color-text); font:600 var(--text-xs) var(--font-mono); }

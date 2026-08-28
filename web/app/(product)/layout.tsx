@@ -15,9 +15,11 @@ export default async function ProductLayout({ children }: Readonly<{ children: R
   const needsOnboarding = shouldRedirectToOnboarding(onboarding?.step);
   const workspace = membership.workspaces as { name?: unknown } | null;
   const studioName = typeof workspace?.name === "string" ? workspace.name : "Gem Studio";
+  const identity = (onboarding?.studio_identity ?? {}) as Record<string, unknown>;
+  const studioLogoUrl = typeof identity.logoUrl === "string" && identity.logoUrl.trim() ? identity.logoUrl.trim() : null;
   return (
     <>
-      <StudioNav studioName={studioName} userEmail={user.email ?? undefined} orchestrationEnabled />
+      <StudioNav studioName={studioName} studioLogoUrl={studioLogoUrl} userEmail={user.email ?? undefined} orchestrationEnabled />
 
       <main id="main-content"><CoreB>{children}</CoreB></main>
       <SiteFooter />
