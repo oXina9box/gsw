@@ -74,7 +74,7 @@ Owner rulings since first draft: **no stubs anywhere** (features ship working, o
 
 | This spec | Current code (`production` branch) | Gap |
 |---|---|---|
-| §2 Onboarding wizard (studio assistant, guided/fast, first channel, hiring fair) | `/app/onboarding` persists guided/fast profile, writes studio/channel/departments, creates default workflow, and provides guided-mode live BYOK text suggestions | Resolved 2026-08-26 |
+| §2 Onboarding wizard (studio assistant, guided/fast, first channel, hiring fair) | `/app/onboarding` (interactive route group) is mandatory after signup, opens with a process popup, persists guided/fast profile with branding fields (name, tagline, brand color, content type), channel presets/audience/season/episode plan, core+optional departments, creates default workflow, and provides guided-mode live BYOK text suggestions | Resolved 2026-08-27 |
 | §1/§2 Flow templates, build-from-scratch, bolster/trim | 13 stages hard-coded in `lib/studio/domain.ts`; orchestration workflows exist but marked experimental diagnostics in the site spec | **Resolved 2026-08-23** — customization is core; spec amended; 13-stage flow becomes default template |
 | §3.1 Forward lanes + round-table pass orders (per lane) | Persisted lane modes, bounded pass order/cycles, document merge, engine pass context/events, supervisor approval and kickback trigger buttons in execution workbench | **Partial** — approval/kickback triggers shipped 2026-08-26; role-gated supervisor policy still required |
 | §3.2 Casting gate, A/B tiers, B→A promotion | Universe tier/group filters, audited promotion, production casting gate and attach, deterministic fit score, B-tier spawn-and-cast | Resolved 2026-08-26 |

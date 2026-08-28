@@ -182,20 +182,27 @@ export async function authenticateBrowserContext(
   const authData = await getOrCreateAuthenticatedSession(credentials);
   const hostname = new URL(baseURL).hostname;
 
+  const isLocal = hostname === "127.0.0.1" || hostname === "localhost";
   const playwrightCookies = authData.cookies.map((c) => ({
     name: c.name,
     value: c.value,
-    url: baseURL,
-    domain: hostname === "127.0.0.1" || hostname === "localhost" ? undefined : hostname,
-    path: c.path ?? "/",
+    // Playwright accepts url XOR (domain+path); url derives domain/path itself.
+    ...(isLocal ? { url: baseURL } : { domain: hostname, path: c.path ?? "/" }),
     expires: c.expires,
     httpOnly: c.httpOnly ?? false,
     secure: c.secure ?? false,
-    sameSite: c.sameSite ?? "Lax",
+    sameSite: normalizeSameSite(c.sameSite),
   }));
 
   await context.addCookies(playwrightCookies);
   return authData;
+}
+
+function normalizeSameSite(value: string | undefined): "Strict" | "Lax" | "None" {
+  const normalized = value?.toLowerCase();
+  if (normalized === "strict") return "Strict";
+  if (normalized === "none") return "None";
+  return "Lax";
 }
 
 export async function authenticatePage(
@@ -210,7 +217,7 @@ export async function authenticatePage(
     options?.baseURL ??
     process.env.PLAYWRIGHT_TEST_BASE_URL ??
     (page.context() as unknown as { _options?: { baseURL?: string } })._options?.baseURL ??
-    "http://127.0.0.1:3100";
+    (process.env.PORT ? `http://localhost:${process.env.PORT}` : "http://localhost:8080");
 
   const authData = await authenticateBrowserContext(page.context(), targetBaseURL, options?.credentials);
 

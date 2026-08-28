@@ -483,24 +483,33 @@ export async function saveOnboardingStep(formData: FormData) {
   if (step === "channel") {
     const channelName = String(payload.channel_name ?? "").trim();
     if (!channelName) redirect("/app/onboarding?error=channel");
-    const { error } = await supabase.from("channels").insert({ workspace_id: id, name: channelName, audience: String(payload.season_scope ?? ""), voice: String(payload.format ?? "") });
+    const { error } = await supabase.from("channels").insert({ workspace_id: id, name: channelName, audience: String(payload.audience ?? ""), voice: String(payload.format ?? ""), cadence: String(payload.episode_plan ?? "") });
     if (error && !error.message.includes("duplicate")) redirect("/app/onboarding?error=channel");
   }
   if (step === "hiring") {
+    // The studio floor is fixed: migration 0007 revokes departments writes from
+    // authenticated, and the workspace seed trigger already inserts the 13
+    // departments. The hiring choice persists in department_setup jsonb.
     const names = String(payload.departments ?? "Marketing, Creative, Production, Social").split(",").map((name) => name.trim()).filter(Boolean).slice(0, 12);
-    const { error } = await supabase.from("departments").upsert(names.map((name, index) => ({ workspace_id: id, name, display_order: index })), { onConflict: "workspace_id,name" });
-    if (error) redirect("/app/onboarding?error=hiring");
+    if (!names.length) redirect("/app/onboarding?error=hiring");
+    await installDefaultWorkflow(supabase, id);
+    const { error } = await supabase.from("onboarding_profiles").upsert({ workspace_id: id, mode, step: "complete", department_setup: payload, completed_at: new Date().toISOString(), updated_at: new Date().toISOString() });
+    if (error) redirect("/app/onboarding?error=save");
+    revalidatePath("/app/onboarding"); redirect("/app/onboarding?step=complete");
   }
   if (step === "complete") {
-    const { data: existingWorkflow } = await supabase.from("workflows").select("id").eq("workspace_id", id).eq("template_key", "gem-studio-default").maybeSingle();
-    if (!existingWorkflow) {
-      const { data: template } = await supabase.from("workflow_templates").select("version, name, definition").eq("key", "gem-studio-default").maybeSingle();
-      await supabase.from("workflows").insert({ workspace_id: id, name: template?.name ?? "Gem Studio default", description: "Owner baseline workflow template.", template_key: "gem-studio-default", template_version: template?.version ?? "1.0.0", definition: template?.definition ?? {} });
-    }
+    await installDefaultWorkflow(supabase, id);
   }
-  const { error } = await supabase.from("onboarding_profiles").upsert({ workspace_id: id, mode, step, ...(step === "identity" ? { studio_identity: payload } : {}), ...(step === "channel" ? { channel_setup: payload } : {}), ...(step === "hiring" ? { department_setup: payload } : {}), ...(step === "complete" ? { completed_at: new Date().toISOString() } : {}), updated_at: new Date().toISOString() });
+  const { error } = await supabase.from("onboarding_profiles").upsert({ workspace_id: id, mode, step, ...(step === "identity" ? { studio_identity: payload } : {}), ...(step === "channel" ? { channel_setup: payload } : {}), ...(step === "complete" ? { completed_at: new Date().toISOString() } : {}), updated_at: new Date().toISOString() });
   if (error) redirect("/app/onboarding?error=save");
-  revalidatePath("/app/onboarding"); redirect(step === "complete" ? "/app" : `/app/onboarding?step=${step === "identity" ? "channel" : step === "channel" ? "hiring" : "complete"}`);
+  revalidatePath("/app/onboarding"); redirect(step === "complete" ? "/app" : `/app/onboarding?step=${step === "identity" ? "channel" : "hiring"}`);
+}
+
+async function installDefaultWorkflow(supabase: Awaited<ReturnType<typeof getWorkspaceContext>>["supabase"], workspaceId: string) {
+  const { data: existingWorkflow } = await supabase.from("workflows").select("id").eq("workspace_id", workspaceId).eq("template_key", "gem-studio-default").maybeSingle();
+  if (existingWorkflow) return;
+  const { data: template } = await supabase.from("workflow_templates").select("version, name, definition").eq("key", "gem-studio-default").maybeSingle();
+  await supabase.from("workflows").insert({ workspace_id: workspaceId, name: template?.name ?? "Gem Studio default", description: "Owner baseline workflow template.", template_key: "gem-studio-default", template_version: template?.version ?? "1.0.0", definition: template?.definition ?? {} });
 }
 
 

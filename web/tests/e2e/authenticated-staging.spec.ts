@@ -9,6 +9,9 @@ test.describe("Authenticated Staging Verification", () => {
   test("completes the onboarding wizard through all steps to studio ready", async ({ page }) => {
     await authenticatePage(page, { destination: "/app/onboarding?step=identity" });
 
+    // Intro popup explains the setup process; dismiss it to reach the form.
+    await page.getByRole("button", { name: /Start setup/i }).click();
+
     // Step 1: Studio Identity
     await expect(page.getByRole("heading", { level: 1 })).toContainText(/Name your studio|Studio setup/i);
     const studioNameInput = page.locator('input[name="studio_name"]');

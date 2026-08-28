@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { NAV_GROUPS, navGroupForPath, navItemIsActive } from "@/lib/studio/navigation";
+import { GemMark } from "@/components/shell/gem-brand-icon";
 
 export function StudioNav({ studioName, orchestrationEnabled }: { studioName: string; orchestrationEnabled: boolean }) {
   const pathname = usePathname();
@@ -10,7 +11,7 @@ export function StudioNav({ studioName, orchestrationEnabled }: { studioName: st
 
   return <header className="studio-header">
     <div className="studio-header-inner shell">
-      <Link className="studio-wordmark" href="/app"><span className="studio-dot" aria-hidden="true" /><span className="studio-name">{studioName}</span></Link>
+      <Link className="studio-wordmark" href="/app"><GemMark size={22} className="studio-mark" /><span className="studio-name">{studioName}</span></Link>
       <nav className="studio-nav" aria-label="Modules">
         {NAV_GROUPS.map(({ label, href }) => <Link href={href} key={href} aria-current={group.label === label ? "location" : undefined}>{label}</Link>)}
       </nav>

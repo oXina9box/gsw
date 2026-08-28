@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 
 import { AuthActions } from "./auth-actions";
-import { GemBrandIcon } from "./gem-brand-icon";
+import { GemLogo } from "./gem-brand-icon";
 
 export function SiteHeaderClient({ authenticated, userEmail }: { authenticated: boolean; userEmail?: string }) {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -50,7 +50,7 @@ export function SiteHeaderClient({ authenticated, userEmail }: { authenticated: 
   const closeMenu = () => setMenuOpen(false);
 
   return <header className="site-header shell">
-    <Link className="wordmark" href={authenticated ? "/app" : "/"} aria-label={authenticated ? "Open Gem Studio" : "Gem Studio home"} onClick={closeMenu}><GemBrandIcon className="gem-brand-mark" /><span>GEM STUDIO</span></Link>
+    <Link className="wordmark" href={authenticated ? "/app" : "/"} aria-label={authenticated ? "Open Gem Studio" : "Gem Studio home"} onClick={closeMenu}><GemLogo width={118} /></Link>
     <nav ref={menuRef} className={`main-nav ${menuOpen ? "is-open" : ""}`} id="main-nav" aria-label="Primary navigation">
       <Link href="/portfolio" onClick={closeMenu}>Portfolio</Link><Link href="/docs" onClick={closeMenu}>Docs</Link><Link href="/pricing" onClick={closeMenu}>Pricing</Link>
       <div className="mobile-account-actions"><AuthActions authenticated={authenticated} userEmail={userEmail} /></div>

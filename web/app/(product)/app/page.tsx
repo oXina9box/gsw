@@ -1,22 +1,12 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { DataSummary } from "@/components/product/data-summary";
 import { DEPARTMENTS } from "@/lib/studio/domain";
 import { getWorkspaceContext } from "@/lib/studio/workspace";
 
 export const metadata = { title: "Front Office" };
 
-export function shouldRedirectToOnboarding(step: unknown) {
-  return step !== "complete";
-}
-
 export default async function AppPage() {
   const { supabase, workspaceName } = await getWorkspaceContext();
-  const { data: onboarding, error: onboardingError } = await supabase
-    .from("onboarding_profiles")
-    .select("step")
-    .maybeSingle();
-  if (!onboardingError && shouldRedirectToOnboarding(onboarding?.step)) redirect("/app/onboarding");
   const [
     { data: channelRows, count: channels, error: channelsError },
     { data: productions, count: productionCount, error: productionsError },

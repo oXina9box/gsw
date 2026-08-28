@@ -37,7 +37,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
     if (isForgot) { setMessage("If an account exists for that email, a reset link is on its way."); return; }
     if (mode === "signup") {
       if ("session" in result.data && result.data.session) {
-        router.replace(safeRedirectPath(params.get("next")));
+        router.replace("/app/onboarding");
         router.refresh();
         return;
       }
@@ -52,7 +52,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
           });
           const signInResult = await supabase.auth.signInWithPassword({ email, password });
           if (!signInResult.error && signInResult.data?.session) {
-            router.replace(safeRedirectPath(params.get("next")));
+            router.replace("/app/onboarding");
             router.refresh();
             return;
           }

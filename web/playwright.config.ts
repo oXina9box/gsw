@@ -19,8 +19,8 @@ if (existsSync(envLocalPath)) {
   }
 }
 
-const port = Number(process.env.PORT ?? 3100);
-const baseURL = `http://127.0.0.1:${port}`;
+const port = Number(process.env.PORT ?? 8080);
+const baseURL = process.env.PLAYWRIGHT_TEST_BASE_URL ?? `http://localhost:${port}`;
 export default defineConfig({
   testDir: "./tests/e2e",
   fullyParallel: true,
@@ -36,7 +36,7 @@ export default defineConfig({
   webServer: {
     command: `npm run dev -- --hostname 127.0.0.1 --port ${port}`,
     url: baseURL,
-    reuseExistingServer: !process.env.CI,
+    reuseExistingServer: true,
     env: {
       ...process.env,
       SITE_CONTENT_APPROVED: process.env.SITE_CONTENT_APPROVED ?? "false",

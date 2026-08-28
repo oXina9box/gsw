@@ -150,6 +150,7 @@ Protected footer links redirect to authentication and preserve the requested des
 - Expired sessions show a recoverable sign-in state.
 - Sign-out invalidates the session and returns to a public page.
 - No password, provider secret, or private agent file enters browser storage.
+- Onboarding is mandatory: account creation lands on `/app/onboarding`, and every authenticated product route redirects studios whose onboarding step is not `complete` back to setup. The onboarding route renders in the `(interactive)` route group (site header/footer shell, no studio nav) so the gate cannot loop.
 
 ### 2.2A Day-zero operating limits
 

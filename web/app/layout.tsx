@@ -28,6 +28,7 @@ export const metadata: Metadata = {
   title: { default: "Gem Studio — AI film studio", template: "%s · Gem Studio" },
   description: "A private AI film studio for channels, hired agents, human-approved production, native assembly, release planning, and signals.",
   applicationName: "Gem Studio",
+  icons: { icon: "/assets/img/gem-mark.png" },
   openGraph: { title: "Gem Studio — AI film studio", description: "Make the impossible feel scheduled.", type: "website", locale: "en_US" },
   twitter: { card: "summary_large_image", title: "Gem Studio — AI film studio", description: "Make the impossible feel scheduled." },
 };
