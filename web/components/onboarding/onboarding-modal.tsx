@@ -17,7 +17,7 @@ import {
 } from "@/lib/studio/onboarding";
 
 const CHANNEL_PRESETS = ["Content creation", "Advertising", "Film", "Documentary", "Other video format"] as const;
-const CORE_DEPARTMENTS = ["Marketing", "Creative", "Production", "Social"] as const;
+const CORE_DEPARTMENTS = ["Marketing", "Socials", "Development", "Production"] as const;
 const OPTIONAL_TEAMS = ["R&D", "Advertising", "Merchandise", "Budgeting", "Scheduling", "Cross-channel"] as const;
 
 const ERROR_MESSAGES: Record<string, string> = {
@@ -66,9 +66,9 @@ export function OnboardingModal({ initialStep = "identity", initialProfile, defa
   const initialIdentity = (initialProfile?.studio_identity ?? {}) as Record<string, unknown>;
   const [deferName, setDeferName] = useState(initialIdentity.studio_name_status === "deferred");
   const [studioName, setStudioName] = useState(typeof initialIdentity.studio_name === "string" ? initialIdentity.studio_name : "");
+  const [tagline, setTagline] = useState(typeof initialIdentity.tagline === "string" ? initialIdentity.tagline : "");
   const [logoPreview, setLogoPreview] = useState<string | null>(typeof initialIdentity.logo_url === "string" ? initialIdentity.logo_url : null);
   const [logoError, setLogoError] = useState<string | null>(null);
-
   const initialColors = Array.isArray(initialIdentity.brand_colors) && initialIdentity.brand_colors.length > 0
     ? (initialIdentity.brand_colors as string[])
     : ["#ea0070"];
@@ -239,6 +239,20 @@ export function OnboardingModal({ initialStep = "identity", initialProfile, defa
               ) : (
                 <p className="field-hint">Studio will temporarily be named &ldquo;Untitled Studio&rdquo; until customized.</p>
               )}
+            </div>
+
+            {/* Studio Tag Line */}
+            <div className="form-field-group">
+              <label htmlFor={`${formId}-tagline`}>Studio Tag Line</label>
+              <input
+                id={`${formId}-tagline`}
+                type="text"
+                name="tagline"
+                maxLength={200}
+                placeholder="e.g. Cinema at the speed of thought"
+                value={tagline}
+                onChange={(e) => setTagline(e.target.value)}
+              />
             </div>
 
             {/* Logo Upload */}

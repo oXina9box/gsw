@@ -12,7 +12,18 @@ export const CONTENT_DIRECTION_OPTIONS = [
 ] as const;
 export type ContentDirectionOption = (typeof CONTENT_DIRECTION_OPTIONS)[number];
 
-export const COMMERCIAL_PLANS = ["cloud-1", "cloud-2", "cloud-3", "byok"] as const;
+export const COMMERCIAL_PLANS = [
+  "content-pro",
+  "creator-pro",
+  "hollywood-pro",
+  "content-byok",
+  "creator-byok",
+  "self-host",
+  "cloud-1",
+  "cloud-2",
+  "cloud-3",
+  "byok",
+] as const;
 export type CommercialPlan = (typeof COMMERCIAL_PLANS)[number];
 
 export const LOGO_ALLOWED_MIME_TYPES = ["image/svg+xml", "image/png", "image/webp"] as const;
@@ -25,6 +36,7 @@ export interface StudioIdentityInput {
   logoAssetId?: string;
   logoUrl?: string;
   brandColors: string[];
+  tagline?: string;
   contentDirectionStatus: "provided" | "deferred";
   contentDirection?: ContentDirectionOption;
   contentDescription?: string;
@@ -104,6 +116,13 @@ export function validateStudioIdentity(input: unknown): { valid: boolean; errors
     brandColors.length = 3;
   }
 
+  const tagline =
+    typeof obj.tagline === "string"
+      ? obj.tagline.trim().slice(0, 200)
+      : typeof obj.tagLine === "string"
+        ? (obj.tagLine as string).trim().slice(0, 200)
+        : undefined;
+
   const contentDirectionStatus = obj.contentDirectionStatus === "deferred" ? "deferred" : "provided";
   let contentDirection: ContentDirectionOption | undefined;
 
@@ -134,6 +153,7 @@ export function validateStudioIdentity(input: unknown): { valid: boolean; errors
       logoAssetId,
       logoUrl,
       brandColors,
+      tagline,
       contentDirectionStatus,
       contentDirection,
       contentDescription,
@@ -148,14 +168,14 @@ export function validateCommercialChoice(input: unknown): { valid: boolean; erro
   const obj = input as Record<string, unknown>;
   const errors: string[] = [];
 
-  let plan: CommercialPlan = "cloud-1";
+  let plan: CommercialPlan = "content-pro";
   if (typeof obj.plan === "string" && (COMMERCIAL_PLANS as readonly string[]).includes(obj.plan)) {
     plan = obj.plan as CommercialPlan;
   } else {
     errors.push("Invalid commercial plan selected");
   }
 
-  const byokEnabled = typeof obj.byokEnabled === "boolean" ? obj.byokEnabled : plan === "byok";
+  const byokEnabled = typeof obj.byokEnabled === "boolean" ? obj.byokEnabled : plan === "byok" || plan === "content-byok" || plan === "creator-byok" || plan === "self-host";
 
   if (errors.length > 0) {
     return { valid: false, errors };
@@ -199,11 +219,11 @@ export function validateLogoUpload(fileMeta: {
 }
 
 export const ONBOARDING_STEP_META: ReadonlyArray<Readonly<{ step: OnboardingStep; label: string; title: string; summary: string }>> = [
-  { step: "identity", label: "Studio identity", title: "Name your studio", summary: "Brand the studio: name, logo, colors, and content direction." },
-  { step: "commercial", label: "Plan & Billing", title: "Choose access tier", summary: "Select managed Cloud credits, bring your own API keys (BYOK), or both." },
+  { step: "identity", label: "Studio essentials", title: "Create Studio essentials", summary: "Studio Name, Logo, Brand Colors, and Studio Tag Line." },
+  { step: "commercial", label: "Plan & Billing", title: "Choose usage level", summary: "Select Pro Cloud tiers, BYOK subscriptions, or Self-Host." },
   { step: "providers", label: "AI Providers", title: "Connect AI engines", summary: "Connect OpenAI or Anthropic safely with encrypted keys and masked credentials." },
   { step: "channel", label: "First channel", title: "Set up first channel", summary: "Open the first outlet: preset, audience, season scope, and episode plan." },
-  { step: "hiring", label: "Hiring fair", title: "Configure departments", summary: "Staff core departments and configure the studio roster." },
+  { step: "hiring", label: "Hiring fair", title: "Configure departments", summary: "Staff core departments: Marketing, Socials, Development, and Production." },
   { step: "lane", label: "First lane", title: "Marketing workbench", summary: "Review and approve Studio Brand, Channel Brief, and Media plan handoffs." },
   { step: "complete", label: "Studio launch", title: "Setup complete", summary: "The initial studio records and workflow are installed. Launch into your studio." },
 ];

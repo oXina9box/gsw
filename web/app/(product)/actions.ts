@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { encryptSecret, maskSecret } from "@/lib/studio/secrets";
 import { decryptSecret, resolveSecretKey } from "@/lib/studio/secrets";
-import { isJobKind, normalizeProviderBaseUrl, normalizeRunMode, textField, validateAssemblyTrim } from "@/lib/studio/domain";
+import { isJobKind, normalizeProviderBaseUrl, normalizeRunMode, safeInternalPath, textField, validateAssemblyTrim } from "@/lib/studio/domain";
 import { getWorkspaceContext } from "@/lib/studio/workspace";
 import { advanceExecution, cancelExecution, completeStep, failStep, startExecution, validateConditions, validatePassOrder } from "@/lib/orchestration/engine";
 import { evaluateClipUploadAdmission } from "@/lib/studio/caps";
@@ -14,6 +14,8 @@ import { nextOnboardingStep, ONBOARDING_STEPS, type OnboardingStep, validateComm
 
 function text(formData: FormData, name: string) { return String(formData.get(name) ?? "").trim(); }
 function valid(value: string) { return value.length > 0 && value.length <= 120; }
+function returnPath(formData: FormData) { return safeInternalPath(text(formData, "return_to"), "/app/builder"); }
+function errorPath(path: string, error: string) { return `${path}${path.includes("?") ? "&" : "?"}error=${error}`; }
 async function workspace() { const context = await getWorkspaceContext(); return { ...context, id: context.workspaceId }; }
 function jsonObject(value: FormDataEntryValue | null) {
   if (!value || String(value).length > 100_000) return {};
@@ -56,15 +58,16 @@ export async function createLane(formData: FormData) {
 }
 
 export async function updateLaneCollaboration(formData: FormData) {
+  const destination = returnPath(formData);
   const laneId = textField(formData, "lane_id");
   const mode = text(formData, "collaboration_mode") === "round_table" ? "round_table" : "forward";
   const order = text(formData, "pass_order").split(",").map(Number).filter(Number.isInteger);
   const cycles = Number.parseInt(text(formData, "pass_cycles"), 10) || 1;
-  if (!laneId || validatePassOrder(mode, order, cycles).length) redirect("/app/builder?error=lane");
+  if (!laneId || validatePassOrder(mode, order, cycles).length) redirect(errorPath(destination, "lane"));
   const { supabase, id: workspaceId } = await workspace();
   const { error } = await supabase.from("lanes").update({ collaboration_mode: mode, pass_order: mode === "round_table" ? order : [], pass_cycles: cycles }).eq("id", laneId).eq("workspace_id", workspaceId);
-  if (error) redirect("/app/builder?error=lane");
-  revalidatePath("/app/builder"); redirect("/app/builder");
+  if (error) redirect(errorPath(destination, "lane"));
+  revalidatePath("/app/builder"); revalidatePath(destination); redirect(destination);
 }
 
 export async function createAgent(formData: FormData) {
@@ -104,19 +107,21 @@ export async function advanceProduction(formData: FormData) {
 }
 
 export async function updateAgentFiles(formData: FormData) {
+  const destination = returnPath(formData);
   const agentId = text(formData, "agent_id");
-  if (!agentId) redirect("/app/builder?error=agent");
+  if (!agentId) redirect(errorPath(destination, "agent"));
   const { supabase, id } = await workspace();
   const { error } = await supabase.rpc("update_custom_agent_files", { target_workspace: id, target_agent: agentId, file_role: text(formData, "role"), file_soul: text(formData, "soul"), file_jobdescription: text(formData, "jobdescription"), file_skills: text(formData, "skills"), file_memory: text(formData, "memory"), file_user_content: text(formData, "user_content") });
-  if (error) redirect("/app/builder?error=agent");
-  revalidatePath("/app/builder"); redirect("/app/builder");
+  if (error) redirect(errorPath(destination, "agent"));
+  revalidatePath("/app/builder"); revalidatePath(destination); redirect(destination);
 }
 
 export async function updateAgentModel(formData: FormData) {
+  const destination = returnPath(formData);
   const agentId = textField(formData, "agent_id"); const recommendation = text(formData, "recommended_tier"); const override = text(formData, "model_tier_override");
-  if (!agentId || !["free", "mid", "quality"].includes(recommendation) || (override && !["free", "mid", "quality"].includes(override))) redirect("/app/builder?error=agent");
+  if (!agentId || !["free", "mid", "quality"].includes(recommendation) || (override && !["free", "mid", "quality"].includes(override))) redirect(errorPath(destination, "agent"));
   const { supabase, id: workspaceId } = await workspace(); const { error } = await supabase.from("agents").update({ recommended_tier: recommendation, model_tier_override: override || null, updated_at: new Date().toISOString() }).eq("id", agentId).eq("workspace_id", workspaceId);
-  if (error) redirect("/app/builder?error=agent"); revalidatePath("/app/builder"); redirect("/app/builder");
+  if (error) redirect(errorPath(destination, "agent")); revalidatePath("/app/builder"); revalidatePath(destination); redirect(destination);
 }
 
 export async function saveProductionBudgetGuideline(formData: FormData) {
@@ -481,6 +486,7 @@ export async function saveOnboardingStep(formData: FormData) {
       studioNameStatus: payload.studio_name_status === "deferred" ? "deferred" : "provided",
       studioName: payload.studio_name,
       brandColors: brandColors.length ? brandColors : ["#ea0070"],
+      tagline: payload.tagline,
       contentDirectionStatus: payload.content_direction_status === "deferred" ? "deferred" : "provided",
       contentDirection: payload.content_direction,
       contentDescription: payload.content_description,
