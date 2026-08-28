@@ -51,11 +51,11 @@ migration-tests:
         export PGDATA=/tmp/pgdata
         initdb -U postgres -A trust >/dev/null
         pg_ctl -D "$PGDATA" -o "-c listen_addresses=" -w start >/dev/null
-        trap "pg_ctl -D \$PGDATA -m fast stop >/dev/null" EXIT
+        trap "pg_ctl -D $PGDATA -m fast stop >/dev/null" EXIT
         psql -U postgres -v ON_ERROR_STOP=1 -q -f "$CI_PROJECT_DIR/supabase/tests/bootstrap.sql"
         for migration in "$CI_PROJECT_DIR"/supabase/migrations/*.sql; do
-          echo "checking \$(basename "\$migration")"
-          psql -U postgres -v ON_ERROR_STOP=1 -q -f "\$migration"
+          echo "checking $(basename "$migration")"
+          psql -U postgres -v ON_ERROR_STOP=1 -q -f "$migration"
         done
         psql -U postgres -v ON_ERROR_STOP=1 -q -f "$CI_PROJECT_DIR/supabase/tests/studio_invariants.sql"
         sh "$CI_PROJECT_DIR/supabase/tests/storage_quota_concurrency.sh"
