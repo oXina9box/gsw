@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { SignOutButton } from "@/components/auth/sign-out-button";
 import { createClient } from "@/lib/supabase/server";
-import { GemMark } from "./gem-brand-icon";
+import { GemLogo } from "./gem-brand-icon";
 
 export async function SiteFooter() {
   const contentApproved = process.env.SITE_CONTENT_APPROVED === "true";
@@ -10,9 +10,9 @@ export async function SiteFooter() {
   const protectedHref = (href: string) => (user ? href : `/login?next=${encodeURIComponent(href)}`);
   return <footer className="site-footer shell">
     <div className="footer-statement">
-      <span className="footer-mark"><GemMark size={34} /><span>GEM STUDIO</span></span>
-      <p>Films for the <span>next signal.</span></p>
-      <small className="footer-footnote">One studio. Multiple channels. Human judgment decides what ships.</small>
+      <Link className="wordmark footer-logo" href="/" aria-label="Gem Studio home">
+        <GemLogo width={128} />
+      </Link>
     </div>
     <div className="footer-meta">
       <div>
@@ -51,8 +51,8 @@ export async function SiteFooter() {
           <Link href={protectedHref("/app/integrations")}>Integrations</Link>
           <SignOutButton />
         </> : <>
-          <Link href="/login">Sign in</Link>
-          <Link href="/signup">Create Studio</Link>
+          <Link href="/?auth=login">Sign in</Link>
+          <Link href="/?auth=signup">Create Studio</Link>
         </>}
       </div>
       <div>

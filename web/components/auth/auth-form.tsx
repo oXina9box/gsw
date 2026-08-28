@@ -8,7 +8,9 @@ import { createClient } from "@/lib/supabase/browser";
 
 type Mode = "login" | "signup" | "forgot";
 
-export function AuthForm({ mode }: { mode: Mode }) {
+export function AuthForm({ mode: initialMode, onModeChange, onSuccess }: { mode: Mode; onModeChange?: (mode: Mode) => void; onSuccess?: () => void }) {
+  const [currentMode, setCurrentMode] = useState<Mode>(initialMode);
+  const mode = onModeChange ? initialMode : currentMode;
   const router = useRouter();
   const params = useSearchParams();
   const [email, setEmail] = useState("");
@@ -33,11 +35,41 @@ export function AuthForm({ mode }: { mode: Mode }) {
         ? await supabase.auth.signUp({ email, password, options: { emailRedirectTo: callback } })
         : await supabase.auth.signInWithPassword({ email, password });
     setBusy(false);
-    if (result.error) { setError(result.error.message); return; }
+    if (result.error) {
+      if (mode === "signup" && (
+        result.error.message.toLowerCase().includes("rate limit") ||
+        result.error.message.toLowerCase().includes("over_email_send_rate_limit") ||
+        result.error.message.toLowerCase().includes("too many requests") ||
+        result.error.message.toLowerCase().includes("security purposes") ||
+        (result.error as { status?: number }).status === 429
+      )) {
+        try {
+          const res = await fetch("/api/auth/signup", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, password }),
+          });
+          if (res.ok) {
+            const signInResult = await supabase.auth.signInWithPassword({ email, password });
+            if (!signInResult.error && signInResult.data?.session) {
+              onSuccess?.();
+              router.replace("/app");
+              router.refresh();
+              return;
+            }
+          }
+        } catch {
+          // fall through
+        }
+      }
+      setError(result.error.message);
+      return;
+    }
     if (isForgot) { setMessage("If an account exists for that email, a reset link is on its way."); return; }
     if (mode === "signup") {
       if ("session" in result.data && result.data.session) {
-        router.replace("/app/onboarding");
+        onSuccess?.();
+        router.replace("/app");
         router.refresh();
         return;
       }
@@ -48,11 +80,12 @@ export function AuthForm({ mode }: { mode: Mode }) {
           await fetch("/api/auth/signup", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ userId: signUpUser.id }),
+            body: JSON.stringify({ userId: signUpUser.id, email, password }),
           });
           const signInResult = await supabase.auth.signInWithPassword({ email, password });
           if (!signInResult.error && signInResult.data?.session) {
-            router.replace("/app/onboarding");
+            onSuccess?.();
+            router.replace("/app");
             router.refresh();
             return;
           }
@@ -68,6 +101,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
       router.replace(`/mfa?next=${encodeURIComponent(safeRedirectPath(params.get("next")))}`);
       return;
     }
+    onSuccess?.();
     router.replace(safeRedirectPath(params.get("next")));
     router.refresh();
   }
@@ -81,6 +115,6 @@ export function AuthForm({ mode }: { mode: Mode }) {
     </form>
     {error && <p id="auth-form-error" className="form-error" role="alert">{error}</p>}
     {message && <p className="form-note" role="status">{message}</p>}
-    <p className="form-note">{mode === "login" ? <><Link href="/forgot-password">Forgot password?</Link> · <Link href="/signup">Create account</Link></> : mode === "signup" ? <>Already have an account? <Link href="/login">Sign in</Link></> : <>Remembered it? <Link href="/login">Sign in</Link></>}</p>
+    <p className="form-note">{mode === "login" ? <>{onModeChange ? <button type="button" className="text-link" onClick={() => onModeChange("forgot")}>Forgot password?</button> : <Link href="/forgot-password">Forgot password?</Link>} · {onModeChange ? <button type="button" className="text-link" onClick={() => onModeChange("signup")}>Create account</button> : <button type="button" className="text-link" onClick={() => setCurrentMode("signup")}>Create account</button>}</> : mode === "signup" ? <>Already have an account? {onModeChange ? <button type="button" className="text-link" onClick={() => onModeChange("login")}>Sign in</button> : <button type="button" className="text-link" onClick={() => setCurrentMode("login")}>Sign in</button>}</> : <>Remembered it? {onModeChange ? <button type="button" className="text-link" onClick={() => onModeChange("login")}>Sign in</button> : <button type="button" className="text-link" onClick={() => setCurrentMode("login")}>Sign in</button>}</>}</p>
   </div>;
 }

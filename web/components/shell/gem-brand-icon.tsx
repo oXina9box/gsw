@@ -22,7 +22,7 @@ export function GemLogo({ className, width = 132, alt = "Gem Studio" }: GemLogoP
       src="/assets/img/logo.png"
       alt={alt}
       width={width}
-      height={Math.round((width * 221) / 640)}
+      height={Math.round((width * 232) / 640)}
       priority
       className={`gem-logo ${className ?? ""}`.trim()}
     />

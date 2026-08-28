@@ -85,6 +85,11 @@
   --faint: var(--color-text-faint);
   --border: var(--color-border);
   --focus: var(--color-focus);
+  --color-accent: var(--color-pink);
+  --color-surface-1: var(--color-surface);
+  --color-success: var(--color-lime);
+  --color-warning: var(--color-amber);
+  --color-danger: var(--color-red);
   --font-display: 'Syne', 'Space Grotesk', sans-serif;
   --font-body: 'Space Grotesk', system-ui, sans-serif;
   --font-mono: 'DM Mono', ui-monospace, monospace;

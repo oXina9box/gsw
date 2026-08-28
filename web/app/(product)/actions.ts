@@ -10,7 +10,7 @@ import { getWorkspaceContext } from "@/lib/studio/workspace";
 import { advanceExecution, cancelExecution, completeStep, failStep, startExecution, validateConditions, validatePassOrder } from "@/lib/orchestration/engine";
 import { evaluateClipUploadAdmission } from "@/lib/studio/caps";
 import { canPublish, transitionRelease } from "@/lib/studio/social";
-import { nextOnboardingStep } from "@/lib/studio/onboarding";
+import { nextOnboardingStep, ONBOARDING_STEPS, type OnboardingStep, validateCommercialChoice, validateStudioIdentity } from "@/lib/studio/onboarding";
 
 function text(formData: FormData, name: string) { return String(formData.get(name) ?? "").trim(); }
 function valid(value: string) { return value.length > 0 && value.length <= 120; }
@@ -467,42 +467,197 @@ export async function requestOnboardingGuidance(_: OnboardingAssistantState, for
 }
 
 export async function saveOnboardingStep(formData: FormData) {
-  const step = text(formData, "step");
-  if (!["identity", "channel", "hiring", "complete"].includes(step)) redirect("/app/onboarding?error=step");
+  const step = text(formData, "step") as OnboardingStep;
+  if (!(ONBOARDING_STEPS as readonly string[]).includes(step)) redirect("/app?error=step");
   const mode = text(formData, "mode") === "fast" ? "fast" : "guided";
   const payload = Object.fromEntries([...formData.entries()].filter(([key]) => !["step", "mode", "payload"].includes(key)).map(([key, value]) => [key, String(value).slice(0, 2_000)]));
   const { supabase, id } = await workspace();
   const { data: current } = await supabase.from("onboarding_profiles").select("step").eq("workspace_id", id).maybeSingle();
-  if (!nextOnboardingStep((current?.step as "identity" | "channel" | "hiring" | "complete" | null) ?? null, step as "identity" | "channel" | "hiring" | "complete")) redirect("/app/onboarding?error=order");
+  if (!nextOnboardingStep((current?.step as OnboardingStep | null) ?? null, step)) redirect("/app?error=order");
+
   if (step === "identity") {
-    const studioName = String(payload.studio_name ?? "").trim();
-    if (!studioName) redirect("/app/onboarding?error=identity");
-    const { error } = await supabase.rpc("rename_studio", { target_workspace: id, studio_name: studioName });
-    if (error) redirect("/app/onboarding?error=save");
+    const brandColors = formData.getAll("brand_colors").map(String).filter(Boolean);
+    const identityInput = {
+      studioNameStatus: payload.studio_name_status === "deferred" ? "deferred" : "provided",
+      studioName: payload.studio_name,
+      brandColors: brandColors.length ? brandColors : ["#ea0070"],
+      contentDirectionStatus: payload.content_direction_status === "deferred" ? "deferred" : "provided",
+      contentDirection: payload.content_direction,
+      contentDescription: payload.content_description,
+    };
+    const check = validateStudioIdentity(identityInput);
+    if (!check.valid || !check.data) redirect("/app?error=identity");
+
+    const finalStudioName = check.data.studioName || "Untitled Studio";
+    const { error: renameErr } = await supabase.rpc("rename_studio", { target_workspace: id, studio_name: finalStudioName });
+    if (renameErr) redirect("/app?error=save");
+
+    const { error } = await supabase.from("onboarding_profiles").upsert({
+      workspace_id: id,
+      mode,
+      step: "commercial",
+      studio_identity: check.data as unknown as Record<string, unknown>,
+      updated_at: new Date().toISOString(),
+    });
+    if (error) redirect("/app?error=save");
+    revalidatePath("/app");
+    redirect("/app?step=commercial");
   }
+
+  if (step === "commercial") {
+    const plan = payload.plan;
+    const byokEnabled = payload.byok_enabled === "true" || plan === "byok";
+    const check = validateCommercialChoice({ plan, byokEnabled });
+    if (!check.valid || !check.data) redirect("/app?error=commercial");
+
+    const { error } = await supabase.from("onboarding_profiles").upsert({
+      workspace_id: id,
+      mode,
+      step: "providers",
+      commercial_choice: check.data as unknown as Record<string, unknown>,
+      updated_at: new Date().toISOString(),
+    });
+    if (error) redirect("/app?error=save");
+    revalidatePath("/app");
+    redirect("/app?step=providers");
+  }
+
+  if (step === "providers") {
+    const openaiKey = String(payload.openai_key ?? "").trim();
+    const anthropicKey = String(payload.anthropic_key ?? "").trim();
+    const keyEncryption = process.env.PROVIDER_SECRET_ENCRYPTION_KEY;
+
+    if (openaiKey.length >= 8 && keyEncryption) {
+      const envelope = encryptSecret(openaiKey, keyEncryption, process.env.PROVIDER_SECRET_KEY_VERSION ?? "v1");
+      await createAdminClient().rpc("save_provider_connection_server", {
+        target_workspace: id,
+        provider_name: "openai",
+        connection_label: "OpenAI BYOK",
+        connection_base_url: "https://api.openai.com/v1",
+        connection_model: "gpt-4o",
+        connection_capabilities: ["text", "image"],
+        secret_mask: maskSecret(openaiKey),
+        secret_ciphertext: envelope.ciphertext,
+        secret_iv: envelope.iv,
+        secret_tag: envelope.tag,
+        secret_key_version: envelope.keyVersion,
+      });
+    }
+
+    if (anthropicKey.length >= 8 && keyEncryption) {
+      const envelope = encryptSecret(anthropicKey, keyEncryption, process.env.PROVIDER_SECRET_KEY_VERSION ?? "v1");
+      await createAdminClient().rpc("save_provider_connection_server", {
+        target_workspace: id,
+        provider_name: "anthropic",
+        connection_label: "Anthropic BYOK",
+        connection_base_url: "https://api.anthropic.com",
+        connection_model: "claude-3-5-sonnet",
+        connection_capabilities: ["text"],
+        secret_mask: maskSecret(anthropicKey),
+        secret_ciphertext: envelope.ciphertext,
+        secret_iv: envelope.iv,
+        secret_tag: envelope.tag,
+        secret_key_version: envelope.keyVersion,
+      });
+    }
+
+    const { error } = await supabase.from("onboarding_profiles").upsert({
+      workspace_id: id,
+      mode,
+      step: "channel",
+      provider_status: {
+        openai_connected: Boolean(openaiKey.length >= 8),
+        anthropic_connected: Boolean(anthropicKey.length >= 8),
+      },
+      updated_at: new Date().toISOString(),
+    });
+    if (error) redirect("/app?error=save");
+    revalidatePath("/app");
+    redirect("/app?step=channel");
+  }
+
   if (step === "channel") {
     const channelName = String(payload.channel_name ?? "").trim();
-    if (!channelName) redirect("/app/onboarding?error=channel");
-    const { error } = await supabase.from("channels").insert({ workspace_id: id, name: channelName, audience: String(payload.audience ?? ""), voice: String(payload.format ?? ""), cadence: String(payload.episode_plan ?? "") });
-    if (error && !error.message.includes("duplicate")) redirect("/app/onboarding?error=channel");
+    if (!channelName) redirect("/app?error=channel");
+    const { error: chErr } = await supabase.from("channels").insert({
+      workspace_id: id,
+      name: channelName,
+      audience: String(payload.audience ?? ""),
+      voice: String(payload.preset ?? ""),
+      cadence: String(payload.season ?? ""),
+    });
+    if (chErr && !chErr.message.includes("duplicate")) redirect("/app?error=channel");
+
+    const { error } = await supabase.from("onboarding_profiles").upsert({
+      workspace_id: id,
+      mode,
+      step: "hiring",
+      channel_setup: payload,
+      updated_at: new Date().toISOString(),
+    });
+    if (error) redirect("/app?error=save");
+    revalidatePath("/app");
+    redirect("/app?step=hiring");
   }
+
   if (step === "hiring") {
-    // The studio floor is fixed: migration 0007 revokes departments writes from
-    // authenticated, and the workspace seed trigger already inserts the 13
-    // departments. The hiring choice persists in department_setup jsonb.
     const names = String(payload.departments ?? "Marketing, Creative, Production, Social").split(",").map((name) => name.trim()).filter(Boolean).slice(0, 12);
-    if (!names.length) redirect("/app/onboarding?error=hiring");
-    await installDefaultWorkflow(supabase, id);
-    const { error } = await supabase.from("onboarding_profiles").upsert({ workspace_id: id, mode, step: "complete", department_setup: payload, completed_at: new Date().toISOString(), updated_at: new Date().toISOString() });
-    if (error) redirect("/app/onboarding?error=save");
-    revalidatePath("/app/onboarding"); redirect("/app/onboarding?step=complete");
+    if (!names.length) redirect("/app?error=hiring");
+
+    const { error } = await supabase.from("onboarding_profiles").upsert({
+      workspace_id: id,
+      mode,
+      step: "lane",
+      department_setup: payload,
+      updated_at: new Date().toISOString(),
+    });
+    if (error) redirect("/app?error=save");
+    revalidatePath("/app");
+    redirect("/app?step=lane");
   }
+
+  if (step === "lane") {
+    const studioBrandApproved = payload.studio_brand_approved === "true";
+    const channelDiscoveryApproved = payload.channel_discovery_approved === "true";
+    const mediaPlanApproved = payload.media_plan_approved === "true";
+    if (!studioBrandApproved || !channelDiscoveryApproved || !mediaPlanApproved) {
+      redirect("/app?error=lane");
+    }
+
+    await installDefaultWorkflow(supabase, id);
+    const { error } = await supabase.from("onboarding_profiles").upsert({
+      workspace_id: id,
+      mode,
+      step: "complete",
+      lane_handoffs: {
+        studio_brand_approved: true,
+        channel_discovery_approved: true,
+        media_plan_approved: true,
+        approved_at: new Date().toISOString(),
+      },
+      completed_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    });
+    if (error) redirect("/app?error=save");
+    revalidatePath("/app");
+    redirect("/app?step=complete");
+  }
+
   if (step === "complete") {
     await installDefaultWorkflow(supabase, id);
+    const { error } = await supabase.from("onboarding_profiles").upsert({
+      workspace_id: id,
+      mode,
+      step: "complete",
+      completed_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    });
+    if (error) redirect("/app?error=save");
+    revalidatePath("/app");
+    redirect("/app");
   }
-  const { error } = await supabase.from("onboarding_profiles").upsert({ workspace_id: id, mode, step, ...(step === "identity" ? { studio_identity: payload } : {}), ...(step === "channel" ? { channel_setup: payload } : {}), ...(step === "complete" ? { completed_at: new Date().toISOString() } : {}), updated_at: new Date().toISOString() });
-  if (error) redirect("/app/onboarding?error=save");
-  revalidatePath("/app/onboarding"); redirect(step === "complete" ? "/app" : `/app/onboarding?step=${step === "identity" ? "channel" : "hiring"}`);
+
+  redirect("/app");
 }
 
 async function installDefaultWorkflow(supabase: Awaited<ReturnType<typeof getWorkspaceContext>>["supabase"], workspaceId: string) {

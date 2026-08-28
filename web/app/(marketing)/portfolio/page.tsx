@@ -89,6 +89,6 @@ export default async function PortfolioPage() {
         <h2>{item.title}</h2><p>{item.description}</p><p>{item.credits} · {item.rights_status}</p>
       </article>)}</div>
     </section>
-    <section className="detail-cta shell"><h2>Start your own private studio production.</h2><Link className="button button-primary" href="/signup">Create Studio ↗</Link></section>
+    <section className="detail-cta shell"><h2>Start your own private studio production.</h2><Link className="button button-primary" href="/?auth=signup">Create Studio ↗</Link></section>
   </article>;
 }

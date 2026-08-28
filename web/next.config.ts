@@ -36,6 +36,20 @@ const nextConfig: NextConfig = {
       ],
     }];
   },
+  async redirects() {
+    return [
+      {
+        source: "/signup",
+        destination: "/?auth=signup",
+        permanent: false,
+      },
+      {
+        source: "/app/onboarding",
+        destination: "/app",
+        permanent: false,
+      },
+    ];
+  },
 };
 
 export default nextConfig;

@@ -12,14 +12,20 @@ Gem Studio is a configurable AI film studio, not one fixed pipeline. The owner's
 
 ## 2. Studio setup spine (onboarding → first production readiness)
 
-1. **Account created → onboarding.** Gem Studio's first job is configuring the user's studio, guided.
-2. **Studio identity phase.** A studio assistant agent walks the user through branding: studio name, logo, brand colors, tagline, initial content type, and other basics we define. Each point hands off to a marketing-department studio role. Two modes, per user preference:
-   - *Guided:* agent interactively makes suggestions.
-   - *Fast:* agent confirms, files, and passes off.
-   The assistant also teaches how lanes operate — onboarding and lane education are the same event.
-3. **First channel creation** (prompted once brand is set): name, content type, colors/theming, target audience, season details, episode count, episode length, ad copy, etc. Channel type presets: content creation, advertising, film, documentary, other video formats. Then scheduling, budget estimation, and process depth (should AI write scripts? research content ideas?) — channel branding plus first planning scope in one flow.
-4. **Hiring fair / department configuration.** Core departments: **Marketing, Creative, Production, Social**. Social lives under Marketing organizationally but gets top-level billing in the product. Marketing has mandatory baseline needs (branding, channel creation). Optional teams: R&D, advertising, merchandise, budgeting, legal, scheduling, cross-channel instances, and more.
-
+1. **Account created → onboarding popup modal.** Gem Studio's first job is configuring the user's studio via a focused popup dialog in the authenticated workspace.
+2. **Studio identity phase.** The modal collects core studio identity data without unnecessary friction:
+   - *Studio Name:* user provides a name or chooses `decide later` (`studio_name_status: 'deferred'`).
+   - *Logo:* upload SVG, PNG, or WebP (max 5 MB, max 4096×4096px) or proceed with default geometry.
+   - *Brand Colors:* 1–3 palette roles (`primary`, `secondary`, `accent`) via native color picker + hex input, WCAG AA contrast checked.
+   - *Content Direction:* taxonomy dropdown (`Film`, `Episodic series`, `Documentary`, `Advertising`, `Short-form / Social`, `Experimental`, `Decide later`) + free-form content description.
+   - *Tagline:* removed from popup modal and deferred to the first-lane brand workbench.
+3. **Commercial & Provider choice.**
+   - *Commercial plan:* select Cloud tier (`cloud-1`, `cloud-2`, `cloud-3`) or standalone `byok`. BYOK may also be combined with any paid plan.
+   - *Provider connection:* secure OpenAI and Anthropic connections. API keys stored with AES-256-GCM server-side encryption; keys masked on display (`sk-...`). OAuth client connection slot preserved.
+4. **First marketing lane workbench.**
+   - Guides the user through Studio Brand, Channel Discovery, Channel Branding, Channel Content Design, and Media planning.
+   - Missing data displayed as an explicit checklist; user can fill values directly, ask the assistant to draft suggestions, or defer.
+   - User approves all handoffs before persisting. Agents use the standardized six-file structure (`role`, `soul`, `jobdescription`, `skills`, `memory`, `user_content`).
 ## 3. Development pipeline
 
 Sequence: **seed generation → storyboards → plot design → season/channel continuity → script writing → screenplay writing → GenPlay drafting.** Each stage is a team with roles/agents.
@@ -74,7 +80,7 @@ Owner rulings since first draft: **no stubs anywhere** (features ship working, o
 
 | This spec | Current code (`production` branch) | Gap |
 |---|---|---|
-| §2 Onboarding wizard (studio assistant, guided/fast, first channel, hiring fair) | `/app/onboarding` (interactive route group) is mandatory after signup, opens with a process popup, persists guided/fast profile with branding fields (name, tagline, brand color, content type), channel presets/audience/season/episode plan, core+optional departments, creates default workflow, and provides guided-mode live BYOK text suggestions | Resolved 2026-08-27 |
+| §2 Onboarding modal (identity, commercial/BYOK choice, secure providers, first marketing lane) | Authenticated popup modal collects name/defer, logo, 1–3 colors, content taxonomy, plan/BYOK choice, AES-256-GCM provider connection; hands off to first marketing lane workbench with 6-file agent catalog contracts | Resolved 2026-08-28 |
 | §1/§2 Flow templates, build-from-scratch, bolster/trim | 13 stages hard-coded in `lib/studio/domain.ts`; orchestration workflows exist but marked experimental diagnostics in the site spec | **Resolved 2026-08-23** — customization is core; spec amended; 13-stage flow becomes default template |
 | §3.1 Forward lanes + round-table pass orders (per lane) | Persisted lane modes, bounded pass order/cycles, document merge, engine pass context/events, supervisor approval and kickback trigger buttons in execution workbench | **Partial** — approval/kickback triggers shipped 2026-08-26; role-gated supervisor policy still required |
 | §3.2 Casting gate, A/B tiers, B→A promotion | Universe tier/group filters, audited promotion, production casting gate and attach, deterministic fit score, B-tier spawn-and-cast | Resolved 2026-08-26 |

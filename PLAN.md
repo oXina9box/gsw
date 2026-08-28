@@ -1,42 +1,36 @@
-# PLAN: footer rework + real logos + mandatory interactive onboarding
+# PLAN: Modal Popup Onboarding & Modal Auth/Signup
 
-Branch: `dev-onboarding-footer-logo` (from `dev`).
+Branch: `dev-popup-onboarding` (from `dev`).
 
-## Request inventory (each outcome gets a gate)
+## Request inventory
 
-1. Footer reworked (spec §2.1 complete link set, logo, session actions incl. sign-out).
-2. Actual logo in logo slots (header wordmark, footer mark, studio nav, favicon; transparent PNGs, no white boxes on dark theme).
-3. Account creation → onboarding page (signup form redirect).
-4. Intro popup on onboarding explaining the process.
-5. Onboarding required: every `(product)` route redirects incomplete studios to `/app/onboarding`.
-6. Onboarding page reworked, covers lane-theory-spec §2 spine (identity branding + guided/fast + lane education, first channel with presets/season/scope, hiring fair core+optional depts), plus provider-connection guidance.
-7. Onboarding lives in new `(interactive)` route group.
+1. Entire onboarding flow (Identity, Channel, Hiring/Departments, Complete) operates within a `<dialog>` modal popup.
+2. Remove standalone `(auth)/signup` page since signup is handled directly in the auth modal popup.
+3. Replace `/app/onboarding` standalone page with in-app modal onboarding inside `ProductLayout`.
+4. Public navigation ("Create Studio", "Sign in") triggers the AuthModal popup.
+5. All route contracts, tests, typechecking, and linting pass with zero warnings.
 
-## Depth tree (depth 3 requested; serialized — shared files)
+## Depth Tree (Depth 3)
 
-Leaves touch the same files (`globals.css`, `actions.ts`, layouts, tests), so parallel
-dispatch is unsafe; executed sequentially in one session. Tier per model-router: all
-leaves are medium multi-file feature work → terra/high equivalent, no subagent fan-out.
-
-- 1 Brand assets & logo slots
-  - 1.1 Transparent PNGs in `web/public/assets/img/` (done: flood-fill white→alpha, trimmed, downscaled)
-  - 1.2 `GemLogo`/`GemMark` components; header, footer, studio nav, favicon slots
-- 2 Footer rework
-  - 2.1 Spec-complete link columns + session actions + sign-out
-  - 2.2 Footer CSS (4-col grid, responsive)
-- 3 Mandatory onboarding routing
-  - 3.1 `(interactive)` group + layout; move `/app/onboarding` into it
-  - 3.2 `(product)/layout.tsx` gate via `shouldRedirectToOnboarding` (moved to lib)
-  - 3.3 Signup success → `/app/onboarding`
-- 4 Onboarding experience
-  - 4.1 Intro popup (`<dialog>`, lane-theory process explanation)
-  - 4.2 Reworked steps: identity branding fields, channel presets/season/scope, hiring fair checkboxes, lane education asides, provider guidance
-  - 4.3 `saveOnboardingStep` payload extension (no schema change; jsonb)
-- 5 Verification: unit tests updated/added, typecheck, lint, build, gate checks
+- 1.0 Modal Auth & Signup
+  - 1.1 `AuthModal` component (`web/components/auth/auth-modal.tsx`) with login/signup/forgot tabbed states
+  - 1.2 Wire `AuthModal` trigger into `AuthActions`, `SiteHeaderClient`, `EntryActions`, `SiteFooter`, `CommandMenu`
+  - 1.3 Remove `web/app/(auth)/signup/page.tsx` and wire redirect in `next.config.ts` / route handler
+- 2.0 In-App Modal Onboarding
+  - 2.1 `OnboardingModal` component (`web/components/onboarding/onboarding-modal.tsx`) with full 4-step wizard:
+    - 2.1.1 Step 1: Studio identity (Name, Tagline, Brand Color, Content format, Guided/Fast mode)
+    - 2.1.2 Step 2: First channel setup (Name, Audience, Season/Scope, Presets)
+    - 2.1.3 Step 3: Departments & hiring fair (Core 4 + Optional teams)
+    - 2.1.4 Step 4: Completion state + "Open Front Office ↗" action
+  - 2.2 Wire `OnboardingModal` into `web/app/(product)/layout.tsx` when studio setup is incomplete
+  - 2.3 Remove `web/app/(interactive)` route group and standalone `/app/onboarding/page.tsx`
+- 3.0 Verification & Contracts
+  - 3.1 Update `ROUTE_CONTRACTS` in `web/lib/studio/navigation.ts` and `route-contract.test.ts`
+  - 3.2 Update gate oracles in `scripts/verify-footer-onboarding.mjs` and `GATES.md`
+  - 3.3 Verify full suite (`npm test`, `npm run typecheck`, `npm run lint`)
 
 ## Contracts
 
-- `shouldRedirectToOnboarding(step: unknown): boolean` in `web/lib/studio/onboarding.ts`.
-- `ONBOARDING_STEP_META` drives wizard rail + popup copy.
-- No migration: `onboarding_profiles` jsonb columns carry richer payloads; step enum unchanged.
-- Route URL `/app/onboarding` unchanged → `ROUTE_CONTRACTS` untouched.
+- `OnboardingModal`: accepts `initialStep`, `initialProfile`, `isOpen`. Employs `saveOnboardingStep` action.
+- `AuthModal`: URL search param `?auth=signup` or client-side open event triggers modal.
+- `shouldRedirectToOnboarding(step)` determines `initialOpen` on `ProductLayout`.

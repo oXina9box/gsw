@@ -1,11 +1,13 @@
 # Gem Studio TODO
 
-**Updated:** 2026-08-26 @ `16c2267` — derived from the codebase, not from older plans.
+**Updated:** 2026-08-28 — derived from the codebase, not from older plans.
 **Rule:** code is the source of truth. When an item is done, it's in the code with green gates before this box gets checked.
 
 ---
 
 ## 1. Now — pre-launch gaps
+
+- [x] **Onboarding-to-first-Studio completion:** execute six-level chunk plan in [`onboarding-completion-plan.md`](onboarding-completion-plan.md): popup identity, Cloud/BYOK choice, secure OpenAI/Anthropic connection, first Marketing lane, real assets, and full verification. Resolved owner decisions and verified across 7 waves.
 
 - [ ] **Legal copy sign-off:** counsel-approved Terms / Privacy / Core Values. All three are live-gated on `SITE_CONTENT_APPROVED=false` (`web/app/(marketing)/terms|privacy|core-values`, `site-footer.tsx`). Flip only after owner + counsel sign-off.
 - [ ] **Gallery real showcase:** page ships hardened (published+approved query, strict item validation, empty state). Populate only with rights-cleared Gem Studio work.

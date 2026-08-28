@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Gate oracle for the footer/logo/onboarding task. Usage: node scripts/verify-footer-onboarding.mjs <gate>
+// Gate oracle for the popup onboarding and modal signup task. Usage: node scripts/verify-footer-onboarding.mjs <gate>
 import { spawnSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
@@ -94,7 +94,7 @@ function npm(script) {
   if (result.status !== 0) {
     console.error(result.stdout);
     console.error(result.stderr);
-    fail(`npm run ${script} exited ${result.status}`);
+    fail(`npm run ${script} failed with code ${result.status}`);
   }
 }
 
@@ -109,7 +109,7 @@ if (gate === "logos") {
   console.log("logos verification passed");
 } else if (gate === "slots") {
   assertAll(read("web/components/shell/site-header-client.tsx"), ["GemLogo"], "site header");
-  assertAll(read("web/components/shell/site-footer.tsx"), ["GemMark"], "site footer");
+  assertAll(read("web/components/shell/site-footer.tsx"), ["GemLogo"], "site footer");
   assertAll(read("web/components/product/studio-nav.tsx"), ["GemMark"], "studio nav");
   assertAll(read("web/app/layout.tsx"), ["gem-mark.png"], "root layout favicon");
   assertAll(read("web/components/shell/gem-brand-icon.tsx"), ["/assets/img/logo.png", "/assets/img/gem-mark.png"], "logo components");
@@ -121,48 +121,45 @@ if (gate === "logos") {
     'href="/portfolio"', 'href="/gallery"', 'href="/docs"', 'href="/pricing"',
     'href="/core-values"', 'href="/contact"', 'href="/terms"', 'href="/privacy"',
     'protectedHref("/app")', 'protectedHref("/app/studio")', 'href="/account"',
-    'href="/signup"', 'href="/login"', "SignOutButton",
+    "SignOutButton",
   ];
   assertAll(footer, required, "footer links");
   console.log("footer verification passed");
-} else if (gate === "signup") {
-  const form = read("web/components/auth/auth-form.tsx");
-  if (!/mode === "signup"[\s\S]*?\/app\/onboarding/.test(form) && !/\/app\/onboarding[\s\S]*?mode === "signup"/.test(form)) {
-    fail("auth form: signup success path does not route to /app/onboarding");
-  }
-  if (!form.includes('"/app/onboarding"')) fail("auth form: missing literal /app/onboarding redirect");
-  console.log("signup redirect verification passed");
-} else if (gate === "gate") {
-  const lib = read("web/lib/studio/onboarding.ts");
-  assertAll(lib, ["export function shouldRedirectToOnboarding"], "onboarding lib");
-  const layout = read("web/app/(product)/layout.tsx");
-  assertAll(layout, ["shouldRedirectToOnboarding", 'redirect("/app/onboarding")', "onboarding_profiles"], "product layout gate");
-  const onboardingPage = read("web/app/(interactive)/app/onboarding/page.tsx");
-  if (onboardingPage.includes("shouldRedirectToOnboarding")) fail("onboarding page gates itself — redirect loop");
-  console.log("onboarding gate verification passed");
-} else if (gate === "group") {
-  if (!existsSync(join(root, "web/app/(interactive)/app/onboarding/page.tsx"))) fail("missing (interactive)/app/onboarding/page.tsx");
-  if (!existsSync(join(root, "web/app/(interactive)/layout.tsx"))) fail("missing (interactive)/layout.tsx");
-  if (existsSync(join(root, "web/app/(product)/app/onboarding/page.tsx"))) fail("old (product)/app/onboarding still present");
-  console.log("interactive group verification passed");
-} else if (gate === "popup") {
-  const intro = read("web/components/onboarding/onboarding-intro.tsx");
-  assertAll(intro, ["showModal", "dialog", "lane"], "intro popup");
-  const page = read("web/app/(interactive)/app/onboarding/page.tsx");
-  assertAll(page, ["OnboardingIntro"], "onboarding page renders popup");
-  console.log("intro popup verification passed");
-} else if (gate === "lane") {
-  const page = read("web/app/(interactive)/app/onboarding/page.tsx");
-  const fields = ["studio_name", "tagline", "brand_color", "content_type", "guided", "fast", "channel_name", "audience", "season", "episode", "Marketing", "Creative", "Production", "Social", "lane"];
-  assertAll(page, fields, "lane-theory §2 spine fields");
+} else if (gate === "authmodal") {
+  if (!existsSync(join(root, "web/components/auth/auth-modal.tsx"))) fail("missing auth-modal.tsx");
+  const modal = read("web/components/auth/auth-modal.tsx");
+  assertAll(modal, ["AuthModal", "openAuthModal", "dialog", "signup", "login"], "auth modal component");
+  const marketingLayout = read("web/app/(marketing)/layout.tsx");
+  assertAll(marketingLayout, ["AuthModal"], "marketing layout mounts AuthModal");
+  console.log("auth modal verification passed");
+} else if (gate === "nosignuppage") {
+  if (existsSync(join(root, "web/app/(auth)/signup/page.tsx"))) fail("standalone (auth)/signup/page.tsx still exists");
+  const nextConfig = read("web/next.config.ts");
+  assertAll(nextConfig, ['source: "/signup"', "destination:"], "next.config.ts signup redirect");
+  console.log("signup page removal verified");
+} else if (gate === "onboardingmodal") {
+  if (!existsSync(join(root, "web/components/onboarding/onboarding-modal.tsx"))) fail("missing onboarding-modal.tsx");
+  const modal = read("web/components/onboarding/onboarding-modal.tsx");
+  const fields = ["studio_name", "tagline", "brand_color", "content_type", "channel_name", "audience", "season", "Marketing", "Creative", "Production", "Social"];
+  assertAll(modal, fields, "onboarding modal spine fields");
   const presets = ["film", "documentary", "advertising"];
-  const lower = page.toLowerCase();
+  const lower = modal.toLowerCase();
   for (const preset of presets) {
-    if (!lower.includes(preset)) fail(`lane-theory §2 spine: missing channel preset ${JSON.stringify(preset)}`);
+    if (!lower.includes(preset)) fail(`onboarding modal missing preset ${preset}`);
   }
-  const actions = read("web/app/(product)/actions.ts");
-  assertAll(actions, ["studio_identity", "channel_setup", "department_setup"], "onboarding action payloads");
-  console.log("lane coverage verification passed");
+  console.log("onboarding modal verification passed");
+} else if (gate === "productmodal") {
+  const layout = read("web/app/(product)/layout.tsx");
+  assertAll(layout, ["shouldRedirectToOnboarding", "OnboardingModal", "onboarding_profiles"], "product layout modal");
+  console.log("product layout modal verification passed");
+} else if (gate === "nointeractivepage") {
+  if (existsSync(join(root, "web/app/(interactive)/app/onboarding/page.tsx"))) fail("standalone interactive onboarding page still exists");
+  if (existsSync(join(root, "web/app/(interactive)"))) fail("interactive route group still exists");
+  console.log("interactive page removal verified");
+} else if (gate === "contracts") {
+  const nav = read("web/lib/studio/navigation.ts");
+  assertAll(nav, ['["/signup", "Unknown User", "redirect-to-/?auth=signup"]', '["/app/onboarding", "Front Office", "redirect-to-/app"]'], "navigation route contracts");
+  console.log("route contracts verification passed");
 } else if (gate === "typecheck") {
   npm("typecheck");
   console.log("typecheck verification passed");

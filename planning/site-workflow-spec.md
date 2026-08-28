@@ -150,7 +150,7 @@ Protected footer links redirect to authentication and preserve the requested des
 - Expired sessions show a recoverable sign-in state.
 - Sign-out invalidates the session and returns to a public page.
 - No password, provider secret, or private agent file enters browser storage.
-- Onboarding is mandatory: account creation lands on `/app/onboarding`, and every authenticated product route redirects studios whose onboarding step is not `complete` back to setup. The onboarding route renders in the `(interactive)` route group (site header/footer shell, no studio nav) so the gate cannot loop.
+- Onboarding is mandatory: account creation lands in the authenticated app where an onboarding popup modal gates entry until completion (`onboarding_profiles.step === 'complete'`). The modal collects core studio identity (name or deferred note, SVG/PNG/WebP logo, 1–3 brand colors, content direction taxonomy, free-form description), allows commercial plan selection (`cloud-1`/`cloud-2`/`cloud-3`) with standalone or companion BYOK, and connects OpenAI/Anthropic providers with AES-256-GCM encrypted server-side storage and masked display. Once saved, the user enters the first Marketing lane to review and approve Studio brand and Channel discovery briefs before entering the full Studio workspace.
 
 ### 2.2A Day-zero operating limits
 
