@@ -1,6 +1,6 @@
-/* Hallmark · pre-emit critique: P5 H5 E5 S5 R5 V5 */
-/* Hallmark · macrostructure: Workbench · theme: Studio · anchor hue: 350 · nav: N13 · footer: Ft5 · contrast: pass · mobile: pass · audit: 2026-08-23 */
 @import url('../tokens.css');
+@import "tailwindcss";
+
 
 *,*::before,*::after { box-sizing:border-box; }
 html { overflow-x:clip; scroll-behavior:smooth; }
