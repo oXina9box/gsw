@@ -22,7 +22,7 @@ export default function ContactPage() {
             <div className="notice notice-success" role="status">
               <h2>Message received</h2>
               <p>Thank you for reaching out. We will get back to you shortly.</p>
-              <div style={{ marginTop: "1rem" }}>
+              <div className="mt-4">
                 <Link className="button button-outline" href="/docs">Browse Documentation ↗</Link>
               </div>
             </div>
@@ -33,8 +33,8 @@ export default function ContactPage() {
                   {state.error}
                 </div>
               )}
-              <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-                <label htmlFor="email" style={{ fontSize: "0.875rem", fontWeight: 500 }}>Your Email</label>
+              <div className="field">
+                <label htmlFor="email">Your Email</label>
                 <input
                   id="email"
                   name="email"
@@ -45,8 +45,8 @@ export default function ContactPage() {
                   className="input"
                 />
               </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-                <label htmlFor="message" style={{ fontSize: "0.875rem", fontWeight: 500 }}>Message</label>
+              <div className="field">
+                <label htmlFor="message">Message</label>
                 <textarea
                   id="message"
                   name="message"
@@ -61,8 +61,7 @@ export default function ContactPage() {
               <button
                 type="submit"
                 disabled={isPending}
-                className="button button-primary"
-                style={{ alignSelf: "flex-start", marginTop: "0.5rem" }}
+                className="button button-primary mt-2"
               >
                 {isPending ? "Sending..." : "Send message"}
               </button>

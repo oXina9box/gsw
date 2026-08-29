@@ -71,7 +71,8 @@ export default async function OrchestrationPage({ searchParams }: { searchParams
       : agentList.find((a) => a.id === rule.target_agent_id)?.name ?? "agent";
   return (
     <section className="product-page shell" data-archetype="B2-A">
-      <h1>Orchestration</h1>
+      <h1>Agents move on rails.</h1>
+      <p className="lede">Workflows, handoff rules, lanes, and executions with visible state.</p>
       {params.error && <p className="form-error" role="alert">Unable to save that orchestration record.</p>}
 
       <section className="builder-section">
@@ -95,7 +96,7 @@ export default async function OrchestrationPage({ searchParams }: { searchParams
                 <button className="button button-outline" type="submit">Delete workflow</button>
               </form>
             <p className="muted">{workflow.description || "No description"}</p>
-            <div className="section-head" style={{ marginTop: "1.5rem" }}>
+            <div className="section-head mt-6">
               <h4>Handoff rules</h4>
               <details>
                 <summary className="text-link">New rule</summary>
@@ -148,15 +149,15 @@ export default async function OrchestrationPage({ searchParams }: { searchParams
             {ruleList.filter((rule) => rule.workflow_id === workflow.id).length === 0 ? (
               <p className="muted">No handoff rules yet.</p>
             ) : (
-              <ul className="flow" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", marginTop: "0.5rem" }}>
+              <ul className="flow flow-grid">
                 {ruleList.filter((rule) => rule.workflow_id === workflow.id).map((rule) => (
-                  <li key={rule.id} style={{ listStyle: "none" }}>
+                  <li key={rule.id} className="rule-item">
                     <span className="dot cyan" />
                     <strong>#{rule.position} {rule.source_kind} → {targetName(rule)}</strong>
                     <small>{rule.trigger_event}</small>
-                    <form action={deleteHandoffRule} className="inline-form" style={{ marginTop: "0.25rem" }}>
+                    <form action={deleteHandoffRule} className="inline-form mt-1">
                       <input type="hidden" name="rule_id" value={rule.id} />
-                      <button className="button button-outline" type="submit" style={{ padding: "0.2rem 0.5rem", minHeight: "unset", fontSize: "0.75rem" }}>Remove</button>
+                      <button className="button button-outline button-compact" type="submit">Remove</button>
                     </form>
                   </li>
                 ))}

@@ -3,6 +3,7 @@ import path from "node:path";
 
 type LegalDocumentProps = {
   file: string;
+  label?: string;
 };
 
 const htmlEntities: Record<string, string> = {
@@ -97,13 +98,13 @@ function renderMarkdown(source: string) {
   return html.join("\n");
 }
 
-export async function LegalDocument({ file }: LegalDocumentProps) {
+export async function LegalDocument({ file, label = "Legal / draft" }: LegalDocumentProps) {
   const source = await readFile(path.join(process.cwd(), "content", "legal", file), "utf8");
   const html = renderMarkdown(source);
 
   return (
     <article className="reading-page shell legal-document" data-archetype="A2">
-      <p className="kicker">Legal / draft</p>
+      <p className="eyebrow"><span className="eyebrow-rule" /> {label}</p>
       <div className="notice">
         These repository-managed legal drafts require qualified legal review before publication as final terms.
       </div>

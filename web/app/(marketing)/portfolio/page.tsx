@@ -83,12 +83,12 @@ export default async function PortfolioPage() {
 
   return <article className="marketing-detail" data-archetype="A1">
     <header className="detail-hero shell"><h1>Studio Portfolio. <span>Made by creators.</span></h1><p className="detail-lede">Finished films, scenes, and release packages made across connected AI departments.</p></header>
-    <section className="detail-band shell">
+    <section className="detail-band shell reveal-on-scroll">
       <div className="detail-grid">{displayItems.map((item) => <article key={item.id}>
         {item.media_url ? <img src={item.media_url} alt={item.title} loading="lazy" referrerPolicy="no-referrer" /> : null}
         <h2>{item.title}</h2><p>{item.description}</p><p>{item.credits} · {item.rights_status}</p>
       </article>)}</div>
     </section>
-    <section className="detail-cta shell"><h2>Start your own private studio production.</h2><Link className="button button-primary" href="/?auth=signup">Create Studio ↗</Link></section>
+    <section className="detail-cta shell reveal-on-scroll"><h2>Start your own private studio production.</h2><Link className="button button-primary" href="/?auth=signup">Create Studio ↗</Link></section>
   </article>;
 }

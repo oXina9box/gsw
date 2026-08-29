@@ -146,7 +146,7 @@ export default async function ProductionPage({
               Stage {Math.min(currentStep + 1, stepCount)} of {stepCount}: {currentDepartment}
             </p>
           </div>
-          <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+          <div className="row-wrap">
             <form action={updateProductionStatus} className="inline-form">
               <input type="hidden" name="production_id" value={production.id} />
               <label>
@@ -207,12 +207,12 @@ export default async function ProductionPage({
         </div>
 
         {currentArtifacts.length > 0 ? (
-          <div className="stack" style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+          <div className="stack">
             {currentArtifacts.map((art) => (
-              <div key={art.id} style={{ padding: "0.75rem", borderRadius: "6px", background: "var(--color-surface-2)", border: "1px solid var(--color-border)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <div key={art.id} className="split-row">
                 <div>
                   <strong>Version {art.version} ({art.kind})</strong>
-                  <span className="muted" style={{ marginLeft: "0.5rem" }}>Status: {art.status}</span>
+                  <span className="muted ml-2">Status: {art.status}</span>
                 </div>
                 <small className="muted">{new Date(art.created_at).toLocaleString()}</small>
               </div>
@@ -234,22 +234,21 @@ export default async function ProductionPage({
               <p className="muted">Human sign-offs required before advancing</p>
             </div>
           </div>
-          <div className="stack" style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+          <div className="stack-md">
             {approvals.map((appr) => (
-              <div key={appr.id} style={{ padding: "1rem", borderRadius: "6px", background: "var(--color-surface-2)", border: "1px solid var(--color-border)" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.5rem" }}>
+              <div key={appr.id} className="list-card">
+                <div className="row-between mb-2">
                   <strong>Approval for Stage {appr.department_step + 1} ({DEPARTMENTS[appr.department_step] ?? ""})</strong>
                   <small className="muted">{new Date(appr.created_at).toLocaleString()}</small>
                 </div>
-                <form action={decideProductionApproval} className="inline-form" style={{ display: "flex", gap: "0.5rem", alignItems: "center", flexWrap: "wrap" }}>
+                <form action={decideProductionApproval} className="inline-form row-wrap">
                   <input type="hidden" name="production_id" value={production.id} />
                   <input type="hidden" name="approval_id" value={appr.id} />
                   <input
                     name="note"
                     type="text"
                     placeholder="Approval note (optional)"
-                    className="input"
-                    style={{ flexGrow: 1, minWidth: "200px" }}
+                    className="input grow"
                   />
                   <button name="decision" value="approved" className="button button-primary" type="submit">Approve</button>
                   <button name="decision" value="rejected" className="button button-outline" type="submit">Reject</button>
@@ -273,7 +272,7 @@ export default async function ProductionPage({
           <>
             {agentsError && <p className="form-error" role="alert">Unable to load agents — Refresh</p>}
             {connectionsError && <p className="form-error" role="alert">Unable to load connections — Refresh</p>}
-          <form action={enqueueProductionJob} className="inline-form" style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap", marginBottom: "1.5rem", padding: "1rem", borderRadius: "6px", background: "var(--color-surface-2)", border: "1px solid var(--color-border)" }}>
+          <form action={enqueueProductionJob} className="inline-form list-card mb-6">
             <label>
               Job Kind
               <select name="kind" required defaultValue={currentStep === 8 ? "assemble_master" : "generate_text"}>
@@ -306,7 +305,7 @@ export default async function ProductionPage({
               </select>
             </label>
 
-            <div style={{ display: "flex", alignItems: "flex-end" }}>
+            <div className="form-submit-end">
               <button className="button button-primary" type="submit">Enqueue job</button>
             </div>
           </form>
@@ -314,12 +313,12 @@ export default async function ProductionPage({
         )}
 
         {jobs && jobs.length > 0 ? (
-          <div className="stack" style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+          <div className="stack">
             {jobs.map((j) => (
-              <div key={j.id} style={{ padding: "0.75rem", borderRadius: "6px", background: "var(--color-surface-2)", border: "1px solid var(--color-border)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <div key={j.id} className="split-row">
                 <div>
                   <strong>{j.kind}</strong> — <span className={`tag tag-${j.status}`}>{j.status}</span>
-                  {j.error_message && <span style={{ color: "var(--color-danger-soft)", marginLeft: "0.5rem", fontSize: "0.875rem" }}>{j.error_message}</span>}
+                  {j.error_message && <span className="danger text-sm ml-2">{j.error_message}</span>}
                 </div>
                 <small className="muted">{new Date(j.created_at).toLocaleString()}</small>
               </div>
@@ -357,31 +356,31 @@ export default async function ProductionPage({
           </div>
 
           {shots && shots.length > 0 ? (
-            <div className="stack" style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+            <div className="stack-lg">
               {(shots as ShotRecord[]).map((shot) => (
-                <div key={shot.id} style={{ padding: "1rem", borderRadius: "6px", background: "var(--color-surface-2)", border: "1px solid var(--color-border)" }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.5rem" }}>
+                <div key={shot.id} className="list-card">
+                  <div className="row-between mb-2">
                     <strong>Shot {shot.shot_number} ({Math.round(shot.duration_ms / 1000)}s)</strong>
                     <span className="muted">Status: {shot.status}</span>
                   </div>
-                  <p style={{ fontSize: "0.875rem", color: "var(--color-text-muted)", marginBottom: "1rem" }}>{shot.prompt}</p>
+                  <p className="text-sm muted mb-4">{shot.prompt}</p>
                   <ProviderExportButtons shot={{ shot_number: shot.shot_number, prompt: shot.prompt, duration_ms: shot.duration_ms }} />
 
                   <ShotUploader workspaceId={production.workspace_id} productionId={production.id} shotId={shot.id} />
 
                   {shot.shot_clips && shot.shot_clips.length > 0 && (
-                    <div style={{ marginTop: "1rem" }}>
-                      <span style={{ fontSize: "0.875rem", fontWeight: 500 }}>Uploaded Clips:</span>
-                      <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem", marginTop: "0.5rem" }}>
+                    <div className="mt-4">
+                      <span className="clips-label">Uploaded Clips:</span>
+                      <div className="stack mt-2">
                         {shot.shot_clips.map((clip) => (
-                          <div key={clip.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0.5rem", borderRadius: "4px", background: "var(--color-surface-2)" }}>
+                          <div key={clip.id} className="clip-item">
                             <span>v{clip.version} — {(clip.byte_size / (1024 * 1024)).toFixed(1)} MB {clip.selected ? "✓ (Selected)" : ""}</span>
                             {!clip.selected && (
                               <form action={selectShotClip}>
                                 <input type="hidden" name="production_id" value={production.id} />
                                 <input type="hidden" name="shot_id" value={shot.id} />
                                 <input type="hidden" name="clip_id" value={clip.id} />
-                                <button className="button button-outline" type="submit" style={{ padding: "0.25rem 0.5rem", fontSize: "0.75rem" }}>Select</button>
+                                <button className="button button-outline button-compact" type="submit">Select</button>
                               </form>
                             )}
                           </div>
@@ -389,7 +388,7 @@ export default async function ProductionPage({
                       </div>
                     </div>
                   )}
-                  <form action={saveAssemblyDecision} className="inline-form" style={{ marginTop: "1rem" }}>
+                  <form action={saveAssemblyDecision} className="inline-form mt-4">
                     <input type="hidden" name="production_id" value={production.id} /><input type="hidden" name="shot_id" value={shot.id} />
                     <label>Order<input name="position" type="number" min="0" defaultValue={decisions.find((d) => d.shot_id === shot.id)?.position ?? shot.shot_number - 1} required /></label>
                     <label className="check-row"><input name="keep" type="checkbox" defaultChecked={decisions.find((d) => d.shot_id === shot.id)?.keep ?? true} />Keep</label>

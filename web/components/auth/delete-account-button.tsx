@@ -18,7 +18,7 @@ export function DeleteAccountButton({ purgeAfter }: { purgeAfter?: string | null
     <form action={requestAccountDeletion} className="stack-form">
       <label>Confirm current password<input name="password" type="password" minLength={8} autoComplete="current-password" required /></label>
       <label>Authenticator code <small>(required only when MFA is enabled)</small><input name="mfa_code" inputMode="numeric" pattern="[0-9]{6}" maxLength={6} autoComplete="one-time-code" /></label>
-      <div style={{ display: "flex", gap: "var(--space-3)" }}>
+      <div className="row-wrap">
         <button className="button button-outline danger" type="submit">Confirm deletion</button>
         <button className="button button-outline" type="button" onClick={() => setShowConfirm(false)}>Cancel</button>
       </div>

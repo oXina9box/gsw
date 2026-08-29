@@ -18,7 +18,7 @@ export default function PricingPage() {
       </header>
 
       {/* Pro Plans Section */}
-      <section className="pricing-section shell" aria-label="Gem Studio Pro plans">
+      <section className="pricing-section shell reveal-on-scroll" aria-label="Gem Studio Pro plans">
         <div className="pricing-intro">
           <div>
             <p className="kicker">Pro Editions</p>
@@ -57,7 +57,7 @@ export default function PricingPage() {
       </section>
 
       {/* BYOK Subscriptions Section */}
-      <section className="pricing-section shell" aria-label="Gem Studio BYOK plans" style={{ marginTop: "var(--space-12)" }}>
+      <section className="pricing-section shell mt-6 reveal-on-scroll" aria-label="Gem Studio BYOK plans">
         <div className="pricing-intro">
           <div>
             <p className="kicker">BYOK Subscriptions</p>
@@ -96,7 +96,7 @@ export default function PricingPage() {
       </section>
 
       {/* Payroll Budget Section */}
-      <section className="payroll-section shell" aria-labelledby="payroll-title">
+      <section className="payroll-section shell reveal-on-scroll" aria-labelledby="payroll-title">
         <div className="payroll-copy">
           <p className="kicker">Payroll Budget</p>
           <h2 id="payroll-title">Plan the humans &amp; agents around the pipeline.</h2>
@@ -116,20 +116,20 @@ export default function PricingPage() {
       </section>
 
       {/* Self Host Section */}
-      <section className="open-source-section shell" aria-labelledby="open-source-title">
+      <section className="open-source-section shell reveal-on-scroll" aria-labelledby="open-source-title">
         <div>
           <p className="kicker">Self Host Edition</p>
           <h2 id="open-source-title">{SELF_HOST_EDITION.name}</h2>
           <p>
             {SELF_HOST_EDITION.description} Complete data sovereignty, 100% BYOK execution, configurable channel limits, and custom 6-file agent authoring.
           </p>
-          <ul className="pricing-features" style={{ margin: "var(--space-4) 0", listStyle: "none", padding: 0 }}>
+          <ul className="pricing-features pricing-features-flat mt-4 mb-4">
             {SELF_HOST_EDITION.features.map((feature) => (
-              <li key={feature} style={{ padding: "0.25rem 0" }}>✓ {feature}</li>
+              <li key={feature}>{feature}</li>
             ))}
           </ul>
         </div>
-        <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap", alignItems: "center" }}>
+        <div className="row-wrap">
           <Link className="button button-primary" href="https://github.com/oXina9box/gem-studio" target="_blank" rel="noreferrer">
             {SELF_HOST_EDITION.cta}
           </Link>

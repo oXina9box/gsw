@@ -4,5 +4,5 @@ export const metadata = { title: "Privacy" };
 export const dynamic = "force-static";
 
 export default function PrivacyPage() {
-  return <LegalDocument file="privacy-policy.md" />;
+  return <LegalDocument file="privacy-policy.md" label="Legal / Privacy Policy" />;
 }

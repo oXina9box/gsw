@@ -16,41 +16,23 @@ export default async function MarketingPage() {
       <h1>Marketing &amp; Studio Brand.</h1>
       <p className="lede">Direct studio brand strategy, audience positioning, and channel continuity across all production slates.</p>
 
-      <div className="workspace-split" style={{ marginTop: "1.5rem" }}>
+      <div className="workspace-split mt-6">
         {/* Left Column: Brand & Setup Checklist */}
-        <div style={{ display: "grid", gap: "1.5rem" }}>
+        <div className="stack-lg">
           <section className="panel">
             <h2>Setup &amp; Brand Checklist</h2>
             <p className="muted">Track core studio identity and channel brief requirements before launching production.</p>
-            <div style={{ display: "grid", gap: "0.75rem", marginTop: "1rem" }}>
+            <div className="stack mt-4">
               {checklist.map((item) => (
                 <div
                   key={item.id}
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    padding: "0.5rem 0.75rem",
-                    background: "var(--color-surface-2)",
-                    border: "1px solid var(--color-border)",
-                    borderRadius: "var(--radius-sm)",
-                    fontSize: "var(--text-xs)",
-                  }}
+                  className="split-row text-xs"
                 >
                   <div>
                     <strong>{item.label}</strong>
-                    <p className="muted" style={{ margin: 0 }}>{item.description}</p>
+                    <p className="muted m-0">{item.description}</p>
                   </div>
-                  <span
-                    style={{
-                      fontFamily: "var(--font-mono)",
-                      padding: "0.15rem 0.5rem",
-                      borderRadius: "var(--radius-sm)",
-                      border: "1px solid var(--color-border)",
-                      color: item.status === "complete" ? "var(--color-success)" : item.status === "deferred" ? "var(--color-warning)" : "var(--color-danger)",
-                      background: item.status === "complete" ? "rgba(16,185,129,0.08)" : item.status === "deferred" ? "rgba(245,158,11,0.08)" : "rgba(239,68,68,0.08)",
-                    }}
-                  >
+                  <span className={`status-pill is-${item.status}`}>
                     {item.status}
                   </span>
                 </div>
@@ -61,7 +43,7 @@ export default async function MarketingPage() {
           <section className="panel marketing-brief">
             <h2>Add / Refine Channel Brief</h2>
             <p className="muted">Define audience, voice, cadence, and content pillars for a production channel.</p>
-            <form action={createChannel} className="stack-form" style={{ marginTop: "1rem" }}>
+            <form action={createChannel} className="stack-form mt-4">
               <label>Channel name
                 <input name="name" maxLength={120} required placeholder="e.g. Cyberpunk Noir Shorts" />
               </label>
@@ -85,30 +67,23 @@ export default async function MarketingPage() {
         </div>
 
         {/* Right Column: Marketing Agent Team & Active Channels */}
-        <div style={{ display: "grid", gap: "1.5rem" }}>
+        <div className="stack-lg">
           <section className="panel">
             <h2>Marketing Department Roster</h2>
             <p className="muted">Six specialized agent roles managing brand continuity and audience intelligence.</p>
-            <div style={{ display: "grid", gap: "0.75rem", marginTop: "1rem" }}>
+            <div className="stack mt-4">
               {MARKETING_AGENT_ROLES.map((role) => (
                 <article
                   key={role.slug}
-                  style={{
-                    padding: "0.75rem",
-                    background: "var(--color-surface-2)",
-                    border: "1px solid var(--color-border)",
-                    borderRadius: "var(--radius-sm)",
-                    display: "grid",
-                    gap: "0.25rem",
-                  }}
+                  className="role-card"
                 >
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <div className="row-between">
                     <strong>{role.name}</strong>
-                    <span style={{ fontFamily: "var(--font-mono)", fontSize: "var(--text-xs)", color: "var(--color-accent)" }}>
+                    <span className="mono text-xs accent">
                       6 files
                     </span>
                   </div>
-                  <p className="muted" style={{ fontSize: "var(--text-xs)", margin: 0 }}>{role.summary}</p>
+                  <p className="muted text-xs m-0">{role.summary}</p>
                 </article>
               ))}
             </div>
@@ -117,26 +92,21 @@ export default async function MarketingPage() {
           <section className="panel">
             <h2>Active Channels</h2>
             {channels?.length ? (
-              <div style={{ display: "grid", gap: "0.75rem", marginTop: "1rem" }}>
+              <div className="stack mt-4">
                 {channels.map((ch) => (
                   <article
                     key={ch.id}
-                    style={{
-                      padding: "0.75rem",
-                      background: "var(--color-surface-2)",
-                      border: "1px solid var(--color-border)",
-                      borderRadius: "var(--radius-sm)",
-                    }}
+                    className="channel-brief"
                   >
                     <strong>{ch.name}</strong>
-                    <p className="muted" style={{ fontSize: "var(--text-xs)", margin: "0.25rem 0 0" }}>
+                    <p className="muted text-xs m-0 mt-1">
                       {ch.audience ? `Audience: ${ch.audience}` : "Open audience"} · {ch.cadence || "Continuous"}
                     </p>
                   </article>
                 ))}
               </div>
             ) : (
-              <div className="empty-state" style={{ marginTop: "1rem" }}>
+              <div className="empty-state mt-4">
                 <p>No channels configured yet. Create one on the left or via studio onboarding.</p>
               </div>
             )}

@@ -86,7 +86,7 @@ export function ExecutionLive({ executions, steps }: { executions: Execution[]; 
   }, []);
 
   return (
-    <div className="grid" style={{ gridTemplateColumns: "1fr", gap: "1rem" }}>
+    <div className="grid grid-single">
       {latestExecutions.map((execution) => {
         const execSteps = latestSteps.filter((s) => s.execution_id === execution.id);
         const activeStep = execSteps.find((s) => s.status === "running");
@@ -98,7 +98,7 @@ export function ExecutionLive({ executions, steps }: { executions: Execution[]; 
                 <span className="eyebrow">Execution {execution.id.slice(0, 8)}</span>
                 <h3>Status: <span className={`execution-status execution-status-${execution.status}`}>{execution.status}</span></h3>
               </div>
-              <div style={{ display: "flex", gap: "0.5rem" }}>
+              <div className="row-wrap">
                 {execution.status === "running" && (
                   <>
                     <form action={advanceExecutionAction}>
@@ -138,7 +138,7 @@ export function ExecutionLive({ executions, steps }: { executions: Execution[]; 
                     <input name="output" placeholder='Output JSON e.g. {"result": "ok"}' defaultValue="{}" />
                     <button type="submit" className="button button-primary">Complete step</button>
                   </form>
-                  <form action={failExecutionStep} className="inline-form" style={{ marginTop: 0 }}>
+                  <form action={failExecutionStep} className="inline-form inline-form-compact">
                     <input type="hidden" name="step_id" value={activeStep.id} />
                     <input name="error_message" placeholder="Failure reason" defaultValue="Step rejected" />
                     <button type="submit" className="button button-outline danger-button">Fail step</button>
@@ -147,14 +147,14 @@ export function ExecutionLive({ executions, steps }: { executions: Execution[]; 
               </div>
             )}
 
-            <div style={{ marginTop: "1rem" }}>
+            <div className="mt-4">
               <h4>Steps ({execSteps.length})</h4>
               {execSteps.length === 0 ? (
                 <p className="muted">No step records.</p>
               ) : (
-                <ul className="flow" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))", marginTop: "0.5rem" }}>
+                <ul className="flow flow-grid mt-2">
                   {execSteps.map((step, idx) => (
-                    <li key={step.id} style={{ listStyle: "none" }}>
+                    <li key={step.id}>
                       <span className={`dot ${step.status === "completed" ? "lime" : step.status === "running" ? "cyan" : ""}`} />
                       <strong>Step {idx + 1}: {step.target_kind}</strong>
                       <small>{step.status} {step.error_message ? `(${step.error_message})` : ""}</small>

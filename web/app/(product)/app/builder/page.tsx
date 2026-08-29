@@ -85,7 +85,7 @@ export default async function BuilderPage({
 
   return (
     <section className="product-page shell" data-archetype="B2-B">
-      <header className="page-header" style={{ marginBottom: "var(--space-6)" }}>
+      <header className="page-header mb-6">
         <p className="kicker">Studio Workspace / Architecture</p>
         <h1>Departmental Setup &amp; Lanes</h1>
         <p className="lede">
@@ -115,26 +115,26 @@ export default async function BuilderPage({
         );
 
         return (
-          <section className="builder-section" key={coreDept.name} style={{ marginBottom: "var(--space-10)", paddingBottom: "var(--space-8)", borderBottom: "1px solid var(--color-border)" }}>
-            <div className="section-head" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "1rem" }}>
+          <section className="builder-section dept-section" key={coreDept.name}>
+            <div className="section-head row-between">
               <div>
                 <h2>
-                  <span className="channel-tag" style={{ marginRight: "0.5rem" }}>0{coreDept.displayOrder}</span>
+                  <span className="channel-tag mr-2">0{coreDept.displayOrder}</span>
                   {coreDept.name}
                 </h2>
                 <p className="muted">{coreDept.description}</p>
               </div>
 
               {/* Add Lane Form */}
-              <form action={createLane} className="inline-form" style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
+              <form action={createLane} className="inline-form row-wrap">
                 <input type="hidden" name="department_id" value={primaryDept.id} />
-                <label style={{ margin: 0 }}>
+                <label className="field-inline">
                   <input
                     name="name"
                     placeholder={`New ${coreDept.name} lane...`}
                     maxLength={120}
                     required
-                    style={{ padding: "0.4rem 0.6rem" }}
+                    className="input-compact"
                   />
                 </label>
                 <button className="button button-outline button-small" type="submit">
@@ -145,17 +145,17 @@ export default async function BuilderPage({
 
             {/* Pro User Preconfigured Quick-Select Rail */}
             {!isByokUser && preconfiguredForDept.length > 0 && (
-              <div className="preconfigured-lane-rail" style={{ margin: "var(--space-4) 0", padding: "0.75rem 1rem", background: "var(--color-surface-2)", borderRadius: "6px", border: "1px solid var(--color-border)" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.5rem" }}>
-                  <span style={{ fontSize: "var(--text-xs)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", color: "var(--color-text-muted)" }}>
+              <div className="preconfigured-lane-rail list-card mt-4 mb-4">
+                <div className="row-between mb-2">
+                  <span className="rail-label">
                     Preconfigured Pro Lanes:
                   </span>
                 </div>
-                <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+                <div className="row-wrap">
                   {preconfiguredForDept.map((preLane) => {
                     const alreadyAdded = deptLanes.some((l) => l.name.toLowerCase() === preLane.name.toLowerCase());
                     return (
-                      <form action={createLane} key={preLane.id} style={{ display: "inline" }}>
+                      <form action={createLane} key={preLane.id} className="inline">
                         <input type="hidden" name="department_id" value={primaryDept.id} />
                         <input type="hidden" name="name" value={preLane.name} />
                         <button
@@ -175,33 +175,33 @@ export default async function BuilderPage({
 
             {/* Active Lanes List */}
             {deptLanes.length === 0 ? (
-              <p className="muted" style={{ padding: "1rem 0" }}>
+              <p className="muted py-4">
                 No active lanes in {coreDept.name}. {isByokUser ? "Build a custom lane above." : "Select a preconfigured lane above or create a new one."}
               </p>
             ) : (
               deptLanes.map((lane) => (
-                <div className="panel" key={lane.id} style={{ marginTop: "var(--space-4)", border: "1px solid var(--color-border)", borderRadius: "8px", padding: "1.25rem" }}>
-                  <div className="section-head" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "1rem", marginBottom: "1rem" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-                      <h3 style={{ margin: 0 }}>{lane.name}</h3>
-                      <span className="tier-badge" style={{ fontSize: "0.75rem" }}>
+                <div className="panel mt-4 radius-sm" key={lane.id}>
+                  <div className="section-head row-between mb-4">
+                    <div className="row-wrap">
+                      <h3>{lane.name}</h3>
+                      <span className="tier-badge">
                         {lane.collaboration_mode === "round_table" ? "Round Table" : "Forward"}
                       </span>
                     </div>
 
                     {/* Collaboration Mode Form */}
-                    <form action={updateLaneCollaboration} className="inline-form" style={{ display: "flex", gap: "0.5rem", alignItems: "center", flexWrap: "wrap" }}>
+                    <form action={updateLaneCollaboration} className="inline-form row-wrap">
                       <input type="hidden" name="lane_id" value={lane.id} />
-                      <label style={{ margin: 0, fontSize: "0.85rem" }}>
+                      <label className="field-inline">
                         Mode:
-                        <select name="collaboration_mode" defaultValue={lane.collaboration_mode ?? "forward"} style={{ marginLeft: "0.25rem" }}>
+                        <select name="collaboration_mode" defaultValue={lane.collaboration_mode ?? "forward"} className="ml-1">
                           <option value="forward">Forward</option>
                           <option value="round_table">Round Table</option>
                         </select>
                       </label>
-                      <label style={{ margin: 0, fontSize: "0.85rem" }}>
+                      <label className="field-inline">
                         Cycles:
-                        <input name="pass_cycles" type="number" min="1" max="20" defaultValue={lane.pass_cycles ?? 1} style={{ width: "4rem", marginLeft: "0.25rem" }} />
+                        <input name="pass_cycles" type="number" min="1" max="20" defaultValue={lane.pass_cycles ?? 1} className="cycles-input ml-1" />
                       </label>
                       <button className="button button-outline button-small" type="submit">
                         Save Mode
@@ -209,9 +209,9 @@ export default async function BuilderPage({
                     </form>
 
                     {/* Add Agent Form */}
-                    <form action={createAgent} className="inline-form" style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
+                    <form action={createAgent} className="inline-form row-wrap">
                       <input type="hidden" name="lane_id" value={lane.id} />
-                      <input name="name" placeholder="Agent title..." maxLength={120} required style={{ padding: "0.3rem 0.5rem" }} />
+                      <input name="name" placeholder="Agent title..." maxLength={120} required className="input-compact" />
                       <select name="agent_type" defaultValue="worker" aria-label="Agent type">
                         <option value="worker">Worker</option>
                         <option value="supervisor">Supervisor</option>
@@ -224,11 +224,11 @@ export default async function BuilderPage({
                     {/* Delete Lane Form */}
                     <form action={deleteLane} className="inline-form">
                       <input type="hidden" name="lane_id" value={lane.id} />
-                      <label className="check-row" style={{ fontSize: "0.8rem", margin: 0 }}>
+                      <label className="check-row text-xs">
                         <input name="confirm_delete" type="checkbox" required />
                         Delete
                       </label>
-                      <button className="button button-outline button-small" type="submit" style={{ marginLeft: "0.25rem" }}>
+                      <button className="button button-outline button-small ml-1" type="submit">
                         Remove
                       </button>
                     </form>
@@ -237,34 +237,27 @@ export default async function BuilderPage({
                   {/* Agents in this lane */}
                   <div className="lane-agents-list">
                     {byLane(lane.id).length === 0 ? (
-                      <p className="muted" style={{ fontSize: "0.9rem" }}>No agents assigned to this lane yet.</p>
+                      <p className="muted text-sm">No agents assigned to this lane yet.</p>
                     ) : (
                       byLane(lane.id).map((agent) => (
                         <article
-                          className="agent-row"
+                          className="agent-row list-card mb-3"
                           key={agent.id}
-                          style={{
-                            padding: "1rem",
-                            background: "var(--color-surface-1)",
-                            borderRadius: "6px",
-                            border: "1px solid var(--color-border)",
-                            marginBottom: "0.75rem",
-                          }}
                         >
-                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "0.5rem", marginBottom: "0.5rem" }}>
+                          <div className="row-between mb-2">
                             <div>
                               <strong>{agent.name}</strong>
-                              <span className="muted" style={{ marginLeft: "0.5rem", fontSize: "0.85rem" }}>
+                              <span className="muted ml-2 text-sm">
                                 {agent.agent_type} · recommended {agent.recommended_tier ?? "free"}
                               </span>
                             </div>
 
                             {/* Model Tier Form */}
-                            <form action={updateAgentModel} className="inline-form" style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
+                            <form action={updateAgentModel} className="inline-form row-wrap">
                               <input type="hidden" name="agent_id" value={agent.id} />
-                              <label style={{ margin: 0, fontSize: "0.8rem" }}>
+                              <label className="field-inline">
                                 Tier:
-                                <select name="recommended_tier" defaultValue={agent.recommended_tier ?? "free"} style={{ marginLeft: "0.25rem" }}>
+                                <select name="recommended_tier" defaultValue={agent.recommended_tier ?? "free"} className="ml-1">
                                   <option value="free">Free</option>
                                   <option value="mid">Mid</option>
                                   <option value="quality">Best</option>
@@ -278,7 +271,7 @@ export default async function BuilderPage({
                             {/* Delete Agent Form */}
                             <form action={deleteAgent} className="inline-form">
                               <input type="hidden" name="agent_id" value={agent.id} />
-                              <label className="check-row" style={{ fontSize: "0.8rem", margin: 0 }}>
+                              <label className="check-row text-xs">
                                 <input name="confirm_delete" type="checkbox" required />
                               </label>
                               <button className="button button-outline button-small" type="submit" aria-label={`Remove ${agent.name}`}>

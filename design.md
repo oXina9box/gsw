@@ -40,11 +40,11 @@ All tokens are declared in `web/tokens.css` and imported globally in `web/app/gl
 
   /* Text Contrast Hierarchy */
   --color-text: oklch(0.93 0.005 260);      /* Primary High-Contrast Text */
-  --color-text-muted: oklch(0.62 0.01 260);  /* Body & Label Text */
-  --color-text-faint: oklch(0.48 0.01 260);  /* Placeholder & Metadata */
+  --color-text-muted: oklch(0.68 0.01 260);  /* Body & Label Text */
+  --color-text-faint: oklch(0.58 0.01 260);  /* Placeholder & Metadata */
 
   /* Structural Borders & Hairlines */
-  --color-border: oklch(0.28 0.01 260);      /* Standard Element Separation */
+  --color-border: oklch(0.38 0.01 260);      /* Standard Element Separation */
   --color-border-2: oklch(0.36 0.015 255);   /* Subtle Inner Border */
   --color-hairline: oklch(1 0 0 / 0.05);     /* Ghost dividers and grid lines */
 

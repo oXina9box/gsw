@@ -50,10 +50,10 @@ export function CommandMenu({ authenticated }: { authenticated: boolean }) {
     <dialog className="command-dialog" ref={dialogRef} aria-modal="true" onClick={(event) => { if (event.target === event.currentTarget) close(); }} onClose={() => triggerRef.current?.focus()}>
       <div className="dialog-topline"><span>Navigate the studio</span><button className="dialog-close" type="button" onClick={close} aria-label="Close command menu">×</button></div>
       <nav className="command-list" aria-label="Quick navigation">
-        <Link href={authenticated ? "/app" : "/?auth=signup"} onClick={close}><span style={{ gridColumn: "1 / 3" }}>{authenticated ? "Open your Studio" : "Create your Studio"}</span><span>↗</span></Link>
-        <Link href="/studio" onClick={close}><span style={{ gridColumn: "1 / 3" }}>Walk the studio floor</span><span>↗</span></Link>
-        <Link href="/system" onClick={close}><span style={{ gridColumn: "1 / 3" }}>See the handoff system</span><span>↗</span></Link>
-        <Link href="/social-workshop" onClick={close}><span style={{ gridColumn: "1 / 3" }}>Open the social workshop</span><span>↗</span></Link>
+        <Link href={authenticated ? "/app" : "/?auth=signup"} onClick={close}><span className="span-2">{authenticated ? "Open your Studio" : "Create your Studio"}</span><span>↗</span></Link>
+        <Link href="/studio" onClick={close}><span className="span-2">Walk the studio floor</span><span>↗</span></Link>
+        <Link href="/system" onClick={close}><span className="span-2">See the handoff system</span><span>↗</span></Link>
+        <Link href="/social-workshop" onClick={close}><span className="span-2">Open the social workshop</span><span>↗</span></Link>
       </nav>
     </dialog>
   </>;

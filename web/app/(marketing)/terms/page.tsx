@@ -4,5 +4,5 @@ export const metadata = { title: "Terms" };
 export const dynamic = "force-static";
 
 export default function TermsPage() {
-  return <LegalDocument file="terms-of-service.md" />;
+  return <LegalDocument file="terms-of-service.md" label="Legal / Terms of Service" />;
 }

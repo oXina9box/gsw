@@ -22,7 +22,7 @@ const flow = [
 export default async function HomePage() {
   let authenticated = false;
   try { authenticated = Boolean((await (await createClient()).auth.getUser()).data.user); } catch { /* The public site also renders without local Supabase credentials. */ }
-  const entryHref = authenticated ? "/app" : "/signup";
+  const entryHref = authenticated ? "/app" : "/?auth=signup";
 
   return <div data-archetype="A1">
     <section className="hero shell">

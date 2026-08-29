@@ -16,7 +16,7 @@ export default function DocsPage() {
         <h1>How the Studio <span>operates.</span></h1>
         <p className="detail-lede">A practical guide to Gem Studio&apos;s pipeline, continuity system, agents, and deployment boundaries.</p>
       </header>
-      <section className="docs-layout shell" aria-label="Documentation index">
+      <section className="docs-layout shell reveal-on-scroll" aria-label="Documentation index">
         <nav className="docs-nav" aria-label="Documentation sections">
           <strong>Contents</strong>
           <div className="docs-nav-links">
