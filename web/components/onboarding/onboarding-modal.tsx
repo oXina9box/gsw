@@ -122,7 +122,6 @@ export function OnboardingModal({ initialStep = "identity", initialProfile, defa
       dialogRef.current?.showModal();
     }
   }, [defaultOpen, searchParams]);
-
   useEffect(() => {
     const handleOpen = () => {
       dialogRef.current?.showModal();

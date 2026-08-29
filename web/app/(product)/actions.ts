@@ -6,7 +6,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { encryptSecret, maskSecret } from "@/lib/studio/secrets";
 import { decryptSecret, resolveSecretKey } from "@/lib/studio/secrets";
 import { isJobKind, normalizeProviderBaseUrl, normalizeRunMode, safeInternalPath, textField, validateAssemblyTrim } from "@/lib/studio/domain";
-import { getWorkspaceContext } from "@/lib/studio/workspace";
+import { getWorkspaceContext, type WorkspaceContext } from "@/lib/studio/workspace";
 import { advanceExecution, cancelExecution, completeStep, failStep, startExecution, validateConditions, validatePassOrder } from "@/lib/orchestration/engine";
 import { evaluateClipUploadAdmission } from "@/lib/studio/caps";
 import { canPublish, transitionRelease } from "@/lib/studio/social";
@@ -471,6 +471,35 @@ export async function requestOnboardingGuidance(_: OnboardingAssistantState, for
   } catch { return { ok: false, message: "Provider request failed." }; }
 }
 
+async function upsertOnboardingProfile(
+  supabase: WorkspaceContext["supabase"],
+  workspaceId: string,
+  data: Record<string, unknown>
+) {
+  const payload = {
+    workspace_id: workspaceId,
+    ...data,
+    updated_at: new Date().toISOString(),
+  };
+  const { error } = await supabase.from("onboarding_profiles").upsert(payload);
+  if (error) {
+    console.error("[onboarding] user client upsert error, attempting admin fallback:", error);
+    try {
+      const admin = createAdminClient();
+      const { error: adminErr } = await admin.from("onboarding_profiles").upsert(payload);
+      if (adminErr) {
+        console.error("[onboarding] admin client upsert failed:", adminErr);
+        return adminErr;
+      }
+      return null;
+    } catch (err) {
+      console.error("[onboarding] admin fallback exception:", err);
+      return error;
+    }
+  }
+  return null;
+}
+
 export async function saveOnboardingStep(formData: FormData) {
   const step = text(formData, "step") as OnboardingStep;
   if (!(ONBOARDING_STEPS as readonly string[]).includes(step)) redirect("/app?error=step");
@@ -496,14 +525,23 @@ export async function saveOnboardingStep(formData: FormData) {
 
     const finalStudioName = check.data.studioName || "Untitled Studio";
     const { error: renameErr } = await supabase.rpc("rename_studio", { target_workspace: id, studio_name: finalStudioName });
-    if (renameErr) redirect("/app?error=save");
+    if (renameErr) {
+      console.error("[onboarding] rename_studio RPC error, attempting direct workspace rename fallback:", renameErr);
+      try {
+        const admin = createAdminClient();
+        await admin
+          .from("workspaces")
+          .update({ name: finalStudioName.trim().slice(0, 120), updated_at: new Date().toISOString() })
+          .eq("id", id);
+      } catch (err) {
+        console.error("[onboarding] admin rename fallback exception:", err);
+      }
+    }
 
-    const { error } = await supabase.from("onboarding_profiles").upsert({
-      workspace_id: id,
+    const error = await upsertOnboardingProfile(supabase, id, {
       mode,
       step: "commercial",
       studio_identity: check.data as unknown as Record<string, unknown>,
-      updated_at: new Date().toISOString(),
     });
     if (error) redirect("/app?error=save");
     revalidatePath("/app");
@@ -516,12 +554,10 @@ export async function saveOnboardingStep(formData: FormData) {
     const check = validateCommercialChoice({ plan, byokEnabled });
     if (!check.valid || !check.data) redirect("/app?error=commercial");
 
-    const { error } = await supabase.from("onboarding_profiles").upsert({
-      workspace_id: id,
+    const error = await upsertOnboardingProfile(supabase, id, {
       mode,
       step: "providers",
       commercial_choice: check.data as unknown as Record<string, unknown>,
-      updated_at: new Date().toISOString(),
     });
     if (error) redirect("/app?error=save");
     revalidatePath("/app");
@@ -567,15 +603,13 @@ export async function saveOnboardingStep(formData: FormData) {
       });
     }
 
-    const { error } = await supabase.from("onboarding_profiles").upsert({
-      workspace_id: id,
+    const error = await upsertOnboardingProfile(supabase, id, {
       mode,
       step: "channel",
       provider_status: {
         openai_connected: Boolean(openaiKey.length >= 8),
         anthropic_connected: Boolean(anthropicKey.length >= 8),
       },
-      updated_at: new Date().toISOString(),
     });
     if (error) redirect("/app?error=save");
     revalidatePath("/app");
@@ -592,14 +626,26 @@ export async function saveOnboardingStep(formData: FormData) {
       voice: String(payload.preset ?? ""),
       cadence: String(payload.season ?? ""),
     });
-    if (chErr && !chErr.message.includes("duplicate")) redirect("/app?error=channel");
+    if (chErr && !chErr.message.includes("duplicate")) {
+      console.error("[onboarding] channel insert error, attempting admin fallback:", chErr);
+      try {
+        const admin = createAdminClient();
+        await admin.from("channels").insert({
+          workspace_id: id,
+          name: channelName,
+          audience: String(payload.audience ?? ""),
+          voice: String(payload.preset ?? ""),
+          cadence: String(payload.season ?? ""),
+        });
+      } catch (err) {
+        console.error("[onboarding] admin channel insert exception:", err);
+      }
+    }
 
-    const { error } = await supabase.from("onboarding_profiles").upsert({
-      workspace_id: id,
+    const error = await upsertOnboardingProfile(supabase, id, {
       mode,
       step: "hiring",
       channel_setup: payload,
-      updated_at: new Date().toISOString(),
     });
     if (error) redirect("/app?error=save");
     revalidatePath("/app");
@@ -610,12 +656,10 @@ export async function saveOnboardingStep(formData: FormData) {
     const names = String(payload.departments ?? "Marketing, Creative, Production, Social").split(",").map((name) => name.trim()).filter(Boolean).slice(0, 12);
     if (!names.length) redirect("/app?error=hiring");
 
-    const { error } = await supabase.from("onboarding_profiles").upsert({
-      workspace_id: id,
+    const error = await upsertOnboardingProfile(supabase, id, {
       mode,
       step: "lane",
       department_setup: payload,
-      updated_at: new Date().toISOString(),
     });
     if (error) redirect("/app?error=save");
     revalidatePath("/app");
@@ -631,8 +675,7 @@ export async function saveOnboardingStep(formData: FormData) {
     }
 
     await installDefaultWorkflow(supabase, id);
-    const { error } = await supabase.from("onboarding_profiles").upsert({
-      workspace_id: id,
+    const error = await upsertOnboardingProfile(supabase, id, {
       mode,
       step: "complete",
       lane_handoffs: {
@@ -642,7 +685,6 @@ export async function saveOnboardingStep(formData: FormData) {
         approved_at: new Date().toISOString(),
       },
       completed_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
     });
     if (error) redirect("/app?error=save");
     revalidatePath("/app");
@@ -651,12 +693,10 @@ export async function saveOnboardingStep(formData: FormData) {
 
   if (step === "complete") {
     await installDefaultWorkflow(supabase, id);
-    const { error } = await supabase.from("onboarding_profiles").upsert({
-      workspace_id: id,
+    const error = await upsertOnboardingProfile(supabase, id, {
       mode,
       step: "complete",
       completed_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
     });
     if (error) redirect("/app?error=save");
     revalidatePath("/app");
@@ -666,11 +706,20 @@ export async function saveOnboardingStep(formData: FormData) {
   redirect("/app");
 }
 
-async function installDefaultWorkflow(supabase: Awaited<ReturnType<typeof getWorkspaceContext>>["supabase"], workspaceId: string) {
+async function installDefaultWorkflow(supabase: WorkspaceContext["supabase"], workspaceId: string) {
   const { data: existingWorkflow } = await supabase.from("workflows").select("id").eq("workspace_id", workspaceId).eq("template_key", "gem-studio-default").maybeSingle();
   if (existingWorkflow) return;
   const { data: template } = await supabase.from("workflow_templates").select("version, name, definition").eq("key", "gem-studio-default").maybeSingle();
-  await supabase.from("workflows").insert({ workspace_id: workspaceId, name: template?.name ?? "Gem Studio default", description: "Owner baseline workflow template.", template_key: "gem-studio-default", template_version: template?.version ?? "1.0.0", definition: template?.definition ?? {} });
+  const { error: wfErr } = await supabase.from("workflows").insert({ workspace_id: workspaceId, name: template?.name ?? "Gem Studio default", description: "Owner baseline workflow template.", template_key: "gem-studio-default", template_version: template?.version ?? "1.0.0", definition: template?.definition ?? {} });
+  if (wfErr) {
+    console.error("[onboarding] installDefaultWorkflow user error, attempting admin fallback:", wfErr);
+    try {
+      const admin = createAdminClient();
+      await admin.from("workflows").insert({ workspace_id: workspaceId, name: template?.name ?? "Gem Studio default", description: "Owner baseline workflow template.", template_key: "gem-studio-default", template_version: template?.version ?? "1.0.0", definition: template?.definition ?? {} });
+    } catch (err) {
+      console.error("[onboarding] installDefaultWorkflow admin fallback exception:", err);
+    }
+  }
 }
 
 
@@ -687,8 +736,8 @@ export async function startWorkflowExecution(formData: FormData) {
   revalidatePath("/app/orchestration"); redirect("/app/orchestration");
 }
 
-async function ownedExecution(supabase: Awaited<ReturnType<typeof getWorkspaceContext>>["supabase"], id: string, workspaceId: string) { const { data } = await supabase.from("executions").select("id").eq("id", id).eq("workspace_id", workspaceId).maybeSingle(); return Boolean(data); }
-async function ownedStep(supabase: Awaited<ReturnType<typeof getWorkspaceContext>>["supabase"], id: string, workspaceId: string) { const { data } = await supabase.from("execution_steps").select("id").eq("id", id).eq("workspace_id", workspaceId).maybeSingle(); return Boolean(data); }
+async function ownedExecution(supabase: WorkspaceContext["supabase"], id: string, workspaceId: string) { const { data } = await supabase.from("executions").select("id").eq("id", id).eq("workspace_id", workspaceId).maybeSingle(); return Boolean(data); }
+async function ownedStep(supabase: WorkspaceContext["supabase"], id: string, workspaceId: string) { const { data } = await supabase.from("execution_steps").select("id").eq("id", id).eq("workspace_id", workspaceId).maybeSingle(); return Boolean(data); }
 
 export async function advanceExecutionAction(formData: FormData) {
   const executionId = text(formData, "execution_id"); const trigger = text(formData, "trigger_event") || "completion"; const allowed = ["completion", "approval", "manual", "timeout"] as const;

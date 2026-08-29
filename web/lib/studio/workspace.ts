@@ -1,8 +1,24 @@
 import { cache } from "react";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import type { User } from "@supabase/supabase-js";
 import { ensureUserWorkspace } from "@/lib/studio/ensure-workspace";
-export const getWorkspaceContext = cache(async () => {
+
+export interface WorkspaceMembership {
+  workspace_id: string;
+  role: string;
+  workspaces: unknown;
+}
+
+export interface WorkspaceContext {
+  supabase: Awaited<ReturnType<typeof createClient>>;
+  user: User;
+  workspaceId: string;
+  workspaceName: string;
+  membership: WorkspaceMembership;
+}
+
+export const getWorkspaceContext = cache(async (): Promise<WorkspaceContext> => {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login?next=/app");
@@ -30,7 +46,8 @@ export const getWorkspaceContext = cache(async () => {
   }
 
   if (error || !membership) throw new Error("Studio workspace not found");
-  const workspace = membership.workspaces as { name?: unknown } | null;
+  const rawWorkspace = Array.isArray(membership.workspaces) ? membership.workspaces[0] : membership.workspaces;
+  const workspace = rawWorkspace as { name?: unknown } | null;
   const workspaceName = typeof workspace?.name === "string" ? workspace.name : "Gem Studio";
-  return { supabase, user, workspaceId: membership.workspace_id, workspaceName, membership };
+  return { supabase, user, workspaceId: membership.workspace_id, workspaceName, membership: membership as WorkspaceMembership };
 });
