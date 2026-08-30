@@ -393,5 +393,47 @@ web/
 │   ├── auth/            # Auth forms, MFA settings, signout actions
 │   ├── marketing/       # Hero stage, signal board, marketing effects
 │   ├── product/         # Workbench panels, execution monitors, agent editor
-│   └── shell/           # Command menu, headers, footers, nav rails
+│   ├── shell/           # Command menu, headers, footers, nav rails
+│   └── blocks/          # Vendored component packs (Kometa, Preline, Flowbite)
+│       ├── kometa/      # Marketing and editorial blocks
+│       ├── preline/     # Workbench and product UI blocks
+│       ├── flowbite/    # Feedback, upload, and media blocks
+│       └── reveal.tsx   # Animation-on-scroll standard
 ```
+
+---
+
+## 10. Vendored Block Components
+
+All 34 rendered pages utilize strictly typed block components mapped to the OKLCH token engine:
+
+### 10.1 Kometa (Marketing & Editorial)
+* `web/components/blocks/kometa/kometa-header.tsx`
+* `web/components/blocks/kometa/kometa-footer.tsx`
+* `web/components/blocks/kometa/kometa-hero.tsx`
+* `web/components/blocks/kometa/kometa-features-grid.tsx`
+* `web/components/blocks/kometa/kometa-steps.tsx`
+* `web/components/blocks/kometa/kometa-pricing.tsx`
+* `web/components/blocks/kometa/kometa-stats.tsx`
+* `web/components/blocks/kometa/kometa-contact.tsx`
+* `web/components/blocks/kometa/kometa-content.tsx`
+
+### 10.2 Preline (Workbench & Controls)
+* `web/components/blocks/preline/preline-login-card.tsx`
+* `web/components/blocks/preline/preline-modal.tsx`
+* `web/components/blocks/preline/preline-stepper.tsx`
+* `web/components/blocks/preline/preline-tabs.tsx`
+* `web/components/blocks/preline/preline-accordion.tsx`
+* `web/components/blocks/preline/preline-table.tsx`
+* `web/components/blocks/preline/preline-sidebar.tsx`
+* `web/components/blocks/preline/preline-card.tsx`
+* `web/components/blocks/preline/preline-stats-grid.tsx`
+
+### 10.3 Flowbite (Feedback & Utilities)
+* `web/components/blocks/flowbite/flowbite-breadcrumb.tsx`
+* `web/components/blocks/flowbite/flowbite-pagination.tsx`
+* `web/components/blocks/flowbite/flowbite-file-upload.tsx`
+* `web/components/blocks/flowbite/flowbite-video.tsx`
+* `web/components/blocks/flowbite/flowbite-badge.tsx`
+* `web/components/blocks/flowbite/flowbite-progress.tsx`
+* `web/components/blocks/flowbite/flowbite-timeline.tsx`

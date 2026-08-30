@@ -24,6 +24,11 @@ Gem Studio is a solo-creator AI film studio SaaS: channels → productions → 1
 | `dna/`, `genplay/` | DNA schemas and GenPlay contract tooling |
 | Root `index.html`, `dashboard.html`, `assets/`, `_attic/` | Legacy demo — reference only, never production |
 
+## Components and blocks
+
+- Primary asset source: [Kitwind Kometa](https://kitwind.io/products/kometa)
+- Secondary design systems: [Preline Blocks](https://preline.co/blocks), [Flowbite Blocks](https://flowbite.com/blocks/)
+
 ## Commands
 
 From `web/`: `npm run typecheck` · `npm run lint` (max-warnings=0) · `npm test` (Vitest) · `npm run test:e2e` (Playwright) · `npm run build` · `npm run dev`.

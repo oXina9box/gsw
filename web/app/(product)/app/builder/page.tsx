@@ -9,293 +9,260 @@ import {
   updateLaneCollaboration,
 } from "@/app/(product)/actions";
 import { AgentEditor } from "@/components/product/agent-editor";
-import {
-  CORE_DEPARTMENTS_CONFIG,
-  PRECONFIGURED_LANES,
-} from "@/lib/studio/departments";
+import { PrelineCard } from "@/components/blocks/preline/preline-card";
+import { FlowbiteBadge } from "@/components/blocks/flowbite/flowbite-badge";
 
 export const metadata = { title: "Departments & Lanes · Builder" };
 
-type Department = { id: string; name: string; display_order: number };
-type Lane = {
-  id: string;
-  department_id: string;
-  name: string;
-  collaboration_mode: "forward" | "round_table";
-  pass_order: number[];
-  pass_cycles: number;
-};
-type Agent = {
-  id: string;
-  lane_id: string;
-  name: string;
-  agent_type: string;
-  recommended_tier: "free" | "mid" | "quality";
-  model_tier_override: "free" | "mid" | "quality" | null;
-  protected_config?: boolean;
-};
-type AgentFile = {
-  agent_id: string;
-  role: string;
-  soul: string;
-  jobdescription: string;
-  skills: string;
-  memory: string;
-  user_content: string;
-};
 
 export default async function BuilderPage({
   searchParams,
 }: {
   searchParams: Promise<{ error?: string; dept?: string }>;
 }) {
-  const supabase = await createClient();
-  const [{ data: departments }, { data: lanes }, { data: agents }, { data: files }, { data: onboardingProfile }] =
-    await Promise.all([
-      supabase.from("departments").select("id, name, display_order").order("display_order").order("name"),
-      supabase.from("lanes").select("id, department_id, name, collaboration_mode, pass_order, pass_cycles").order("name"),
-      supabase.from("agents").select("id, lane_id, name, agent_type, recommended_tier, model_tier_override, protected_config").order("name"),
-      supabase.from("agent_files").select("agent_id, role, soul, jobdescription, skills, memory, user_content"),
-      supabase.from("onboarding_profiles").select("commercial_choice").maybeSingle(),
-    ]);
-
   const params = await searchParams;
-  const commercial = (onboardingProfile?.commercial_choice ?? {}) as { plan?: string; byok_enabled?: boolean };
-  const isByokUser = commercial.plan === "content-byok" || commercial.plan === "creator-byok" || commercial.plan === "self-host" || commercial.plan === "byok";
+  const supabase = await createClient();
 
-  const departmentList = (departments as Department[] | null) ?? [];
-  const laneList = (lanes as Lane[] | null) ?? [];
-  const agentList = (agents as Agent[] | null) ?? [];
-  const fileList = (files as AgentFile[] | null) ?? [];
+  const [
+    { data: departments },
+    { data: lanes },
+    { data: agents },
+    { data: agentFiles },
+  ] = await Promise.all([
+    supabase.from("departments").select("id, name, display_order").order("display_order"),
+    supabase.from("lanes").select("id, department_id, name, collaboration_mode, pass_order, pass_cycles"),
+    supabase.from("agents").select("id, lane_id, name, agent_type, recommended_tier, model_tier_override, protected_config"),
+    supabase.from("agent_files").select("agent_id, role, soul, jobdescription, skills, memory, user_content"),
+  ]);
 
-  const byDepartment = (departmentId: string) =>
-    laneList.filter((lane) => lane.department_id === departmentId);
-  const byLane = (laneId: string) =>
-    agentList.filter((agent) => agent.lane_id === laneId);
-  const fileFor = (agentId: string): AgentFile =>
-    fileList.find((file) => file.agent_id === agentId) ?? {
-      agent_id: agentId,
-      role: "",
-      soul: "",
-      jobdescription: "",
-      skills: "",
-      memory: "",
-      user_content: "",
-    };
+  const activeDeptId = params.dept || departments?.[0]?.id;
+  const activeDept = departments?.find((d) => d.id === activeDeptId) || departments?.[0];
+
+  const deptLanes = (lanes || []).filter((l) => l.department_id === activeDept?.id);
 
   return (
     <section className="product-page shell" data-archetype="B2-B">
-      <header className="page-header mb-6">
-        <p className="kicker">Studio Workspace / Architecture</p>
-        <h1>Departmental Setup &amp; Lanes</h1>
-        <p className="lede">
-          Configure working teams across Marketing, Socials, Development, and Production.{" "}
-          {isByokUser
-            ? "BYOK Mode: Build custom lanes and collaboration topologies."
-            : "Pro Mode: Select preconfigured departmental lanes or author custom lanes."}
+      <div className="mb-8 space-y-2">
+        <h1 className="font-display text-3xl sm:text-4xl font-bold text-text">
+          Studio Builder.
+        </h1>
+        <p className="text-base text-text-muted font-body">
+          Configure 13 studio departments, collaboration topologies (forward vs round table), model tiers, and 6-file agent contracts.
         </p>
-      </header>
+      </div>
 
       {params.error && (
-        <p className="form-error" role="alert">
-          Unable to save that builder record. Please check your inputs.
+        <p className="form-error mb-6" role="alert">
+          {params.error === "lane"
+            ? "Lane could not be saved."
+            : params.error === "agent"
+            ? "Agent operation failed."
+            : "Builder update failed."}
         </p>
       )}
 
-      {/* 4 Core Department Sections */}
-      {CORE_DEPARTMENTS_CONFIG.map((coreDept) => {
-        // Find or fallback department in DB
-        const matchingDbDepts = departmentList.filter(
-          (d) => d.name.toLowerCase() === coreDept.name.toLowerCase() || d.display_order === coreDept.displayOrder
-        );
-        const primaryDept = matchingDbDepts[0] ?? { id: `dept-${coreDept.slug}`, name: coreDept.name, display_order: coreDept.displayOrder };
-        const deptLanes = matchingDbDepts.flatMap((d) => byDepartment(d.id));
-        const preconfiguredForDept = PRECONFIGURED_LANES.filter(
-          (lane) => lane.department === coreDept.name
-        );
+      {/* Department Tabs */}
+      <div className="flex items-center gap-2 overflow-x-auto pb-4 border-b border-border mb-8">
+        {(departments || []).map((dept) => {
+          const isActive = dept.id === activeDept?.id;
 
-        return (
-          <section className="builder-section dept-section" key={coreDept.name}>
-            <div className="section-head row-between">
-              <div>
-                <h2>
-                  <span className="channel-tag mr-2">0{coreDept.displayOrder}</span>
-                  {coreDept.name}
-                </h2>
-                <p className="muted">{coreDept.description}</p>
-              </div>
+          return (
+            <a
+              key={dept.id}
+              href={`/app/builder?dept=${dept.id}`}
+              className={`flex items-center gap-2 px-3 py-2 rounded-sm text-xs font-mono whitespace-nowrap transition-colors duration-150 ${
+                isActive
+                  ? "bg-surface-3 text-text font-semibold border-b-2 border-pink"
+                  : "text-text-muted hover:text-text hover:bg-surface-2"
+              }`}
+            >
+              <span>{String(dept.display_order).padStart(2, "0")}</span>
+              <span>{dept.name}</span>
+            </a>
+          );
+        })}
+      </div>
 
-              {/* Add Lane Form */}
-              <form action={createLane} className="inline-form row-wrap">
-                <input type="hidden" name="department_id" value={primaryDept.id} />
-                <label className="field-inline">
-                  <input
-                    name="name"
-                    placeholder={`New ${coreDept.name} lane...`}
-                    maxLength={120}
-                    required
-                    className="input-compact"
-                  />
-                </label>
-                <button className="button button-outline button-small" type="submit">
-                  + Add Lane
-                </button>
-              </form>
+      {activeDept && (
+        <div className="space-y-8">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 border border-border bg-surface-2 rounded-md">
+            <div>
+              <h2 className="font-display text-xl font-bold text-text">
+                {activeDept.name} Department
+              </h2>
+              <p className="text-xs text-text-muted font-body mt-1">
+                Lanes run deterministic forward handoffs or circular round-table reviews.
+              </p>
             </div>
 
-            {/* Pro User Preconfigured Quick-Select Rail */}
-            {!isByokUser && preconfiguredForDept.length > 0 && (
-              <div className="preconfigured-lane-rail list-card mt-4 mb-4">
-                <div className="row-between mb-2">
-                  <span className="rail-label">
-                    Preconfigured Pro Lanes:
-                  </span>
-                </div>
-                <div className="row-wrap">
-                  {preconfiguredForDept.map((preLane) => {
-                    const alreadyAdded = deptLanes.some((l) => l.name.toLowerCase() === preLane.name.toLowerCase());
-                    return (
-                      <form action={createLane} key={preLane.id} className="inline">
-                        <input type="hidden" name="department_id" value={primaryDept.id} />
-                        <input type="hidden" name="name" value={preLane.name} />
-                        <button
-                          type="submit"
-                          disabled={alreadyAdded}
-                          className={`button button-small ${alreadyAdded ? "button-outline is-active" : "button-secondary"}`}
-                          title={preLane.description}
-                        >
-                          {alreadyAdded ? `✓ ${preLane.name}` : `+ ${preLane.name}`}
-                        </button>
-                      </form>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
+            <form action={createLane} className="inline-form">
+              <input type="hidden" name="department_id" value={activeDept.id} />
+              <input
+                name="name"
+                placeholder="New lane name"
+                required
+                className="input text-xs"
+              />
+              <button className="button button-primary text-xs" type="submit">
+                Add Lane
+              </button>
+            </form>
+          </div>
 
-            {/* Active Lanes List */}
-            {deptLanes.length === 0 ? (
-              <p className="muted py-4">
-                No active lanes in {coreDept.name}. {isByokUser ? "Build a custom lane above." : "Select a preconfigured lane above or create a new one."}
-              </p>
-            ) : (
-              deptLanes.map((lane) => (
-                <div className="panel mt-4 radius-sm" key={lane.id}>
-                  <div className="section-head row-between mb-4">
-                    <div className="row-wrap">
-                      <h3>{lane.name}</h3>
-                      <span className="tier-badge">
-                        {lane.collaboration_mode === "round_table" ? "Round Table" : "Forward"}
-                      </span>
-                    </div>
+          {/* Lanes list */}
+          <div className="space-y-6">
+            {deptLanes.map((lane) => {
+              const laneAgents = (agents || []).filter((a) => a.lane_id === lane.id);
 
-                    {/* Collaboration Mode Form */}
-                    <form action={updateLaneCollaboration} className="inline-form row-wrap">
+              return (
+                <PrelineCard
+                  key={lane.id}
+                  kicker={`Lane: ${lane.collaboration_mode}`}
+                  title={lane.name}
+                  badge={
+                    <FlowbiteBadge color={lane.collaboration_mode === "forward" ? "cyan" : "pink"} size="sm">
+                      {lane.collaboration_mode}
+                    </FlowbiteBadge>
+                  }
+                  action={
+                    <form action={deleteLane}>
                       <input type="hidden" name="lane_id" value={lane.id} />
-                      <label className="field-inline">
+                      <input type="hidden" name="department_id" value={activeDept.id} />
+                      <button className="text-red hover:underline text-xs font-mono" type="submit">
+                        Delete lane
+                      </button>
+                    </form>
+                  }
+                >
+                  <div className="space-y-6">
+                    {/* Collaboration topology selector */}
+                    <form action={updateLaneCollaboration} className="inline-form p-3 border border-border-2 bg-surface-2 rounded-sm gap-4">
+                      <input type="hidden" name="lane_id" value={lane.id} />
+                      <input type="hidden" name="department_id" value={activeDept.id} />
+                      <label className="text-xs font-mono text-text-muted">
                         Mode:
-                        <select name="collaboration_mode" defaultValue={lane.collaboration_mode ?? "forward"} className="ml-1">
-                          <option value="forward">Forward</option>
+                        <select name="collaboration_mode" defaultValue={lane.collaboration_mode} className="ml-2 bg-bg border border-border rounded-sm px-2 py-1 text-text">
+                          <option value="forward">Forward Handoff</option>
                           <option value="round_table">Round Table</option>
                         </select>
                       </label>
-                      <label className="field-inline">
+                      <label className="text-xs font-mono text-text-muted">
                         Cycles:
-                        <input name="pass_cycles" type="number" min="1" max="20" defaultValue={lane.pass_cycles ?? 1} className="cycles-input ml-1" />
+                        <input
+                          type="number"
+                          name="pass_cycles"
+                          defaultValue={lane.pass_cycles}
+                          min={1}
+                          max={5}
+                          className="ml-2 w-16 bg-bg border border-border rounded-sm px-2 py-1 text-text"
+                        />
                       </label>
-                      <button className="button button-outline button-small" type="submit">
-                        Save Mode
+                      <button className="button button-outline text-xs" type="submit">
+                        Update Topology
                       </button>
                     </form>
 
-                    {/* Add Agent Form */}
-                    <form action={createAgent} className="inline-form row-wrap">
-                      <input type="hidden" name="lane_id" value={lane.id} />
-                      <input name="name" placeholder="Agent title..." maxLength={120} required className="input-compact" />
-                      <select name="agent_type" defaultValue="worker" aria-label="Agent type">
-                        <option value="worker">Worker</option>
-                        <option value="supervisor">Supervisor</option>
-                      </select>
-                      <button className="button button-outline button-small" type="submit">
-                        + Agent
-                      </button>
-                    </form>
+                    {/* Agents assigned to this lane */}
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <h4 className="font-mono text-xs text-text-faint uppercase tracking-wider">
+                          Assigned Agents ({laneAgents.length})
+                        </h4>
+                        <form action={createAgent} className="inline-form gap-2">
+                          <input type="hidden" name="lane_id" value={lane.id} />
+                          <input type="hidden" name="department_id" value={activeDept.id} />
+                          <input name="name" placeholder="Agent name" required className="input text-xs py-1" />
+                          <button className="button button-outline text-xs py-1" type="submit">
+                            + Add Agent
+                          </button>
+                        </form>
+                      </div>
 
-                    {/* Delete Lane Form */}
-                    <form action={deleteLane} className="inline-form">
-                      <input type="hidden" name="lane_id" value={lane.id} />
-                      <label className="check-row text-xs">
-                        <input name="confirm_delete" type="checkbox" required />
-                        Delete
-                      </label>
-                      <button className="button button-outline button-small ml-1" type="submit">
-                        Remove
-                      </button>
-                    </form>
+                      {laneAgents.length === 0 ? (
+                        <p className="text-xs text-text-muted font-body italic">
+                          No agents assigned to this lane yet.
+                        </p>
+                      ) : (
+                        <div className="space-y-4">
+                          {laneAgents.map((agent) => {
+                            const files = (agentFiles || []).find((f) => f.agent_id === agent.id);
+
+                            return (
+                              <div key={agent.id} className="p-4 border border-border-2 bg-surface-2 rounded-sm space-y-4">
+                                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-hairline pb-3">
+                                  <div className="space-y-0.5">
+                                    <div className="flex items-center gap-2">
+                                      <strong className="font-display text-sm text-text font-semibold">
+                                        {agent.name}
+                                      </strong>
+                                      {agent.protected_config && (
+                                        <FlowbiteBadge color="pink" size="sm">
+                                          IP Protected
+                                        </FlowbiteBadge>
+                                      )}
+                                    </div>
+                                    <span className="font-mono text-xs text-text-faint">
+                                      Type: {agent.agent_type} · Recommended: {agent.recommended_tier}
+                                    </span>
+                                  </div>
+
+                                  <div className="flex items-center gap-3">
+                                    <form action={updateAgentModel} className="inline-form gap-2">
+                                      <input type="hidden" name="agent_id" value={agent.id} />
+                                      <input type="hidden" name="department_id" value={activeDept.id} />
+                                      <select
+                                        name="model_tier_override"
+                                        defaultValue={agent.model_tier_override || agent.recommended_tier}
+                                        className="bg-bg border border-border text-xs rounded-sm px-2 py-1 text-text"
+                                      >
+                                        <option value="free">Free Tier</option>
+                                        <option value="mid">Mid Tier</option>
+                                        <option value="quality">Quality Tier</option>
+                                      </select>
+                                      <button className="button button-outline text-xs py-1" type="submit">
+                                        Save Tier
+                                      </button>
+                                    </form>
+
+                                    <form action={deleteAgent}>
+                                      <input type="hidden" name="agent_id" value={agent.id} />
+                                      <input type="hidden" name="department_id" value={activeDept.id} />
+                                      <button className="text-red hover:underline text-xs font-mono" type="submit">
+                                        Remove
+                                      </button>
+                                    </form>
+                                  </div>
+                                </div>
+
+                                {/* 6-file Agent Contract Editor */}
+                                <AgentEditor
+                                  file={
+                                    files || {
+                                      agent_id: agent.id,
+                                      role: "",
+                                      soul: "",
+                                      jobdescription: "",
+                                      skills: "",
+                                      memory: "",
+                                      user_content: "",
+                                    }
+                                  }
+                                  action={updateAgentFiles}
+                                  isProtected={agent.protected_config}
+                                />
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
                   </div>
-
-                  {/* Agents in this lane */}
-                  <div className="lane-agents-list">
-                    {byLane(lane.id).length === 0 ? (
-                      <p className="muted text-sm">No agents assigned to this lane yet.</p>
-                    ) : (
-                      byLane(lane.id).map((agent) => (
-                        <article
-                          className="agent-row list-card mb-3"
-                          key={agent.id}
-                        >
-                          <div className="row-between mb-2">
-                            <div>
-                              <strong>{agent.name}</strong>
-                              <span className="muted ml-2 text-sm">
-                                {agent.agent_type} · recommended {agent.recommended_tier ?? "free"}
-                              </span>
-                            </div>
-
-                            {/* Model Tier Form */}
-                            <form action={updateAgentModel} className="inline-form row-wrap">
-                              <input type="hidden" name="agent_id" value={agent.id} />
-                              <label className="field-inline">
-                                Tier:
-                                <select name="recommended_tier" defaultValue={agent.recommended_tier ?? "free"} className="ml-1">
-                                  <option value="free">Free</option>
-                                  <option value="mid">Mid</option>
-                                  <option value="quality">Best</option>
-                                </select>
-                              </label>
-                              <button className="button button-outline button-small" type="submit">
-                                Save Tier
-                              </button>
-                            </form>
-
-                            {/* Delete Agent Form */}
-                            <form action={deleteAgent} className="inline-form">
-                              <input type="hidden" name="agent_id" value={agent.id} />
-                              <label className="check-row text-xs">
-                                <input name="confirm_delete" type="checkbox" required />
-                              </label>
-                              <button className="button button-outline button-small" type="submit" aria-label={`Remove ${agent.name}`}>
-                                Remove
-                              </button>
-                            </form>
-                          </div>
-
-                          {/* 6-File Agent Editor with IP Protection */}
-                          <AgentEditor
-                            file={fileFor(agent.id)}
-                            action={updateAgentFiles}
-                            isProtected={Boolean(agent.protected_config)}
-                          />
-                        </article>
-                      ))
-                    )}
-                  </div>
-                </div>
-              ))
-            )}
-          </section>
-        );
-      })}
+                </PrelineCard>
+              );
+            })}
+          </div>
+        </div>
+      )}
     </section>
   );
 }

@@ -1,19 +1,106 @@
 import { getWorkspaceContext } from "@/lib/studio/workspace";
+import { PrelineCard } from "@/components/blocks/preline/preline-card";
+import { FlowbiteBadge } from "@/components/blocks/flowbite/flowbite-badge";
+import { KometaStats, type StatItem } from "@/components/blocks/kometa/kometa-stats";
 
 export const metadata = { title: "Credits & Billing" };
 
 export default async function BillingPage() {
   const { supabase } = await getWorkspaceContext();
-  const [{ data: account }, { data: ledger }, { data: products }, { data: purchases }] = await Promise.all([
+  const [{ data: account }, { data: ledger }, { data: products }] = await Promise.all([
     supabase.from("credit_accounts").select("available, reserved, debt, updated_at").single(),
     supabase.from("credit_ledger").select("id, amount, entry_type, created_at, metadata").order("created_at", { ascending: false }).limit(30),
     supabase.from("commerce_products").select("key, name, description, kind, credit_amount, catalog_agent_id").eq("active", true),
-    supabase.from("purchases").select("id, product_key, status, created_at").order("created_at", { ascending: false }).limit(20),
   ]);
-  return <section className="product-page shell" data-archetype="B3-B">
-    <h1>Spend stays visible.</h1>
-    <p className="lede">Credits, packs, protected hires, and every ledger entry in one place.</p>
-    <div className="credit-hero"><div><strong>{account?.available ?? 0}</strong><span>available credits</span></div><div><strong>{account?.reserved ?? 0}</strong><span>reserved for active work{account?.debt ? ` · ${account.debt} credit debt after refund` : ""}</span></div></div>
-    <div className="workspace-split"><section className="panel"><h2>Credit packs & protected hires</h2>{products?.length ? <div className="catalog-list">{products.map((product) => <article className="catalog-row" key={product.key}><div><strong>{product.name}</strong><p className="muted">{product.description}</p></div><form action="/api/checkout" method="post"><input type="hidden" name="product" value={product.key} /><button className="button button-primary" type="submit">Buy with Stripe</button></form></article>)}</div> : <div className="empty-state"><p>Checkout catalog is not configured yet.</p></div>}</section><section className="panel"><h2>Ledger</h2>{ledger?.length ? <ul className="event-list">{ledger.map((entry) => <li key={entry.id}><strong>{entry.entry_type}</strong><span>{entry.amount > 0 ? "+" : ""}{entry.amount}</span><time dateTime={entry.created_at}>{new Date(entry.created_at).toLocaleString()}</time></li>)}</ul> : <p className="muted">No credit activity.</p>}<h2 className="subhead">Purchases</h2>{purchases?.length ? <ul className="event-list">{purchases.map((purchase) => <li key={purchase.id}><strong>{purchase.product_key}</strong><span>{purchase.status}</span><time dateTime={purchase.created_at}>{new Date(purchase.created_at).toLocaleString()}</time></li>)}</ul> : <p className="muted">No purchases.</p>}</section></div>
-  </section>;
+
+  const stats: StatItem[] = [
+    {
+      label: "Available Credits",
+      value: String(account?.available ?? 0),
+      subtext: "Ready for generation jobs",
+    },
+    {
+      label: "Reserved Credits",
+      value: String(account?.reserved ?? 0),
+      subtext: account?.debt ? `${account.debt} credit debt after refund` : "Allocated for active tasks",
+    },
+  ];
+
+  return (
+    <section className="product-page shell" data-archetype="B3-B">
+      <div className="mb-8 space-y-2">
+        <h1 className="font-display text-3xl sm:text-4xl font-bold text-text">
+          Spend stays visible.
+        </h1>
+        <p className="text-base text-text-muted font-body">
+          Credits, packs, protected hires, and every ledger entry in one place.
+        </p>
+      </div>
+
+      <div className="mb-8">
+        <KometaStats stats={stats} columns={2} />
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+        <div className="space-y-6">
+          <PrelineCard
+            kicker="Stripe Checkout"
+            title="Credit packs & protected hires"
+            subtitle="Top up your studio balance"
+          >
+            {products?.length ? (
+              <div className="space-y-3">
+                {products.map((product) => (
+                  <div key={product.key} className="p-4 border border-border-2 bg-surface-2 rounded-sm flex items-center justify-between gap-4">
+                    <div className="space-y-0.5">
+                      <strong className="font-display text-sm text-text block">
+                        {product.name}
+                      </strong>
+                      <p className="text-xs text-text-muted font-body">
+                        {product.description}
+                      </p>
+                    </div>
+                    <form action="/api/checkout" method="post">
+                      <input type="hidden" name="product" value={product.key} />
+                      <button className="button button-primary text-xs" type="submit">
+                        Buy with Stripe
+                      </button>
+                    </form>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-xs text-text-muted font-body">Checkout catalog is not configured yet.</p>
+            )}
+          </PrelineCard>
+        </div>
+
+        <div className="space-y-6">
+          <PrelineCard
+            kicker="Immutable Accounting"
+            title="Transaction Ledger"
+            subtitle={`${ledger?.length ?? 0} recent balance entries`}
+          >
+            {ledger?.length ? (
+              <div className="space-y-2 max-h-96 overflow-y-auto">
+                {ledger.map((entry) => (
+                  <div key={entry.id} className="p-3 border border-border-2 bg-surface-2 rounded-sm flex items-center justify-between text-xs font-mono">
+                    <div>
+                      <strong className="text-text capitalize block">{entry.entry_type.replaceAll("_", " ")}</strong>
+                      <small className="text-text-faint">{new Date(entry.created_at).toLocaleString()}</small>
+                    </div>
+                    <FlowbiteBadge color={entry.amount >= 0 ? "lime" : "amber"} size="sm">
+                      {entry.amount >= 0 ? `+${entry.amount}` : entry.amount} credits
+                    </FlowbiteBadge>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-xs text-text-muted font-body">No ledger activity yet.</p>
+            )}
+          </PrelineCard>
+        </div>
+      </div>
+    </section>
+  );
 }

@@ -1,116 +1,139 @@
 import { createChannel } from "@/app/(product)/actions";
 import { getWorkspaceContext } from "@/lib/studio/workspace";
 import { evaluateMarketingChecklist, MARKETING_AGENT_ROLES } from "@/lib/studio/marketing";
+import { PrelineCard } from "@/components/blocks/preline/preline-card";
+import { FlowbiteBadge } from "@/components/blocks/flowbite/flowbite-badge";
 
 export const metadata = { title: "Marketing Workbench" };
 
 export default async function MarketingPage() {
   const { supabase } = await getWorkspaceContext();
-  const { data: channels } = await supabase.from("channels").select("id, name, audience, voice, cadence, pillars").order("created_at");
-  const { data: onboarding } = await supabase.from("onboarding_profiles").select("studio_identity, channel_setup, lane_handoffs, missing_data_notes").maybeSingle();
+  const { data: channels } = await supabase
+    .from("channels")
+    .select("id, name, audience, voice, cadence, pillars")
+    .order("created_at");
+  const { data: onboarding } = await supabase
+    .from("onboarding_profiles")
+    .select("studio_identity, channel_setup, lane_handoffs, missing_data_notes")
+    .maybeSingle();
 
   const checklist = evaluateMarketingChecklist(onboarding ?? {});
 
   return (
     <section className="product-page shell" data-archetype="B1-B">
-      <h1>Marketing &amp; Studio Brand.</h1>
-      <p className="lede">Direct studio brand strategy, audience positioning, and channel continuity across all production slates.</p>
+      <div className="mb-8 space-y-2">
+        <h1 className="font-display text-3xl sm:text-4xl font-bold text-text">
+          Marketing &amp; Studio Brand.
+        </h1>
+        <p className="text-base text-text-muted font-body">
+          Direct studio brand strategy, audience positioning, and channel continuity across all production slates.
+        </p>
+      </div>
 
-      <div className="workspace-split mt-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
         {/* Left Column: Brand & Setup Checklist */}
-        <div className="stack-lg">
-          <section className="panel">
-            <h2>Setup &amp; Brand Checklist</h2>
-            <p className="muted">Track core studio identity and channel brief requirements before launching production.</p>
-            <div className="stack mt-4">
+        <div className="space-y-6">
+          <PrelineCard
+            kicker="Strategy Audit"
+            title="Setup & Brand Checklist"
+            subtitle="Track core studio identity and channel brief requirements"
+          >
+            <div className="space-y-3">
               {checklist.map((item) => (
-                <div
-                  key={item.id}
-                  className="split-row text-xs"
-                >
-                  <div>
-                    <strong>{item.label}</strong>
-                    <p className="muted m-0">{item.description}</p>
+                <div key={item.id} className="p-3 border border-border-2 bg-surface-2 rounded-sm flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <span className="font-body text-sm text-text font-medium block">
+                      {item.label}
+                    </span>
+                    <span className="text-xs text-text-muted font-mono">
+                      {item.description}
+                    </span>
                   </div>
-                  <span className={`status-pill is-${item.status}`}>
+                  <FlowbiteBadge color={item.status === "complete" ? "lime" : "amber"} size="sm">
                     {item.status}
-                  </span>
+                  </FlowbiteBadge>
                 </div>
               ))}
             </div>
-          </section>
+          </PrelineCard>
 
-          <section className="panel marketing-brief">
-            <h2>Add / Refine Channel Brief</h2>
-            <p className="muted">Define audience, voice, cadence, and content pillars for a production channel.</p>
-            <form action={createChannel} className="stack-form mt-4">
-              <label>Channel name
-                <input name="name" maxLength={120} required placeholder="e.g. Cyberpunk Noir Shorts" />
+          <PrelineCard
+            kicker="Channel Creation"
+            title="Add / Refine Channel Brief"
+            subtitle="Define audience, voice, cadence, and content pillars"
+          >
+            <form action={createChannel} className="stack-form">
+              <label>
+                Channel Name
+                <input name="name" maxLength={120} required placeholder="Main Studio YouTube / TikTok" />
               </label>
-              <label>Target audience
-                <textarea name="audience" maxLength={500} rows={2} placeholder="Who should care, and why?" />
+              <label>
+                Audience Demographics
+                <textarea name="audience" maxLength={500} rows={2} placeholder="Who is the target audience?" />
               </label>
-              <label>Voice &amp; Visual aesthetic
-                <textarea name="voice" maxLength={500} rows={2} placeholder="Measured, strange, visually bold, neon shadows" />
+              <label>
+                Brand Voice
+                <textarea name="voice" maxLength={500} rows={2} placeholder="Tone, vocabulary, perspective" />
               </label>
-              <div className="form-grid">
-                <label>Cadence
-                  <input name="cadence" maxLength={120} placeholder="e.g. Bi-weekly releases" />
-                </label>
-                <label>Content pillars
-                  <input name="pillars" maxLength={500} placeholder="Hard sci-fi, AI ethics, deep space" />
-                </label>
-              </div>
-              <button className="button button-primary" type="submit">Save Channel Brief</button>
+              <label>
+                Release Cadence
+                <input name="cadence" maxLength={120} placeholder="e.g. Weekly, 3x / month" />
+              </label>
+              <label>
+                Content Pillars (comma-separated)
+                <input name="pillars" maxLength={500} placeholder="Sci-Fi, Character Lore, VFX breakdown" />
+              </label>
+              <button className="button button-primary" type="submit">
+                Create Channel
+              </button>
             </form>
-          </section>
+          </PrelineCard>
         </div>
 
         {/* Right Column: Marketing Agent Team & Active Channels */}
-        <div className="stack-lg">
-          <section className="panel">
-            <h2>Marketing Department Roster</h2>
-            <p className="muted">Six specialized agent roles managing brand continuity and audience intelligence.</p>
-            <div className="stack mt-4">
+        <div className="space-y-6">
+          <PrelineCard
+            kicker="Agent Specialization"
+            title="Marketing Department Roster"
+            subtitle="Six specialized agent roles managing brand continuity"
+          >
+            <div className="space-y-3">
               {MARKETING_AGENT_ROLES.map((role) => (
-                <article
-                  key={role.slug}
-                  className="role-card"
-                >
-                  <div className="row-between">
-                    <strong>{role.name}</strong>
-                    <span className="mono text-xs accent">
-                      6 files
+                <div key={role.slug} className="p-3 border border-border-2 bg-surface-2 rounded-sm space-y-1">
+                  <div className="flex items-center justify-between">
+                    <strong className="font-display text-sm font-semibold text-text">
+                      {role.name}
+                    </strong>
+                    <span className="font-mono text-xs text-cyan">
+                      {role.slug}
                     </span>
                   </div>
-                  <p className="muted text-xs m-0">{role.summary}</p>
-                </article>
+                  <p className="text-xs text-text-muted font-body">
+                    {role.summary}
+                  </p>
+                </div>
               ))}
             </div>
-          </section>
+          </PrelineCard>
 
-          <section className="panel">
-            <h2>Active Channels</h2>
+          <PrelineCard
+            kicker="Active Channels"
+            title="Registered Outlets"
+            subtitle={`${channels?.length ?? 0} active channels`}
+          >
             {channels?.length ? (
-              <div className="stack mt-4">
+              <div className="space-y-2">
                 {channels.map((ch) => (
-                  <article
-                    key={ch.id}
-                    className="channel-brief"
-                  >
-                    <strong>{ch.name}</strong>
-                    <p className="muted text-xs m-0 mt-1">
-                      {ch.audience ? `Audience: ${ch.audience}` : "Open audience"} · {ch.cadence || "Continuous"}
-                    </p>
-                  </article>
+                  <div key={ch.id} className="p-3 border border-border-2 bg-surface-2 rounded-sm flex items-center justify-between">
+                    <strong className="font-display text-sm text-text">{ch.name}</strong>
+                    <span className="font-mono text-xs text-text-faint">{ch.cadence || "Open cadence"}</span>
+                  </div>
                 ))}
               </div>
             ) : (
-              <div className="empty-state mt-4">
-                <p>No channels configured yet. Create one on the left or via studio onboarding.</p>
-              </div>
+              <p className="text-xs text-text-muted font-body">No channels created yet.</p>
             )}
-          </section>
+          </PrelineCard>
         </div>
       </div>
     </section>

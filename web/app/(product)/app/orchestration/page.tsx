@@ -1,7 +1,13 @@
 import { createClient } from "@/lib/supabase/server";
-import { CreateForm } from "@/components/product/create-form";
-import { ExecutionLive } from "@/components/product/execution-live";
-import { createDefaultWorkflow, createWorkflow, createHandoffRule, deleteHandoffRule, deleteWorkflow, startWorkflowExecution, updateWorkflow } from "@/app/(product)/actions";
+import {
+  createDefaultWorkflow,
+  createHandoffRule,
+  deleteHandoffRule,
+  deleteWorkflow,
+  startWorkflowExecution,
+} from "@/app/(product)/actions";
+import { PrelineCard } from "@/components/blocks/preline/preline-card";
+import { FlowbiteBadge } from "@/components/blocks/flowbite/flowbite-badge";
 
 export const metadata = { title: "Orchestration" };
 
@@ -48,135 +54,215 @@ type ExecutionStep = {
   completed_at: string | null;
 };
 
-export default async function OrchestrationPage({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
+export default async function OrchestrationPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string }>;
+}) {
+  const params = await searchParams;
   const supabase = await createClient();
-  const [{ data: workflows }, { data: lanes }, { data: agents }, { data: executions }, { data: steps }, { data: rules }] = await Promise.all([
-    supabase.from("workflows").select("id, name, description").order("name"),
+
+  const [
+    { data: workflows },
+    { data: lanes },
+    { data: agents },
+    { data: rules },
+    { data: executions },
+    { data: steps },
+  ] = await Promise.all([
+    supabase.from("workflows").select("id, name, description").order("created_at", { ascending: false }),
     supabase.from("lanes").select("id, name").order("name"),
     supabase.from("agents").select("id, name").order("name"),
-    supabase.from("executions").select("*").order("created_at", { ascending: false }),
-    supabase.from("execution_steps").select("*").order("created_at"),
-    supabase.from("handoff_rules").select("*").order("workflow_id, position"),
+    supabase.from("workflow_handoff_rules").select("id, workflow_id, position, source_kind, source_lane_id, source_agent_id, target_kind, target_lane_id, target_agent_id, trigger_event").order("position"),
+    supabase.from("workflow_executions").select("id, workflow_id, status, current_lane_id, current_agent_id, context, started_at, completed_at, created_at").order("created_at", { ascending: false }).limit(5),
+    supabase.from("workflow_execution_steps").select("id, execution_id, handoff_rule_id, target_kind, target_lane_id, target_agent_id, status, input_payload, output_payload, error_message, started_at, completed_at").order("started_at", { ascending: true }),
   ]);
-  const params = await searchParams;
-  const workflowList = (workflows as Workflow[] | null) ?? [];
-  const laneList = (lanes as Lane[] | null) ?? [];
-  const agentList = (agents as Agent[] | null) ?? [];
-  const executionList = (executions as Execution[] | null) ?? [];
-  const stepList = (steps as ExecutionStep[] | null) ?? [];
-  const ruleList = (rules as HandoffRule[] | null) ?? [];
-  const targetName = (rule: HandoffRule) =>
-    rule.target_kind === "lane"
-      ? laneList.find((l) => l.id === rule.target_lane_id)?.name ?? "lane"
-      : agentList.find((a) => a.id === rule.target_agent_id)?.name ?? "agent";
+
+  const activeWorkflows = (workflows || []) as Workflow[];
+  const activeLanes = (lanes || []) as Lane[];
+  const activeAgents = (agents || []) as Agent[];
+  const activeRules = (rules || []) as HandoffRule[];
+  const activeExecutions = (executions || []) as Execution[];
+  const activeSteps = (steps || []) as ExecutionStep[];
+
   return (
     <section className="product-page shell" data-archetype="B2-A">
-      <h1>Agents move on rails.</h1>
-      <p className="lede">Workflows, handoff rules, lanes, and executions with visible state.</p>
-      {params.error && <p className="form-error" role="alert">Unable to save that orchestration record.</p>}
+      <div className="mb-8 space-y-2">
+        <h1 className="font-display text-3xl sm:text-4xl font-bold text-text">
+          Workflow Orchestration.
+        </h1>
+        <p className="text-base text-text-muted font-body">
+          Define deterministic DAG handoff rules across lanes and agents with real-time execution telemetry.
+        </p>
+      </div>
 
-      <section className="builder-section">
-        <div className="section-head">
-          <h2>Workflows</h2>
-          <div className="inline-form"><CreateForm action={createWorkflow} label="New workflow" field="name" placeholder="Campaign pipeline" /><form action={createDefaultWorkflow}><button className="button button-outline" type="submit">Add default template</button></form></div>
-        </div>
-        {workflowList.map((workflow) => (
-          <article className="panel" key={workflow.id}>
-            <div className="section-head">
-              <div><h3>{workflow.name}</h3><form action={updateWorkflow} className="inline-form"><input type="hidden" name="workflow_id" value={workflow.id} /><input name="name" defaultValue={workflow.name} maxLength={120} required /><button className="button button-outline" type="submit">Rename</button></form></div>
-              <form action={startWorkflowExecution} className="inline-form">
-                <input type="hidden" name="workflow_id" value={workflow.id} />
-                <label>Initial brief (JSON)<input name="brief" placeholder='{"channel": "main"}' defaultValue="{}" /></label>
-                <button className="button button-outline" type="submit">Start execution</button>
+      {params.error && (
+        <p className="form-error mb-6" role="alert">
+          {params.error === "workflow"
+            ? "Workflow could not be saved."
+            : params.error === "rule"
+            ? "Handoff rule could not be created."
+            : "Orchestration operation failed."}
+        </p>
+      )}
+
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        {/* Workflows & Handoff Rules */}
+        <div className="lg:col-span-7 space-y-6">
+          <PrelineCard
+            kicker="DAG Configuration"
+            title="Workflows & Handoffs"
+            subtitle={`${activeWorkflows.length} configured workflows`}
+            action={
+              <form action={createDefaultWorkflow}>
+                <button className="button button-outline text-xs" type="submit">
+                  + Add Default Flow
+                </button>
               </form>
-            </div>
-              <form action={deleteWorkflow} className="inline-form">
-                <input type="hidden" name="workflow_id" value={workflow.id} />
-                <label className="check-row"><input name="confirm_delete" type="checkbox" required />Delete workflow</label>
-                <button className="button button-outline" type="submit">Delete workflow</button>
-              </form>
-            <p className="muted">{workflow.description || "No description"}</p>
-            <div className="section-head mt-6">
-              <h4>Handoff rules</h4>
-              <details>
-                <summary className="text-link">New rule</summary>
-                <form action={createHandoffRule} className="inline-form">
-                  <input type="hidden" name="workflow_id" value={workflow.id} />
-                  <label>From
-                    <select name="source" required>
-                      <option value="">Pick source…</option>
-                      <optgroup label="Lanes">
-                        {laneList.map((l) => (
-                          <option key={l.id} value={`lane:${l.id}`}>{l.name}</option>
-                        ))}
-                      </optgroup>
-                      <optgroup label="Agents">
-                        {agentList.map((a) => (
-                          <option key={a.id} value={`agent:${a.id}`}>{a.name}</option>
-                        ))}
-                      </optgroup>
-                    </select>
-                  </label>
-                  <label>To
-                    <select name="target" required>
-                      <option value="">Pick target…</option>
-                      <optgroup label="Lanes">
-                        {laneList.map((l) => (
-                          <option key={l.id} value={`lane:${l.id}`}>{l.name}</option>
-                        ))}
-                      </optgroup>
-                      <optgroup label="Agents">
-                        {agentList.map((a) => (
-                          <option key={a.id} value={`agent:${a.id}`}>{a.name}</option>
-                        ))}
-                      </optgroup>
-                    </select>
-                  </label>
-                  <label>Trigger
-                    <select name="trigger_event" defaultValue="completion">
-                      <option value="completion">On completion</option>
-                      <option value="approval">On approval</option>
-                      <option value="manual">Manual</option>
-                      <option value="timeout">On timeout</option>
-                    </select>
-                  </label>
-                  <label>Conditions (JSON)<input name="conditions" placeholder='[{"field":"status","value":"approved"}]' /></label>
-                  <label>Payload mapping (JSON)<input name="payload_mapping" placeholder='{"documents":"documents"}' /></label>
-                  <button className="button button-primary" type="submit">Add rule</button>
-                </form>
-              </details>
-            </div>
-            {ruleList.filter((rule) => rule.workflow_id === workflow.id).length === 0 ? (
-              <p className="muted">No handoff rules yet.</p>
+            }
+          >
+            {activeWorkflows.length === 0 ? (
+              <div className="empty-state p-4">
+                <p>No workflows configured. Create a default DAG to begin.</p>
+              </div>
             ) : (
-              <ul className="flow flow-grid">
-                {ruleList.filter((rule) => rule.workflow_id === workflow.id).map((rule) => (
-                  <li key={rule.id} className="rule-item">
-                    <span className="dot cyan" />
-                    <strong>#{rule.position} {rule.source_kind} → {targetName(rule)}</strong>
-                    <small>{rule.trigger_event}</small>
-                    <form action={deleteHandoffRule} className="inline-form mt-1">
-                      <input type="hidden" name="rule_id" value={rule.id} />
-                      <button className="button button-outline button-compact" type="submit">Remove</button>
-                    </form>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </article>
-        ))}
-      </section>
+              <div className="space-y-6">
+                {activeWorkflows.map((wf) => {
+                  const wfRules = activeRules.filter((r) => r.workflow_id === wf.id);
 
-      <section className="builder-section">
-        <div className="section-head">
-          <h2>Executions</h2>
+                  return (
+                    <div key={wf.id} className="p-4 border border-border-2 bg-surface-2 rounded-sm space-y-4">
+                      <div className="flex items-center justify-between">
+                        <div className="space-y-0.5">
+                          <strong className="font-display text-base text-text">{wf.name}</strong>
+                          <p className="text-xs text-text-muted font-body">{wf.description}</p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <form action={startWorkflowExecution}>
+                            <input type="hidden" name="workflow_id" value={wf.id} />
+                            <button className="button button-primary text-xs" type="submit">
+                              Run Flow ▶
+                            </button>
+                          </form>
+                          <form action={deleteWorkflow}>
+                            <input type="hidden" name="workflow_id" value={wf.id} />
+                            <button className="text-red hover:underline text-xs font-mono" type="submit">
+                              Delete
+                            </button>
+                          </form>
+                        </div>
+                      </div>
+
+                      {/* Rule List */}
+                      <div className="space-y-2 pt-2 border-t border-hairline">
+                        <span className="font-mono text-xs text-text-faint uppercase">
+                          Handoff Rules ({wfRules.length})
+                        </span>
+                        {wfRules.map((rule) => {
+                          const srcName = rule.source_kind === "lane"
+                            ? activeLanes.find((l) => l.id === rule.source_lane_id)?.name ?? "Unknown Lane"
+                            : activeAgents.find((a) => a.id === rule.source_agent_id)?.name ?? "Unknown Agent";
+                          const tgtName = rule.target_kind === "lane"
+                            ? activeLanes.find((l) => l.id === rule.target_lane_id)?.name ?? "Unknown Lane"
+                            : activeAgents.find((a) => a.id === rule.target_agent_id)?.name ?? "Unknown Agent";
+
+                          return (
+                            <div key={rule.id} className="p-2 border border-border bg-surface rounded-sm flex items-center justify-between text-xs font-mono">
+                              <span>
+                                {rule.position}. [{rule.source_kind}] {srcName} → [{rule.target_kind}] {tgtName} ({rule.trigger_event})
+                              </span>
+                              <form action={deleteHandoffRule}>
+                                <input type="hidden" name="rule_id" value={rule.id} />
+                                <button className="text-red hover:underline text-xs" type="submit">✕</button>
+                              </form>
+                            </div>
+                          );
+                        })}
+
+                        {/* Add Rule Form */}
+                        <form action={createHandoffRule} className="inline-form pt-2 gap-2 flex-wrap text-xs">
+                          <input type="hidden" name="workflow_id" value={wf.id} />
+                          <select name="source_kind" defaultValue="lane" className="bg-bg border border-border text-xs rounded-sm p-1">
+                            <option value="lane">Source: Lane</option>
+                            <option value="agent">Source: Agent</option>
+                          </select>
+                          <select name="source_id" className="bg-bg border border-border text-xs rounded-sm p-1">
+                            {activeLanes.map((l) => (
+                              <option key={l.id} value={l.id}>Lane: {l.name}</option>
+                            ))}
+                            {activeAgents.map((a) => (
+                              <option key={a.id} value={a.id}>Agent: {a.name}</option>
+                            ))}
+                          </select>
+                          <span>→</span>
+                          <select name="target_kind" defaultValue="lane" className="bg-bg border border-border text-xs rounded-sm p-1">
+                            <option value="lane">Target: Lane</option>
+                            <option value="agent">Target: Agent</option>
+                          </select>
+                          <select name="target_id" className="bg-bg border border-border text-xs rounded-sm p-1">
+                            {activeLanes.map((l) => (
+                              <option key={l.id} value={l.id}>Lane: {l.name}</option>
+                            ))}
+                            {activeAgents.map((a) => (
+                              <option key={a.id} value={a.id}>Agent: {a.name}</option>
+                            ))}
+                          </select>
+                          <input name="trigger_event" defaultValue="completed" className="bg-bg border border-border text-xs rounded-sm p-1 w-24" />
+                          <button className="button button-outline text-xs py-1" type="submit">+ Rule</button>
+                        </form>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </PrelineCard>
         </div>
-        {executionList.length === 0 ? (
-          <p className="muted">No executions yet. Start a workflow above.</p>
-        ) : (
-          <ExecutionLive executions={executionList} steps={stepList} rules={ruleList} />
-        )}
-      </section>
+
+        {/* Live Telemetry / Executions */}
+        <div className="lg:col-span-5 space-y-6">
+          <PrelineCard
+            kicker="Live Telemetry"
+            title="Execution Stream"
+            subtitle="Real-time DAG progress & logs"
+          >
+            {activeExecutions.length === 0 ? (
+              <p className="text-xs text-text-muted font-body">No executions started yet.</p>
+            ) : (
+              <div className="space-y-4">
+                {activeExecutions.map((exec) => {
+                  const execSteps = activeSteps.filter((s) => s.execution_id === exec.id);
+
+                  return (
+                    <div key={exec.id} className="p-4 border border-border-2 bg-surface-2 rounded-sm space-y-3">
+                      <div className="flex items-center justify-between">
+                        <span className="font-mono text-xs text-text font-semibold">
+                          Run {exec.id.slice(0, 8)}
+                        </span>
+                        <FlowbiteBadge
+                          color={exec.status === "completed" ? "lime" : exec.status === "running" ? "cyan" : "amber"}
+                          size="sm"
+                        >
+                          {exec.status}
+                        </FlowbiteBadge>
+                      </div>
+
+                      <div className="space-y-1 text-xs font-mono">
+                        {execSteps.map((step, i) => (
+                          <div key={step.id} className="flex items-center justify-between text-text-muted p-1 bg-surface rounded-sm">
+                            <span>Step {i + 1}: {step.status}</span>
+                            <span className="text-text-faint">{step.started_at ? new Date(step.started_at).toLocaleTimeString() : "queued"}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </PrelineCard>
+        </div>
+      </div>
     </section>
   );
 }
