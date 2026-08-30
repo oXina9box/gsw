@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { PRO_PLANS, BYOK_PLANS, SELF_HOST_EDITION, PAYROLL_BUDGET_CATEGORIES } from "@/lib/studio/pricing";
+import { Reveal } from "@/components/blocks/reveal";
+import { KometaPricing, type PricingTier } from "@/components/blocks/kometa/kometa-pricing";
 
 export const metadata = {
   title: "Pricing & Editions",
@@ -7,6 +9,33 @@ export const metadata = {
 };
 
 export default function PricingPage() {
+  const proTiers: PricingTier[] = PRO_PLANS.map((plan) => ({
+    id: plan.id,
+    name: plan.name,
+    price: plan.price,
+    period: plan.period,
+    description: plan.description,
+    features: plan.features,
+    featured: plan.featured,
+    actionLabel: plan.cta,
+    actionHref: `/?auth=signup&plan=${plan.id}`,
+    badge: plan.featured ? "Featured" : undefined,
+    footnote: `${plan.channels} · ${plan.credits}`,
+  }));
+
+  const byokTiers: PricingTier[] = BYOK_PLANS.map((plan) => ({
+    id: plan.id,
+    name: plan.name,
+    price: plan.price,
+    period: plan.period,
+    description: plan.description,
+    features: plan.features,
+    featured: false,
+    actionLabel: plan.cta,
+    actionHref: `/?auth=signup&plan=${plan.id}`,
+    footnote: `${plan.channels} · ${plan.credits}`,
+  }));
+
   return (
     <article className="marketing-detail pricing-page" data-archetype="A1">
       <header className="detail-hero shell">
@@ -18,126 +47,76 @@ export default function PricingPage() {
       </header>
 
       {/* Pro Plans Section */}
-      <section className="pricing-section shell reveal-on-scroll" aria-label="Gem Studio Pro plans">
-        <div className="pricing-intro">
-          <div>
-            <p className="kicker">Pro Editions</p>
-            <h2>Managed Cloud · All Agents Included</h2>
-          </div>
-          <p>
-            Full studio access with bundled generation credits and all official protected agents included. You can also pair your own BYOK keys with any Pro plan.
-          </p>
+      <Reveal>
+        <div className="shell">
+          <KometaPricing
+            kicker="Pro Editions"
+            title="Managed Cloud · All Agents Included"
+            lede="Full studio access with bundled generation credits and all official protected agents included. You can also pair your own BYOK keys with any Pro plan."
+            tiers={proTiers}
+          />
         </div>
-
-        <div className="pricing-stack">
-          {PRO_PLANS.map((plan) => (
-            <article className={`pricing-card ${plan.featured ? "pricing-card-featured" : ""}`} key={plan.id}>
-              <div>
-                <span className="pricing-tier">{plan.channels} · {plan.credits}</span>
-                <h2>{plan.name}</h2>
-                <p className="pricing-price">
-                  <strong>{plan.price}</strong>
-                  {plan.period ? <small>{plan.period}</small> : null}
-                </p>
-                <p>{plan.description}</p>
-              </div>
-              <ul className="pricing-features">
-                {plan.features.map((feature) => (
-                  <li key={feature}>{feature}</li>
-                ))}
-              </ul>
-              <div className="pricing-action">
-                <Link className="button button-primary" href={`/?auth=signup&plan=${plan.id}`}>
-                  {plan.cta}
-                </Link>
-              </div>
-            </article>
-          ))}
-        </div>
-      </section>
+      </Reveal>
 
       {/* BYOK Subscriptions Section */}
-      <section className="pricing-section shell mt-6 reveal-on-scroll" aria-label="Gem Studio BYOK plans">
-        <div className="pricing-intro">
-          <div>
-            <p className="kicker">BYOK Subscriptions</p>
-            <h2>Pure API Execution · Zero Markup</h2>
-          </div>
-          <p>
-            Pay only for software workspace access. Connect your direct OpenAI &amp; Anthropic accounts with zero platform credit markup and built-in Agent Payroll budget controls.
-          </p>
+      <Reveal>
+        <div className="shell">
+          <KometaPricing
+            kicker="BYOK Subscriptions"
+            title="Pure API Execution · Zero Markup"
+            lede="Pay only for software workspace access. Connect your direct OpenAI & Anthropic accounts with zero platform credit markup and built-in Agent Payroll budget controls."
+            tiers={byokTiers}
+          />
         </div>
-
-        <div className="pricing-stack">
-          {BYOK_PLANS.map((plan) => (
-            <article className="pricing-card" key={plan.id}>
-              <div>
-                <span className="pricing-tier">{plan.channels} · {plan.credits}</span>
-                <h2>{plan.name}</h2>
-                <p className="pricing-price">
-                  <strong>{plan.price}</strong>
-                  {plan.period ? <small>{plan.period}</small> : null}
-                </p>
-                <p>{plan.description}</p>
-              </div>
-              <ul className="pricing-features">
-                {plan.features.map((feature) => (
-                  <li key={feature}>{feature}</li>
-                ))}
-              </ul>
-              <div className="pricing-action">
-                <Link className="button button-primary" href={`/?auth=signup&plan=${plan.id}`}>
-                  {plan.cta}
-                </Link>
-              </div>
-            </article>
-          ))}
-        </div>
-      </section>
+      </Reveal>
 
       {/* Payroll Budget Section */}
-      <section className="payroll-section shell reveal-on-scroll" aria-labelledby="payroll-title">
-        <div className="payroll-copy">
-          <p className="kicker">Payroll Budget</p>
-          <h2 id="payroll-title">Plan the humans &amp; agents around the pipeline.</h2>
-          <p>
-            Payroll budget represents the recurring financial reserves allocated for your team and model execution. Gem Studio gives you a unified control center to balance human talent and AI agent operations.
-          </p>
-        </div>
-        <div className="payroll-ledger" aria-label="Payroll budget categories">
-          {PAYROLL_BUDGET_CATEGORIES.map((cat) => (
-            <div key={cat.id}>
-              <span>{cat.id}</span>
-              <strong>{cat.title}</strong>
-              <small>{cat.description}</small>
-            </div>
-          ))}
-        </div>
-      </section>
+      <Reveal>
+        <section className="payroll-section shell" aria-labelledby="payroll-title">
+          <div className="payroll-copy">
+            <p className="kicker">Payroll Budget</p>
+            <h2 id="payroll-title">Plan the humans &amp; agents around the pipeline.</h2>
+            <p>
+              Payroll budget represents the recurring financial reserves allocated for your team and model execution. Gem Studio gives you a unified control center to balance human talent and AI agent operations.
+            </p>
+          </div>
+          <div className="payroll-ledger" aria-label="Payroll budget categories">
+            {PAYROLL_BUDGET_CATEGORIES.map((cat) => (
+              <div key={cat.id}>
+                <span>{cat.id}</span>
+                <strong>{cat.title}</strong>
+                <small>{cat.description}</small>
+              </div>
+            ))}
+          </div>
+        </section>
+      </Reveal>
 
       {/* Self Host Section */}
-      <section className="open-source-section shell reveal-on-scroll" aria-labelledby="open-source-title">
-        <div>
-          <p className="kicker">Self Host Edition</p>
-          <h2 id="open-source-title">{SELF_HOST_EDITION.name}</h2>
-          <p>
-            {SELF_HOST_EDITION.description} Complete data sovereignty, 100% BYOK execution, configurable channel limits, and custom 6-file agent authoring.
-          </p>
-          <ul className="pricing-features pricing-features-flat mt-4 mb-4">
-            {SELF_HOST_EDITION.features.map((feature) => (
-              <li key={feature}>{feature}</li>
-            ))}
-          </ul>
-        </div>
-        <div className="row-wrap">
-          <Link className="button button-primary" href="https://github.com/oXina9box/gem-studio" target="_blank" rel="noreferrer">
-            {SELF_HOST_EDITION.cta}
-          </Link>
-          <Link className="button button-outline" href="/docs/self-host-community">
-            Read Self-Host Guide
-          </Link>
-        </div>
-      </section>
+      <Reveal>
+        <section className="open-source-section shell" aria-labelledby="open-source-title">
+          <div>
+            <p className="kicker">Self Host Edition</p>
+            <h2 id="open-source-title">{SELF_HOST_EDITION.name}</h2>
+            <p>
+              {SELF_HOST_EDITION.description} Complete data sovereignty, 100% BYOK execution, configurable channel limits, and custom 6-file agent authoring.
+            </p>
+            <ul className="pricing-features pricing-features-flat mt-4 mb-4">
+              {SELF_HOST_EDITION.features.map((feature) => (
+                <li key={feature}>{feature}</li>
+              ))}
+            </ul>
+          </div>
+          <div className="row-wrap">
+            <Link className="button button-primary" href="https://github.com/oXina9box/gem-studio" target="_blank" rel="noreferrer">
+              {SELF_HOST_EDITION.cta}
+            </Link>
+            <Link className="button button-outline" href="/docs/self-host-community">
+              Read Self-Host Guide
+            </Link>
+          </div>
+        </section>
+      </Reveal>
     </article>
   );
 }

@@ -209,3 +209,40 @@ All routes must strictly select and implement one of the following canonical arc
 3. **Floating Island Cards**: Never create detached rounded cards with standard drop shadows. Always use connected 1px border grids (`border-top/left` on parent, `border-right/bottom` on children) with `--color-surface` fills.
 4. **Un-tokenized Colors**: Never use raw hex/RGB. Colors strictly constrained to Pink (`350`), Cyan (`205`), Lime (`145`), Amber (`75`), and Red (`25`).
 5. **Custom Header/Footer**: Never create custom headers or footers inside page routes. All pages use `<SiteFooter />` and either `<SiteHeader />` (Core A) or `<StudioNav />` (Core B).
+
+---
+
+## 6. Block Component System & Pack Mapping
+
+All page presentation layers are assembled from strictly typed, tokenized block components in `web/components/blocks/`.
+
+### 6.1 Kometa Design System (Marketing & Editorial)
+* **Kometa Header (`kometa-header.tsx`)**: Responsive dark header with backdrop blur and token navigation links.
+* **Kometa Footer (`kometa-footer.tsx`)**: 5-column editorial footer with status badge and legal attribution.
+* **Kometa Hero (`kometa-hero.tsx`)**: Editorial flagship hero section with eyebrow, headline, lede, and actions.
+* **Kometa Features Grid (`kometa-features-grid.tsx`)**: Connected 2x2 or 3x3 matrix with mono numbers and chromatic signals.
+* **Kometa Steps (`kometa-steps.tsx`)**: Multi-stage production timeline and execution workflow.
+* **Kometa Pricing (`kometa-pricing.tsx`)**: Tier comparisons with cyan highlight for featured pro editions.
+* **Kometa Stats (`kometa-stats.tsx`)**: KPI metric counters with tabular numbers and trend delta indicators.
+* **Kometa Contact (`kometa-contact.tsx`)**: Split contact card with coordinate details and form slot.
+* **Kometa Content (`kometa-content.tsx`)**: Editorial showcase and master reel teaser grids.
+
+### 6.2 Preline UI (Workbench & Product)
+* **Preline Login Card (`preline-login-card.tsx`)**: Centered authentication gateway container.
+* **Preline Modal (`preline-modal.tsx`)**: Accessible dialog with focus trapping and backdrop blur.
+* **Preline Stepper (`preline-stepper.tsx`)**: Step progress bar for onboarding and pipeline status.
+* **Preline Tabs (`preline-tabs.tsx`)**: Accessible module tabs and page subnavigation.
+* **Preline Accordion (`preline-accordion.tsx`)**: Expandable department and inspector panels.
+* **Preline Table (`preline-table.tsx`)**: High-density data tables for ledgers and rosters.
+* **Preline Sidebar (`preline-sidebar.tsx`)**: Sticky documentation and workspace navigation.
+* **Preline Card (`preline-card.tsx`)**: Workbench panel with header, status pill, and action menu.
+* **Preline Stats Grid (`preline-stats-grid.tsx`)**: 4-up telemetry and credit burn rate grid.
+
+### 6.3 Flowbite (Interactive Feedback & Utilities)
+* **Flowbite Breadcrumb (`flowbite-breadcrumb.tsx`)**: Hierarchical breadcrumb navigation trails.
+* **Flowbite Pagination (`flowbite-pagination.tsx`)**: Accessible pagination controls for docs and catalogs.
+* **Flowbite File Upload (`flowbite-file-upload.tsx`)**: Drag-and-drop shot file and take uploader.
+* **Flowbite Video (`flowbite-video.tsx`)**: Responsive video playback container with ambient border.
+* **Flowbite Badge (`flowbite-badge.tsx`)**: Chromatic status marks (`lime`, `cyan`, `pink`, `amber`, `red`).
+* **Flowbite Progress (`flowbite-progress.tsx`)**: Linear percentage progress indicator.
+* **Flowbite Timeline (`flowbite-timeline.tsx`)**: Vertical execution stream and audit logs.
