@@ -2,7 +2,7 @@
 
 OWNS: web/app/**, web/components/**, web/app/globals.css, web/tokens.css, design.md, docs/DESIGN.md
 
-Scope: Rebuild presentation layer of all 36 content pages on vendored pack blocks with a Tailwind v4 theme bridge. Data queries, server actions, RLS, routing, redirects untouched. Legacy page CSS in globals.css gets deleted as the last page using it migrates.
+Scope: Rebuild presentation layer of all 34 rendered pages on vendored pack blocks with a Tailwind v4 theme bridge. Data queries, server actions, RLS, routing, redirects untouched. Legacy page CSS in globals.css gets deleted as the last page using it migrates.
 
 - [ ] G1: Block coverage. Every rendered page uses a vendored block or Tailwind utilities. Redirect stubs and LegalDocument pages exempt.
   CHECK: cd web && node ../scripts/verify-blocks-coverage.mjs

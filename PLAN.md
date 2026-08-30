@@ -1,6 +1,6 @@
 # Plan: Blocks Wireframe Rebuild (3 packs, every page)
 
-Scope: Rebuild presentation layer of all 36 content pages on Kometa / Preline / Flowbite blocks. Approved wireframe plan 2026-08-30.
+Scope: Rebuild presentation layer of all 34 rendered pages on Kometa / Preline / Flowbite blocks. Approved wireframe plan 2026-08-30.
 Depth: tree 6
 Mode: orchestrated
 Harness: cline (model-router locked)
