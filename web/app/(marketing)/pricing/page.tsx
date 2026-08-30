@@ -1,7 +1,4 @@
-import Link from "next/link";
-import { PRO_PLANS, BYOK_PLANS, SELF_HOST_EDITION, PAYROLL_BUDGET_CATEGORIES } from "@/lib/studio/pricing";
-import { Reveal } from "@/components/blocks/reveal";
-import { KometaPricing, type PricingTier } from "@/components/blocks/kometa/kometa-pricing";
+import { KometaC2Section, KometaC3Section, KometaStepSection } from "@/components/blocks/kometa/kometa-approved-sections";
 
 export const metadata = {
   title: "Pricing & Editions",
@@ -9,114 +6,74 @@ export const metadata = {
 };
 
 export default function PricingPage() {
-  const proTiers: PricingTier[] = PRO_PLANS.map((plan) => ({
-    id: plan.id,
-    name: plan.name,
-    price: plan.price,
-    period: plan.period,
-    description: plan.description,
-    features: plan.features,
-    featured: plan.featured,
-    actionLabel: plan.cta,
-    actionHref: `/?auth=signup&plan=${plan.id}`,
-    badge: plan.featured ? "Featured" : undefined,
-    footnote: `${plan.channels} · ${plan.credits}`,
-  }));
-
-  const byokTiers: PricingTier[] = BYOK_PLANS.map((plan) => ({
-    id: plan.id,
-    name: plan.name,
-    price: plan.price,
-    period: plan.period,
-    description: plan.description,
-    features: plan.features,
-    featured: false,
-    actionLabel: plan.cta,
-    actionHref: `/?auth=signup&plan=${plan.id}`,
-    footnote: `${plan.channels} · ${plan.credits}`,
-  }));
-
   return (
-    <article className="marketing-detail pricing-page" data-archetype="A1">
-      <header className="detail-hero shell">
-        <p className="eyebrow"><span className="eyebrow-rule" /> Editions &amp; economics</p>
-        <h1>Choose your <span>production floor.</span></h1>
-        <p className="detail-lede">
-          Start with managed Cloud credits, bring your own API keys, or deploy on your own infrastructure. Scale when your slate or payroll budget is ready.
-        </p>
-      </header>
+    <article className="marketing-detail space-y-12 sm:space-y-16" data-archetype="A1">
+      {/* Section 1: [C2] Pricing model overview */}
+      <KometaC2Section
+        title={
+          <span>
+            Predictable studio tiers. <span className="text-amber">Zero per-seat penalties.</span>
+          </span>
+        }
+        lede="Pay for pipeline throughput, not headcount. Solo creators and full production teams scale freely on cloud and BYOK options."
+        pill1={{
+          title: "Pro Cloud ($49/mo)",
+          description: "All-inclusive managed credits, automated model routing, and cloud video rendering without managing keys."
+        }}
+        pill2={{
+          title: "BYOK Dedicated ($29/mo)",
+          description: "Bring your own OpenAI, Anthropic, and Replicate API keys. Pay pure wholesale inference costs."
+        }}
+        imageSrc="https://images.pexels.com/photos/3184339/pexels-photo-3184339.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260"
+        imageAlt="Gem Studio Pricing Models"
+        highlightColor="amber"
+      />
 
-      {/* Pro Plans Section */}
-      <Reveal>
-        <div className="shell">
-          <KometaPricing
-            kicker="Pro Editions"
-            title="Managed Cloud · All Agents Included"
-            lede="Full studio access with bundled generation credits and all official protected agents included. You can also pair your own BYOK keys with any Pro plan."
-            tiers={proTiers}
-          />
-        </div>
-      </Reveal>
+      {/* Section 2: [C3] Spotlight Comparison Cards */}
+      <KometaC3Section
+        items={[
+          {
+            title: "Pro Cloud Subscription",
+            description: "Direct access to all 13 departments with managed GPU rendering credits, automatic storage backups, and instant workspace provisioning.",
+            href: "/?auth=signup&plan=pro-monthly",
+          },
+          {
+            title: "BYOK Autonomous Stack",
+            description: "Plug in your existing API credentials with AES-256 vault encryption. Unlimited team collaborators and zero pipeline markup.",
+            href: "/?auth=signup&plan=byok-monthly",
+          },
+        ]}
+      />
 
-      {/* BYOK Subscriptions Section */}
-      <Reveal>
-        <div className="shell">
-          <KometaPricing
-            kicker="BYOK Subscriptions"
-            title="Pure API Execution · Zero Markup"
-            lede="Pay only for software workspace access. Connect your direct OpenAI & Anthropic accounts with zero platform credit markup and built-in Agent Payroll budget controls."
-            tiers={byokTiers}
-          />
-        </div>
-      </Reveal>
-
-      {/* Payroll Budget Section */}
-      <Reveal>
-        <section className="payroll-section shell" aria-labelledby="payroll-title">
-          <div className="payroll-copy">
-            <p className="kicker">Payroll Budget</p>
-            <h2 id="payroll-title">Plan the humans &amp; agents around the pipeline.</h2>
-            <p>
-              Payroll budget represents the recurring financial reserves allocated for your team and model execution. Gem Studio gives you a unified control center to balance human talent and AI agent operations.
-            </p>
-          </div>
-          <div className="payroll-ledger" aria-label="Payroll budget categories">
-            {PAYROLL_BUDGET_CATEGORIES.map((cat) => (
-              <div key={cat.id}>
-                <span>{cat.id}</span>
-                <strong>{cat.title}</strong>
-                <small>{cat.description}</small>
-              </div>
-            ))}
-          </div>
-        </section>
-      </Reveal>
-
-      {/* Self Host Section */}
-      <Reveal>
-        <section className="open-source-section shell" aria-labelledby="open-source-title">
-          <div>
-            <p className="kicker">Self Host Edition</p>
-            <h2 id="open-source-title">{SELF_HOST_EDITION.name}</h2>
-            <p>
-              {SELF_HOST_EDITION.description} Complete data sovereignty, 100% BYOK execution, configurable channel limits, and custom 6-file agent authoring.
-            </p>
-            <ul className="pricing-features pricing-features-flat mt-4 mb-4">
-              {SELF_HOST_EDITION.features.map((feature) => (
-                <li key={feature}>{feature}</li>
-              ))}
-            </ul>
-          </div>
-          <div className="row-wrap">
-            <Link className="button button-primary" href="https://github.com/oXina9box/gem-studio" target="_blank" rel="noreferrer">
-              {SELF_HOST_EDITION.cta}
-            </Link>
-            <Link className="button button-outline" href="/docs/self-host-community">
-              Read Self-Host Guide
-            </Link>
-          </div>
-        </section>
-      </Reveal>
+      {/* Section 3: [S1] 3-step checkout & provisioning flow */}
+      <KometaStepSection
+        badge="Instant Provisioning"
+        title="Three Steps to Directing Your AI Slate"
+        lede="Get your studio online in minutes with complete workspace isolation."
+        steps={[
+          {
+            step: "01",
+            title: "Choose Your Tier",
+            description: "Select Pro Cloud for managed credits or BYOK for direct wholesale inference pricing.",
+            href: "/?auth=signup",
+            linkLabel: "Select Plan →",
+          },
+          {
+            step: "02",
+            title: "Connect Studio Universe",
+            description: "Scaffold your primary channel, seed your lead character DNA, and define departmental roles.",
+            href: "/studio",
+            linkLabel: "Learn About DNA →",
+          },
+          {
+            step: "03",
+            title: "Render First Production",
+            description: "Draft your pilot script, validate GenPlay shot contracts, and generate your first cinematic release.",
+            href: "/system",
+            linkLabel: "View System Details →",
+          },
+        ]}
+      />
     </article>
   );
 }

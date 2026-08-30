@@ -29,6 +29,28 @@
   --radius-pill: var(--radius-pill);
 }
 
+@keyframes animationIn {
+  0% {
+    opacity: 0;
+    transform: translateY(30px);
+    filter: blur(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0px);
+  }
+}
+
+/* Default: paused */
+.animate-on-scroll {
+  animation-play-state: paused !important;
+}
+/* Activated by JS */
+.animate-on-scroll.animate {
+  animation-play-state: running !important;
+}
+
 *,*::before,*::after { box-sizing:border-box; }
 html { overflow-x:clip; scroll-behavior:smooth; }
 body { margin:0; overflow-x:clip; background:var(--color-bg); color:var(--color-text); font:var(--text-md)/1.55 var(--font-body); }

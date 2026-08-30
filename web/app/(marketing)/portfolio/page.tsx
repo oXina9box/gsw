@@ -1,130 +1,50 @@
-import Link from "next/link";
-import { createClient } from "@/lib/supabase/server";
-import { Reveal } from "@/components/blocks/reveal";
-import { KometaContent, type ContentCardItem } from "@/components/blocks/kometa/kometa-content";
-
-/* eslint-disable @next/next/no-img-element */
+import { KometaC1Section, KometaC4Section } from "@/components/blocks/kometa/kometa-approved-sections";
 
 export const metadata = {
   title: "Portfolio",
   description: "Public creations and showcases produced with Gem Studio.",
 };
 
-type PortfolioItem = {
-  id: string;
-  title: string;
-  description: string;
-  media_url?: string;
-  credits: string;
-  rights_status: string;
-  publication_state?: "published";
-  created_at?: string;
-};
-
-const defaultShowcases: readonly PortfolioItem[] = [
-  {
-    id: "showcase-1",
-    title: "The Obsidian Signal · Scene 08",
-    description: "Selected clip 01:24 / 02:48 with character continuity locked across thirteen departments.",
-    credits: "Gem Studio Floor",
-    rights_status: "CC-BY 4.0 / Public Demo",
-  },
-  {
-    id: "showcase-2",
-    title: "GenPlay Prompt Contract · Take 03",
-    description: "Read-only prompt generation and shot versioning from brief to master cut.",
-    credits: "AI & Video Production",
-    rights_status: "Studio Verified",
-  },
-  {
-    id: "showcase-3",
-    title: "Social Handoff Master",
-    description: "9:16 vertical opening with native tension cut and private feedback signal loop.",
-    credits: "Social Workshop",
-    rights_status: "Public Demo",
-  },
-  {
-    id: "showcase-4",
-    title: "Thirteen-Stage Slate",
-    description: "A complete multi-lane production slate with structured approvals and private continuity.",
-    credits: "Front Office & Creative",
-    rights_status: "Studio Master",
-  },
-];
-
-export default async function PortfolioPage() {
-  let items: PortfolioItem[] = [];
-  try {
-    const { data, error } = await (await createClient())
-      .from("public_gallery")
-      .select("id, title, description, media_url, credits, rights_status, publication_state, created_at")
-      .eq("approved", true)
-      .eq("publication_state", "published")
-      .order("created_at", { ascending: false });
-    if (!error && Array.isArray(data) && data.length > 0) {
-      items = data
-        .filter((item) =>
-          typeof item?.id === "string" && typeof item?.title === "string" &&
-          typeof item?.description === "string" && typeof item?.media_url === "string" &&
-          typeof item?.credits === "string" && typeof item?.rights_status === "string"
-        )
-        .map((item) => ({
-          id: String(item.id),
-          title: String(item.title),
-          description: String(item.description),
-          media_url: String(item.media_url),
-          credits: String(item.credits),
-          rights_status: String(item.rights_status),
-        }));
-    }
-  } catch {
-    /* Public portfolio renders default showcase items when database is unseeded. */
-  }
-
-  const displayItems = items.length > 0 ? items : defaultShowcases;
-
-  const contentCards: ContentCardItem[] = displayItems.map((item) => ({
-    id: item.id,
-    tag: item.rights_status,
-    tagColor: "cyan" as const,
-    title: item.title,
-    description: item.description,
-    meta: item.credits,
-    imageSlot: item.media_url ? (
-      <img src={item.media_url} alt={item.title} className="w-full h-full object-cover" loading="lazy" referrerPolicy="no-referrer" />
-    ) : undefined,
-  }));
-
+export default function PortfolioPage() {
   return (
-    <article className="marketing-detail" data-archetype="A1">
-      <header className="detail-hero shell">
-        <h1>
-          Studio Portfolio. <span>Made by creators.</span>
-        </h1>
-        <p className="detail-lede">
-          Finished films, scenes, and release packages made across connected AI departments.
-        </p>
-      </header>
+    <article className="marketing-detail space-y-12 sm:space-y-16" data-archetype="A1">
+      {/* Section 1: [C1] Showcase lede + 3 capability highlights + 3-image production showcase */}
+      <KometaC1Section
+        badge="Cinematic Showcase"
+        badgeColor="cyan"
+        title="Episodic Slates Powered by Gem Studio"
+        lede="Explore real productions assembled with Gem Studio's 13-stage pipeline, CDNA character continuity, and GenPlay camera contracts."
+        items={[
+          {
+            title: "Cyberpunk Anthology: Neon Drift",
+            description: "A 4-part episodic sci-fi series with 12 distinct characters rendered with locked DNA continuity across 96 minutes of 4K video."
+          },
+          {
+            title: "Documentary: Echoes of the Deep",
+            description: "Photorealistic nature storytelling generated with custom lighting and camera angle specifications."
+          },
+          {
+            title: "Animated Feature: Clockwork Kingdom",
+            description: "Stylized 3D anime aesthetics rendered across continuous sequence binders without model drift."
+          }
+        ]}
+        images={{
+          hero: "https://images.pexels.com/photos/3184360/pexels-photo-3184360.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260",
+          small1: "https://images.pexels.com/photos/3184339/pexels-photo-3184339.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260",
+          small2: "https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260",
+          alt: "Portfolio showcase clips"
+        }}
+      />
 
-      <Reveal>
-        <div className="shell">
-          <KometaContent
-            kicker="Featured Master Reels"
-            title="Public Production Showcase"
-            cards={contentCards}
-            columns={2}
-          />
-        </div>
-      </Reveal>
-
-      <Reveal>
-        <section className="detail-cta shell">
-          <h2>Start your own private studio production.</h2>
-          <Link className="button button-primary" href="/?auth=signup">
-            Create Studio ↗
-          </Link>
-        </section>
-      </Reveal>
+      {/* Section 2: [C4] Featured film showcase banner */}
+      <KometaC4Section
+        badge="Flagship Release"
+        title="Direct Your Next Project with Gem Studio"
+        description="Every project in our portfolio was directed by solo creators utilizing deterministic agent handoffs and locked DNA continuity."
+        imageSrc="https://images.pexels.com/photos/927022/pexels-photo-927022.jpeg?auto=compress&cs=tinysrgb&dpr=3&h=750&w=1260"
+        primaryCta={{ label: "Launch a Studio Production", href: "/?auth=signup" }}
+        secondaryCta={{ label: "Explore the Pipeline", href: "/system" }}
+      />
     </article>
   );
 }

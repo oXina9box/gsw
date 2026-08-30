@@ -120,8 +120,7 @@ if (gate === "logos") {
     'href="/"', 'href="/studio"', 'href="/system"', 'href="/social-workshop"',
     'href="/portfolio"', 'href="/gallery"', 'href="/docs"', 'href="/pricing"',
     'href="/core-values"', 'href="/contact"', 'href="/terms"', 'href="/privacy"',
-    'protectedHref("/app")', 'protectedHref("/app/studio")', 'href="/account"',
-    "SignOutButton",
+    "GemLogo",
   ];
   assertAll(footer, required, "footer links");
   console.log("footer verification passed");

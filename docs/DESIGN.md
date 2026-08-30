@@ -5,6 +5,9 @@
 **Theme:** Studio Dark (Workbench Macrostructure, Anchor Hue: 350 Pink, Focus: Cyan)  
 **Accessibility:** WCAG 2.2 AA Compliant  
 
+
+### Block Registry & Approved Presentation Units
+Full reference registry and usage catalog of all approved unauthed blocks (Kometa, Flowbite, Preline) is documented in [`docs/approved-blocks-registry.md`](./approved-blocks-registry.md).
 ---
 
 ## 1. Design Philosophy & Macrostructure

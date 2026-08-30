@@ -1,89 +1,44 @@
-import { EntryActions } from "@/components/marketing/entry-actions";
-import { SignalBoard } from "@/components/marketing/signal-board";
-import { Reveal } from "@/components/blocks/reveal";
-import { KometaFeaturesGrid } from "@/components/blocks/kometa/kometa-features-grid";
+import { KometaF1Section, KometaC3Section } from "@/components/blocks/kometa/kometa-approved-sections";
 
 export const metadata = {
   title: "Social Workshop",
-  description:
-    "Plan releases and return useful private audience signals to the next production.",
+  description: "Automate social cutdowns, teaser clips, and episodic marketing with Gem Studio.",
 };
-
-const workshopFeatures = [
-  {
-    number: "01",
-    signalColor: "pink" as const,
-    title: "Plan the real release.",
-    description:
-      "Keep notes for platform-specific cuts, captions, thumbnails, metadata, and schedules beside the approved production.",
-  },
-  {
-    number: "02",
-    signalColor: "cyan" as const,
-    title: "Destinations stay explicit.",
-    description:
-      "Direct OAuth connections and posting are not enabled in this build. They require approved platform adapters and least-privilege credentials.",
-  },
-  {
-    number: "03",
-    signalColor: "lime" as const,
-    title: "Record what is available.",
-    description:
-      "Save performance, conversation, and release observations as workspace-scoped manual signals without pretending unsupported analytics are connected.",
-  },
-  {
-    number: "04",
-    signalColor: "amber" as const,
-    title: "Keep the useful signal.",
-    description:
-      "Private signal cards and recommendations can seed a later brief—not a public profile or shared marketplace.",
-  },
-];
 
 export default function SocialWorkshopPage() {
   return (
-    <article className="marketing-detail" data-archetype="A1">
-      <header className="detail-hero shell">
-        <h1>
-          The afterlife of <span>a good frame.</span>
-        </h1>
-        <p className="detail-lede">
-          Plan how one master can become many platform-native points of entry, then carry the useful response into the next brief.
-        </p>
-        <EntryActions />
-      </header>
+    <article className="marketing-detail space-y-12 sm:space-y-16" data-archetype="A1">
+      {/* Section 1: [F1] 6-channel distribution targets */}
+      <KometaF1Section
+        title="Multi-Channel Automated Distribution"
+        lede="Turn full-length studio productions into aspect-ratio optimized vertical shorts, teasers, and trailers across six major platforms."
+        items={[
+          { label: "YouTube Shorts" },
+          { label: "TikTok Video" },
+          { label: "Instagram Reels" },
+          { label: "X / Twitter" },
+          { label: "Discord Drops" },
+          { label: "LinkedIn Video" },
+        ]}
+        ctaHref="/docs"
+        ctaLabel="Learn About Channel Distribution"
+      />
 
-      <Reveal>
-        <section className="social-detail-board shell">
-          <div>
-            <h2>Cut for the platform. Learn for the next brief.</h2>
-            <p>
-              These editorial examples show how native cuts and conversations become creative inputs. Private production signals stay inside the owner’s Studio.
-            </p>
-          </div>
-          <SignalBoard />
-        </section>
-      </Reveal>
-
-      <Reveal>
-        <div className="shell">
-          <KometaFeaturesGrid
-            kicker="Signal Integration"
-            title="Audience intelligence in the loop"
-            features={workshopFeatures}
-            columns={2}
-          />
-        </div>
-      </Reveal>
-
-      <Reveal>
-        <section className="detail-cta shell">
-          <h2>Release planning and manual signals work now.</h2>
-          <p>
-            Direct publishing, analytics sync, captions, thumbnails, and social derivatives remain disabled until their adapters are implemented and approved.
-          </p>
-        </section>
-      </Reveal>
+      {/* Section 2: [C3] 2-column channel workflow cards */}
+      <KometaC3Section
+        items={[
+          {
+            title: "Automated Vertical Re-Framing (9:16)",
+            description: "Smart subject tracking keeps characters centered and subtitles dynamically positioned for mobile social feeds.",
+            href: "/docs",
+          },
+          {
+            title: "Multi-Variant Teaser Generation",
+            description: "Generate 5 distinct hook variations from one production cut to test thumbnail and retention performance.",
+            href: "/docs",
+          },
+        ]}
+      />
     </article>
   );
 }
