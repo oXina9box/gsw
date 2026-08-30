@@ -69,6 +69,15 @@ export function canEditAgentFiles(agent: { protected_config?: boolean | null }):
   return !agent.protected_config;
 }
 
+/** Remove protected records before a server component serializes data to a client component. */
+export function filterAgentFilesForClient<
+  TAgent extends { id: string; protected_config?: boolean | null },
+  TFile extends { agent_id?: string | null },
+>(agents: readonly TAgent[], files: readonly TFile[]): TFile[] {
+  const protectedIds = new Set(agents.filter((agent) => agent.protected_config).map((agent) => agent.id));
+  return files.filter((file) => !file.agent_id || !protectedIds.has(file.agent_id));
+}
+
 export function validateCustomAgentFiles(input: unknown): {
   valid: boolean;
   errors: string[];

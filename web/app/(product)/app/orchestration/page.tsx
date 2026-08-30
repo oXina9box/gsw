@@ -1,13 +1,15 @@
 import { createClient } from "@/lib/supabase/server";
 import { CreateForm } from "@/components/product/create-form";
 import { ExecutionLive } from "@/components/product/execution-live";
+import { ProductionNodeWorkbench } from "@/components/product/production-node-workbench";
 import { createDefaultWorkflow, createWorkflow, createHandoffRule, deleteHandoffRule, deleteWorkflow, startWorkflowExecution, updateWorkflow } from "@/app/(product)/actions";
+import { filterAgentFilesForClient, sanitizeAgentFiles } from "@/lib/studio/agent-protection";
 
 export const metadata = { title: "Orchestration" };
 
 type Workflow = { id: string; name: string; description: string };
-type Lane = { id: string; name: string };
-type Agent = { id: string; name: string };
+type Lane = { id: string; name: string; collaboration_mode: "forward" | "round_table" | null; pass_order: number[] | null; pass_cycles: number | null };
+type Agent = { id: string; lane_id: string; name: string; agent_type: string; recommended_tier: "free" | "mid" | "quality" | null; model_tier_override: "free" | "mid" | "quality" | null; capabilities: string[] | null; protected_config: boolean };
 type HandoffRule = {
   id: string;
   workflow_id: string;
@@ -37,6 +39,9 @@ type ExecutionStep = {
   id: string;
   execution_id: string;
   handoff_rule_id: string | null;
+  source_kind: "lane" | "agent" | null;
+  source_lane_id: string | null;
+  source_agent_id: string | null;
   target_kind: "lane" | "agent" | null;
   target_lane_id: string | null;
   target_agent_id: string | null;
@@ -46,14 +51,16 @@ type ExecutionStep = {
   error_message: string | null;
   started_at: string | null;
   completed_at: string | null;
+  created_at: string;
 };
 
 export default async function OrchestrationPage({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
   const supabase = await createClient();
-  const [{ data: workflows }, { data: lanes }, { data: agents }, { data: executions }, { data: steps }, { data: rules }] = await Promise.all([
+  const [{ data: workflows }, { data: lanes }, { data: agents }, { data: files }, { data: executions }, { data: steps }, { data: rules }] = await Promise.all([
     supabase.from("workflows").select("id, name, description").order("name"),
-    supabase.from("lanes").select("id, name").order("name"),
-    supabase.from("agents").select("id, name").order("name"),
+    supabase.from("lanes").select("id, name, collaboration_mode, pass_order, pass_cycles").order("name"),
+    supabase.from("agents").select("id, lane_id, name, agent_type, recommended_tier, model_tier_override, capabilities, protected_config").order("name"),
+    supabase.from("agent_files").select("agent_id, role, soul, jobdescription, skills, memory, user_content"),
     supabase.from("executions").select("*").order("created_at", { ascending: false }),
     supabase.from("execution_steps").select("*").order("created_at"),
     supabase.from("handoff_rules").select("*").order("workflow_id, position"),
@@ -62,9 +69,39 @@ export default async function OrchestrationPage({ searchParams }: { searchParams
   const workflowList = (workflows as Workflow[] | null) ?? [];
   const laneList = (lanes as Lane[] | null) ?? [];
   const agentList = (agents as Agent[] | null) ?? [];
+  const fileList = filterAgentFilesForClient(agentList, (files as Array<{ agent_id: string; role: string; soul: string; jobdescription: string; skills: string; memory: string; user_content: string }>) ?? []).map((file) => ({ ...sanitizeAgentFiles(false, file), agent_id: file.agent_id }));
   const executionList = (executions as Execution[] | null) ?? [];
   const stepList = (steps as ExecutionStep[] | null) ?? [];
   const ruleList = (rules as HandoffRule[] | null) ?? [];
+  const workflowLatestExecution = new Map<string, Execution>();
+  for (const execution of executionList) if (!workflowLatestExecution.has(execution.workflow_id)) workflowLatestExecution.set(execution.workflow_id, execution);
+  const nodeAgents = agentList.map((agent) => {
+    const workflowStatus: Record<string, string> = {};
+    for (const workflow of workflowList) {
+      const execution = workflowLatestExecution.get(workflow.id);
+      const executionSteps = execution ? stepList.filter((step) => step.execution_id === execution.id) : [];
+      const latestStep = [...executionSteps].reverse().find((step) => step.source_agent_id === agent.id || step.target_agent_id === agent.id);
+      workflowStatus[workflow.id] = execution?.current_agent_id === agent.id ? "running" : latestStep?.status === "completed" ? "complete" : latestStep?.status === "failed" ? "blocked" : "ready";
+    }
+    return { ...agent, model: agent.model_tier_override ?? agent.recommended_tier ?? "free", workflowStatus, status: "ready", capability: Array.isArray(agent.capabilities) && agent.capabilities.length ? agent.capabilities.join(" · ") : "Production agent" };
+  });
+  const agentName = (id: string | null) => agentList.find((agent) => agent.id === id)?.name ?? "Lane handoff";
+  const handoffDocuments = stepList.map((step, index) => ({
+    id: step.id,
+    workflow_id: executionList.find((execution) => execution.id === step.execution_id)?.workflow_id,
+    title: `Handoff ${String(index + 1).padStart(2, "0")}`,
+    source: step.source_agent_id ? agentName(step.source_agent_id) : "Lane handoff",
+    source_id: step.source_agent_id ?? undefined,
+    source_lane_id: step.source_lane_id ?? undefined,
+    target: step.target_agent_id ? agentName(step.target_agent_id) : undefined,
+    target_id: step.target_agent_id ?? undefined,
+    target_lane_id: step.target_lane_id ?? undefined,
+    status: step.status,
+    kind: step.target_kind ?? "handoff",
+    input_payload: step.input_payload,
+    output_payload: step.output_payload,
+    created_at: step.created_at,
+  }));
   const targetName = (rule: HandoffRule) =>
     rule.target_kind === "lane"
       ? laneList.find((l) => l.id === rule.target_lane_id)?.name ?? "lane"
@@ -74,6 +111,15 @@ export default async function OrchestrationPage({ searchParams }: { searchParams
       <h1>Agents move on rails.</h1>
       <p className="lede">Workflows, handoff rules, lanes, and executions with visible state.</p>
       {params.error && <p className="form-error" role="alert">Unable to save that orchestration record.</p>}
+
+      <ProductionNodeWorkbench
+        workflows={workflowList}
+        agents={nodeAgents}
+        lanes={laneList}
+        handoffRules={ruleList}
+        files={fileList}
+        documents={handoffDocuments}
+      />
 
       <section className="builder-section">
         <div className="section-head">
