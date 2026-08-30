@@ -4,6 +4,7 @@ import { ExecutionLive } from "@/components/product/execution-live";
 import { ProductionNodeWorkbench } from "@/components/product/production-node-workbench";
 import { createDefaultWorkflow, createWorkflow, createHandoffRule, deleteHandoffRule, deleteWorkflow, startWorkflowExecution, updateWorkflow } from "@/app/(product)/actions";
 import { filterAgentFilesForClient, sanitizeAgentFiles } from "@/lib/studio/agent-protection";
+import { PrelineCard } from "@/components/blocks/preline/preline-card";
 
 export const metadata = { title: "Orchestration" };
 
@@ -112,14 +113,16 @@ export default async function OrchestrationPage({ searchParams }: { searchParams
       <p className="lede">Workflows, handoff rules, lanes, and executions with visible state.</p>
       {params.error && <p className="form-error" role="alert">Unable to save that orchestration record.</p>}
 
-      <ProductionNodeWorkbench
-        workflows={workflowList}
-        agents={nodeAgents}
-        lanes={laneList}
-        handoffRules={ruleList}
-        files={fileList}
-        documents={handoffDocuments}
-      />
+      <PrelineCard kicker="Production Workbench" title="Visual flow" subtitle="Ordered and lane-grouped canvas with inspector and context rail.">
+        <ProductionNodeWorkbench
+          workflows={workflowList}
+          agents={nodeAgents}
+          lanes={laneList}
+          handoffRules={ruleList}
+          files={fileList}
+          documents={handoffDocuments}
+        />
+      </PrelineCard>
 
       <section className="builder-section">
         <div className="section-head">
