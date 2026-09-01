@@ -6,25 +6,25 @@ This document records the exact presentation blocks and layout components approv
 
 ## 1. Global Shell & Navigation Components
 
-### 1.1 Kometa Dark Header / Navigation
+### 1.1 N5 Floating Pill Header / Navigation
 - **File:** `web/components/shell/site-header-client.tsx` & `web/components/shell/site-header.tsx`
-- **Origin:** Kitwind Kometa Navbar
-- **Features:** 
-  - Responsive desktop and mobile drawer navigation with focus trapping and ESC support.
-  - Brand Gem Studio Logo component (`GemLogo`).
-  - Unauthenticated navigation links (`/studio`, `/system`, `/docs`, `/pricing`, `/portfolio`).
+- **Origin:** N5 Floating Pill Navigation Standard
+- **Features:**
+  - Fixed top floating pill container (`rounded-full border border-border bg-surface/85 backdrop-blur-md`).
+  - Brand Gem Studio logo component (`GemLogo`, width 110).
+  - Monospaced, uppercase unauthenticated navigation links (`/studio`, `/system`, `/docs`, `/pricing`, `/portfolio`).
   - Interactive accent hovers: Cyan (`/studio`, `/system`), Lime (`/docs`), Amber (`/pricing`), Pink (`/portfolio`).
-  - Auth CTA triggers (`Create Studio`, `Sign in`) opening direct flows / modals.
+  - Desktop Auth actions (`Create Studio`, `Sign in`) and mobile dropdown menu with focus trapping and ESC support.
 - **Budget:** Global Shell (Mounted on all unauthed & auth layouts).
 
-### 1.2 Flowbite Unauthed Footer
+### 1.2 Ft5 Statement Footer
 - **File:** `web/components/shell/site-footer.tsx`
-- **Origin:** Flowbite Footer Block
+- **Origin:** Ft5 Statement Footer Standard
 - **Features:**
-  - 3-column responsive link structure: **Explore**, **Resources**, **Legal**.
-  - Brand Gem Studio logo with copyright notice.
-  - Social icon links (Facebook, Instagram, Twitter/X, GitHub, Dribbble) with accessibility labels and SVG icons.
-  - Stripped of all authenticated `/app` routes for consistent public display.
+  - Single-band statement typography layout (`font-display font-bold text-text clamp(1.9rem,4.5vw,3.6rem)`).
+  - Hairline separator with meta row containing brand logo, inline footer navigation, and accessible social SVGs (Facebook, Instagram, Twitter/X, GitHub, Dribbble).
+  - Server-side draft link gating (`SITE_CONTENT_APPROVED`) for `/core-values`, `/terms`, `/privacy`.
+  - Monospaced copyright notice: `© 2026 Gem Studio™. All Rights Reserved.`
 - **Budget:** Global Shell (Mounted on all marketing and product layouts).
 
 ---
@@ -34,8 +34,8 @@ This document records the exact presentation blocks and layout components approv
 Located in `web/components/blocks/kometa/kometa-approved-sections.tsx` and `web/components/blocks/flowbite/flowbite-cta.tsx`:
 
 ### 2.1 Content Section 1 (`KometaC1Section` / C1)
-- **Origin:** Kometa Content Block #1
-- **Layout:** 2-column grid. Left: Badge + title + lede + 3 stacked bullet items with circular icon badges and divider rules. Right: 3-image mosaic (1 full-width hero image + 2 side-by-side thumbnails).
+- **Origin:** Kometa Content Block #1 (Redesigned)
+- **Layout:** 12-column grid (5/7). Left: Badge + Syne title + lede + hairline-divided items with pink mono numbering `0X`, Syne titles, and muted descriptions. Right: Connected 3-image mosaic (1 hero + 2 thumbnails) with 1px borders and `rounded-md`.
 - **Component:** `KometaC1Section`
 - **Props:** `badge`, `badgeColor`, `title`, `lede`, `items: Array<{ title, description, icon? }>`, `images: { hero, small1, small2, alt? }`.
 - **Usage:** 
@@ -44,8 +44,8 @@ Located in `web/components/blocks/kometa/kometa-approved-sections.tsx` and `web/
   - `web/app/(marketing)/gallery/page.tsx`
 
 ### 2.2 Content Section 2 (`KometaC2Section` / C2)
-- **Origin:** Kometa Content Block #2
-- **Layout:** 2-column grid. Left: Heading + lede text + 2 card pills with left accent border. Right: Single large featured media/image.
+- **Origin:** Kometa Content Block #2 (Redesigned)
+- **Layout:** 2-column grid. Left: Syne title + lede + 2 card pills styled as `border-l-2 border-{accent} bg-surface-2 rounded-sm p-5`. Right: Single featured image with 1px border and `rounded-md`.
 - **Component:** `KometaC2Section`
 - **Props:** `title`, `lede`, `pill1: { title, description }`, `pill2: { title, description }`, `imageSrc`, `imageAlt?`, `highlightColor?`.
 - **Usage:**
@@ -54,8 +54,8 @@ Located in `web/components/blocks/kometa/kometa-approved-sections.tsx` and `web/
   - `web/app/(marketing)/core-values/page.tsx`
 
 ### 2.3 Step Section (`KometaStepSection` / S1)
-- **Origin:** Kometa Step Block
-- **Layout:** 3-column horizontal/vertical sequential cards with numbered circular step indicators (`01`, `02`, `03`), descriptions, action links, and horizontal connecting arrows on desktop.
+- **Origin:** Kometa Step Block (Redesigned)
+- **Layout:** Connected 3-column cells (`grid md:grid-cols-3 gap-px bg-border border border-border rounded-md overflow-hidden`), each with pink mono step number `Step 0X`, Syne title, description, and mono link with `→`.
 - **Component:** `KometaStepSection`
 - **Props:** `badge?`, `title`, `lede?`, `steps: [KometaStepItem, KometaStepItem, KometaStepItem]`.
 - **Usage:**
@@ -63,8 +63,8 @@ Located in `web/components/blocks/kometa/kometa-approved-sections.tsx` and `web/
   - `web/app/(marketing)/pricing/page.tsx`
 
 ### 2.4 Category Grid Section (`KometaF1Section` / F1)
-- **Origin:** Kometa Feature Block #1
-- **Layout:** 6-column category pill grid with circular icon headers, title, lede, and centered bottom CTA button.
+- **Origin:** Kometa Feature Block #1 (Redesigned)
+- **Layout:** Connected category grid (`gap-px bg-border border border-border rounded-md overflow-hidden`), circular icon badges, mono uppercase labels, and centered bottom CTA button.
 - **Component:** `KometaF1Section`
 - **Props:** `title`, `lede?`, `items: Array<{ label, icon?, href? }>`, `ctaHref?`, `ctaLabel?`.
 - **Usage:**
@@ -72,8 +72,8 @@ Located in `web/components/blocks/kometa/kometa-approved-sections.tsx` and `web/
   - `web/app/(marketing)/social-workshop/page.tsx`
 
 ### 2.5 Feature Cards Section (`KometaF2Section` / F2)
-- **Origin:** Kometa Feature Block #2
-- **Layout:** 4-column feature card grid with top headline/lede row, numbered circular badges, descriptive body, checkmark bullet list, and bottom navigation links.
+- **Origin:** Kometa Feature Block #2 (Redesigned)
+- **Layout:** Connected 4-column card grid (`gap-px bg-border border border-border rounded-md overflow-hidden`), pink mono indexing `0X`, Syne title, description, pink checkmark lists, and bottom department links.
 - **Component:** `KometaF2Section`
 - **Props:** `heading`, `lede`, `cards: [KometaF2Card, KometaF2Card, KometaF2Card, KometaF2Card]`.
 - **Usage:**
@@ -81,8 +81,8 @@ Located in `web/components/blocks/kometa/kometa-approved-sections.tsx` and `web/
   - `web/app/(marketing)/core-values/page.tsx`
 
 ### 2.6 Spotlight Cards Section (`KometaC3Section` / C3)
-- **Origin:** Kometa Content Block #3
-- **Layout:** 2-column interactive cards with hover border transition, arrow link badges, title, and body description.
+- **Origin:** Kometa Content Block #3 (Redesigned)
+- **Layout:** 2-column cards (`border border-border rounded-md bg-surface-2 p-8 transition-colors hover:border-cyan`), Syne titles, descriptions, and translating mono `View →`.
 - **Component:** `KometaC3Section`
 - **Props:** `items: Array<{ title, description, href }>`.
 - **Usage:**
@@ -91,8 +91,8 @@ Located in `web/components/blocks/kometa/kometa-approved-sections.tsx` and `web/
   - `web/app/(marketing)/social-workshop/page.tsx`
 
 ### 2.7 Diagonal Split Hero Section (`KometaC4Section` / C4)
-- **Origin:** Kometa Content Block #4
-- **Layout:** 50/50 split container. Left: Full-bleed image with cover styling. Right: Badge + title + description + primary/secondary CTA buttons.
+- **Origin:** Kometa Content Block #4 (Redesigned)
+- **Layout:** 50/50 split container (`border border-border rounded-md overflow-hidden bg-surface`). Left: Full-bleed image. Right: Badge + Syne title + description + primary pink pill button + secondary mono link.
 - **Component:** `KometaC4Section`
 - **Props:** `badge?`, `title`, `description`, `imageSrc`, `primaryCta`, `secondaryCta?`.
 - **Usage:**
@@ -101,19 +101,19 @@ Located in `web/components/blocks/kometa/kometa-approved-sections.tsx` and `web/
   - `web/app/(marketing)/gallery/page.tsx`
 
 ### 2.8 Staggered Hover Grid Section (`KometaC5Section` / C5)
-- **Origin:** Kometa Content Block #5
-- **Layout:** 4-card vertical staggered grid with left cyan border accent, hover lift translation (`hover:-translate-y-1.5`), and bottom CTA button.
+- **Origin:** Kometa Content Block #5 (Redesigned)
+- **Layout:** 4-card grid with left cyan border accent (`border-l-2 border-l-cyan border border-border bg-surface-2 p-6 rounded-sm`), vertical stagger via `md:translate-y-6`, and bottom CTA button.
 - **Component:** `KometaC5Section`
 - **Props:** `badge?`, `title`, `lede?`, `cards: [KometaC5Item, KometaC5Item, KometaC5Item, KometaC5Item]`, `ctaHref?`, `ctaLabel?`.
 - **Usage:**
   - `web/app/(marketing)/system/page.tsx`
   - `web/app/(marketing)/docs/page.tsx`
 
-### 2.9 Flowbite Dashboard CTA Section (`FlowbiteCtaSection` / CTA1)
-- **Origin:** Flowbite Marketing UI CTA Block
-- **Layout:** 2-column rounded card. Left: High-contrast product dashboard mockup preview. Right: Title + lede paragraph + primary action button with arrow icon.
+### 2.9 Statement CTA Band (`FlowbiteCtaSection` / CTA1)
+- **Origin:** Statement CTA Band Standard
+- **Layout:** Full-width typography band (`border-y border-border bg-surface-2 px-4 py-20 text-center`) with clamp-sized Syne headline, muted description, and primary pink pill button.
 - **Component:** `FlowbiteCtaSection`
-- **Props:** `title`, `description`, `ctaHref`, `ctaLabel?`, `imageDarkSrc?`, `imageAlt?`.
+- **Props:** `title`, `description`, `ctaHref`, `ctaLabel?`.
 - **Usage:**
   - `web/app/(marketing)/page.tsx` (Landing Page)
   - `web/app/(marketing)/system/page.tsx`
@@ -125,8 +125,8 @@ Located in `web/components/blocks/kometa/kometa-approved-sections.tsx` and `web/
 Located in `web/components/blocks/preline/preline-vertical-marquee.tsx`:
 
 ### 3.1 Vertical Testimonial Marquee (`PrelineVerticalMarquee` / VM)
-- **Origin:** Preline Vertical Marquee Block
-- **Layout:** Dual opposing vertical testimonial columns with gradient edge masks, creator avatars, user handles, and verified quote cards.
+- **Origin:** Preline Vertical Marquee Block (Redesigned)
+- **Layout:** Dual opposing vertical marquee columns driven by CSS `@keyframes marquee-up`, gradient edge masks, creator avatars, user handles, and verified quote cards with `rounded-sm` and `bg-surface-2`.
 - **Component:** `PrelineVerticalMarquee`
 - **Props:** `title?`, `subtitle?`, `column1: PrelineMarqueeItem[]`, `column2: PrelineMarqueeItem[]`.
 - **Usage:**
@@ -139,8 +139,8 @@ Located in `web/components/blocks/preline/preline-vertical-marquee.tsx`:
 Located in `web/components/blocks/preline/preline-vertical-marquee.tsx` and `web/app/(auth)/`:
 
 ### 4.1 Split Auth Screen Layout (`PrelineSplitAuth` / AUTH-SPLIT)
-- **Origin:** Preline Split Login Page with Onboarding Sidebar
-- **Layout:** 12-column split card. Left (5 cols): Tagline badge + heading + live metric preview cards (Traffic, Continuity Locks, Market Share) + partner credentials. Right (7 cols): Title + subtitle + interactive auth form slot + footer helper links.
+- **Origin:** Preline Split Login Page (Redesigned)
+- **Layout:** 12-column split card (`border border-border rounded-md bg-surface overflow-hidden`). Left (5 cols): Tagline badge + Syne heading + honest placeholder rows with `—` values. Right (7 cols): Title + subtitle + interactive auth form slot + footer helper links.
 - **Component:** `PrelineSplitAuth`
 - **Props:** `title`, `subtitle`, `sidebarTagline?`, `sidebarHeadline?`, `children`, `footer?`.
 - **Usage:**
@@ -150,17 +150,17 @@ Located in `web/components/blocks/preline/preline-vertical-marquee.tsx` and `web
   - `web/app/(auth)/verify-email/page.tsx`
   - `web/app/(auth)/mfa/page.tsx`
 
-### 4.2 Minimal 404 Error Screen (`Preline404` / 404)
-- **Origin:** Preline 404 Error Block
-- **Layout:** Centered error display with large `404` status code, error explanation, and primary return button.
-- **Location:** `web/app/_not-found/page.tsx` & `web/app/not-found.tsx`
+### 4.2 Minimal 404 Error Screen
+- **Origin:** Minimal 404 Screen Standard
+- **Layout:** Centered error display with mono `404` badge, Syne headline, description, and primary pink button back to home.
+- **Location:** `web/app/(marketing)/not-found.tsx`
 
 ---
 
 ## 5. Animation on Scroll Standard
 
-- **CSS Keyframes:** `@keyframes animationIn` in `web/app/globals.css`
-  - `0%`: `opacity: 0; transform: translateY(30px); filter: blur(8px);`
-  - `100%`: `opacity: 1; transform: translateY(0); filter: blur(0px);`
+- **CSS Keyframes:**
+  - `@keyframes animationIn` in `web/app/globals.css`: `0%` (opacity 0, translateY 30px, blur 8px) to `100%` (opacity 1, translateY 0, blur 0).
+  - `@keyframes marquee-up` in `web/app/globals.css`: `to { transform: translateY(-50%); }` for continuous seamless vertical marquee columns.
 - **CSS Utility Classes:** `.animate-on-scroll` (paused by default, running when `.animate` is added).
 - **Client Observer:** `web/components/marketing/marketing-effects.tsx` automatically registers all `.animate-on-scroll` elements via `IntersectionObserver` (`threshold: 0.15`, `rootMargin: 0px 0px -10% 0px`), respecting `prefers-reduced-motion`.

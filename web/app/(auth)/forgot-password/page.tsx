@@ -11,8 +11,8 @@ export default function ForgotPasswordPage() {
       <PrelineSplitAuth
         title="Reset your password"
         subtitle="Enter the email address associated with your studio to receive reset instructions."
-        sidebarTagline="Password Recovery"
-        sidebarHeadline="Instant recovery links delivered to your verified mailbox"
+        sidebarTagline="Lorem ipsum"
+        sidebarHeadline="Lorem ipsum dolor sit amet consectetur"
         footer={
           <p className="text-text-muted">
             Remembered your password?{" "}

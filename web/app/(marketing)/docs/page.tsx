@@ -8,53 +8,64 @@ export const metadata = {
 export default function DocsPage() {
   return (
     <article className="marketing-detail space-y-12 sm:space-y-16" data-archetype="A2">
+      <header className="max-w-xl mx-auto text-center pt-6 animate-on-scroll [animation:animationIn_0.8s_ease-out_0.1s_both]">
+        <span className="inline-block px-3 py-1 mb-4 text-xs font-mono font-semibold tracking-wider uppercase rounded-full border border-lime/30 text-lime bg-lime/10">
+          Lorem ipsum
+        </span>
+        <h1 className="font-display text-3xl sm:text-4xl font-bold tracking-tight text-text">
+          Lorem ipsum dolor sit amet
+        </h1>
+        <p className="text-base text-text-muted font-body mt-4">
+          Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat.
+        </p>
+      </header>
+
       {/* Section 1: [C3] 2-column spotlight navigation cards */}
       <KometaC3Section
         items={[
           {
-            title: "Getting Started with Gem Studio",
-            description: "Scaffold your first AI channel, configure universe identities, and launch an initial short.",
+            title: "Lorem Ipsum Quickstart",
+            description: "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo.",
             href: "/docs/quickstart",
           },
           {
-            title: "GenPlay Shot & Prompt Contracts",
-            description: "Learn how to author and validate structured shot specs for multi-model generative video.",
+            title: "Consectetur GenPlay",
+            description: "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla.",
             href: "/docs/genplay",
           },
           {
-            title: "Continuity DNA (CDNA) Schema",
-            description: "Deep dive into character, location, and prop continuity vaults with JSON-schema contracts.",
+            title: "Sed do Eiusmod DNA",
+            description: "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim.",
             href: "/docs/dna",
           },
           {
-            title: "Encrypted BYOK Key Management",
-            description: "Configure AES-256 encrypted provider keys for OpenAI, Anthropic, Replicate, and Midjourney.",
+            title: "Tempor Incididunt BYOK",
+            description: "Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur.",
             href: "/docs/byok",
           },
         ]}
       />
-
       {/* Section 2: [C5] 4-card guide index */}
       <KometaC5Section
-        badge="Core Manuals"
-        title="Production Guides & Reference"
-        lede="Everything you need to operate a high-volume autonomous film studio."
+        badge="Lorem ipsum"
+        title="Lorem ipsum dolor sit amet"
+        lede="Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur."
         cards={[
           {
-            title: "13-Stage Pipeline Spec",
-            description: "Full lifecycle reference from brief scoping and scriptwriting to final video delivery."
+            title: "Lorem ipsum dolor",
+            description: "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea."
           },
           {
-            title: "Departmental Handoffs",
-            description: "Rules for passing typed artifacts between Story, Visuals, Audio, and Release lanes."
+            title: "Consectetur adipiscing",
+            description: "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat."
           },
           {
-            title: "Self-Hosting & Docker",
-            description: "Deploy the open-core stack locally or on dedicated cloud instances with full database privacy."
+            title: "Sed do eiusmod",
+            description: "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt."
           },
           {
-            title: "Security & RLS Policies",
-            description: "Understand workspace isolation, credential vaults, and multi-tenant database protection."
+            title: "Tempor incididunt",
+            description: "Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit."
           }
         ]}
         ctaHref="/pricing"

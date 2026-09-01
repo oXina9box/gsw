@@ -3,7 +3,6 @@ import { createClient } from "@/lib/supabase/server";
 import { KometaC2Section, KometaStepSection } from "@/components/blocks/kometa/kometa-approved-sections";
 import { PrelineVerticalMarquee } from "@/components/blocks/preline/preline-vertical-marquee";
 import { FlowbiteCtaSection } from "@/components/blocks/flowbite/flowbite-cta";
-import { HeroStage } from "@/components/marketing/hero-stage";
 
 export default async function HomePage() {
   let authenticated = false;
@@ -16,35 +15,41 @@ export default async function HomePage() {
 
   return (
     <div data-archetype="A1" className="space-y-12 sm:space-y-16">
-      {/* Hero Section */}
-      <section className="hero pt-6 pb-12 sm:py-16">
-        <div className="hero-copy">
-          <div className="eyebrow flex items-center gap-3">
-            <span className="eyebrow-rule" />
+      {/* Marquee Hero Section */}
+      <section className="py-12 sm:py-20 animate-on-scroll [animation:animationIn_0.8s_ease-out_0.1s_both]">
+        <div className="max-w-4xl">
+          <div className="flex items-center gap-3 mb-6">
             <span className="pulse-dot" />
-            <span className="text-xs font-mono uppercase tracking-widest text-cyan">A private AI film studio</span>
+            <span className="font-mono text-xs uppercase tracking-widest text-cyan">
+              Lorem ipsum dolor sit
+            </span>
           </div>
 
-          <h1 className="font-display font-extrabold text-4xl sm:text-6xl text-text leading-tight tracking-tight">
-            Make the impossible feel <span className="text-pink">scheduled.</span>
+          <h1
+            className="font-display font-extrabold tracking-tight text-text leading-tight mb-6"
+            style={{ fontSize: "clamp(2.8rem,7vw,6rem)" }}
+          >
+            Lorem ipsum dolor <span className="text-pink">consectetur.</span>
           </h1>
 
-          <p className="hero-lede text-lg sm:text-xl text-text-muted font-body leading-relaxed max-w-xl mt-4">
-            Gem Studio is a solo-creator AI film studio: channels, hired agents, human-approved production, native assembly, and continuous universe continuity.
+          <p className="max-w-3xl text-lg sm:text-xl text-text-muted font-body leading-relaxed mb-8">
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.
           </p>
 
-          <div className="hero-actions flex flex-wrap items-center gap-4 mt-8">
-            <Link className="button button-primary bg-pink hover:bg-pink/90 text-ink font-mono font-semibold px-6 py-3 rounded-full shadow-lg" href={entryHref}>
-              {authenticated ? "Open workspace" : "Create studio"}
+          <div className="flex flex-wrap items-center gap-4">
+            <Link
+              className="inline-flex items-center justify-center px-8 py-3.5 rounded-full bg-pink font-mono text-sm font-semibold text-ink transition-colors hover:bg-pink-hover shadow-md"
+              href={entryHref}
+            >
+              {authenticated ? "Open workspace" : "Create Studio"}
             </Link>
-            <Link className="button button-outline border-border text-text hover:border-cyan hover:text-cyan font-mono font-medium px-5 py-3 rounded-full" href="/studio">
+            <Link
+              className="inline-flex items-center justify-center px-6 py-3.5 rounded-full border border-border font-mono text-sm font-medium text-text transition-colors hover:border-cyan hover:text-cyan"
+              href="/studio"
+            >
               Explore the studio
             </Link>
           </div>
-        </div>
-
-        <div className="hero-stage mt-8 lg:mt-0">
-          <HeroStage />
         </div>
       </section>
 
@@ -52,99 +57,99 @@ export default async function HomePage() {
       <KometaC2Section
         title={
           <span>
-            Autonomous departments. <span className="text-cyan">Absolute creator control.</span>
+            Lorem ipsum dolor <span className="text-cyan">sit amet.</span>
           </span>
         }
-        lede="Gem Studio structures AI video production into four specialized departments: Front Office, Story & Continuity, Production Floor, and Sound & Release. Every stage produces strict, typed shot contracts."
+        lede="Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident."
         pill1={{
-          title: "Continuity DNA (CDNA)",
-          description: "Persistent character faces, location anchors, and lighting styles locked across thousands of generated cuts."
+          title: "Lorem ipsum dolor",
+          description: "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo."
         }}
         pill2={{
-          title: "BYOK & Open Core",
-          description: "Bring your own API keys for OpenAI, Anthropic, Replicate, and Midjourney with zero vendor lock-in."
+          title: "Consectetur adipiscing",
+          description: "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla."
         }}
         imageSrc="https://images.pexels.com/photos/3184360/pexels-photo-3184360.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260"
-        imageAlt="Gem Studio Production Engine"
+        imageAlt="Gem Studio Feature"
         highlightColor="cyan"
       />
 
       {/* Section 3: [S1] 3-step production pipeline */}
       <KometaStepSection
-        badge="Autonomous 13-Stage Workflow"
-        title="From first brief to final assembly in 3 clear milestones"
-        lede="No fragmented prompt windows. Run your entire production through a deterministic engine built specifically for cinema."
+        badge="Lorem ipsum pipeline"
+        title="Lorem ipsum dolor sit amet consectetur"
+        lede="Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
         steps={[
           {
             step: "01",
-            title: "Brief & Universe Lock",
-            description: "Define characters, style guides, and department lanes with strict DNA continuity safeguards.",
+            title: "Lorem ipsum dolor",
+            description: "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat.",
             href: "/studio",
-            linkLabel: "Explore Studio Floor →"
+            linkLabel: "Learn more →"
           },
           {
             step: "02",
-            title: "GenPlay Shot Generation",
-            description: "Hired AI agents draft, critique, and render shots against exact lens, lighting, and action contracts.",
+            title: "Consectetur adipiscing",
+            description: "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea.",
             href: "/system",
-            linkLabel: "View System Architecture →"
+            linkLabel: "Learn more →"
           },
           {
             step: "03",
-            title: "Assembly & Multi-Channel Release",
-            description: "Review automated edit cuts, sound design stems, and release packages ready for YouTube and social networks.",
+            title: "Sed do eiusmod",
+            description: "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit.",
             href: "/pricing",
-            linkLabel: "View Pricing Plans →"
+            linkLabel: "Learn more →"
           }
         ]}
       />
 
       {/* Section 4: [VM] Vertical dual testimonial marquee */}
       <PrelineVerticalMarquee
-        title="Real signals from creators shipping with Gem Studio"
-        subtitle="Independent filmmakers, solo studios, and agency directors scaling cinematic output without sacrificing quality."
+        title="Lorem ipsum dolor sit amet"
+        subtitle="Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur."
         column1={[
           {
             name: "Marcus Vance",
             handle: "@marcus_film",
-            text: "The DNA continuity system finally made it possible to keep our lead character consistent across 24 scene cuts without manual inpainting."
+            text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
           },
           {
             name: "Elena Rostova",
             handle: "@elena_vfx",
-            text: "GenPlay shot contracts give our team predictable, repeatable framing. It feels like directing actual camera operators."
+            text: "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."
           },
           {
             name: "Devon Reed",
             handle: "@devonreed_ai",
-            text: "Running our studio BYOK saved us over 70% in monthly API costs compared to seat-based video SaaS platforms."
+            text: "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur."
           }
         ]}
         column2={[
           {
-            name: "Sophie Zhang",
-            handle: "@sophie_prod",
-            text: "The 4-department structure keeps our storyboards, script revisions, and final color grade in tight lockstep."
+            name: "Sarah Chen",
+            handle: "@sarah_director",
+            text: "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
           },
           {
-            name: "Ethan Wright",
-            handle: "@ethanw_cinema",
-            text: "Automated shot assembly with human approval gates is the exact sweet spot for solo creators producing weekly episodes."
+            name: "Tariq Morales",
+            handle: "@tariq_creative",
+            text: "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium."
           },
           {
-            name: "Aria Thorne",
-            handle: "@ariathorne_media",
-            text: "We went from concept to a 4-minute cinematic short in 48 hours. The pipeline architecture is brilliant."
+            name: "Kira Sato",
+            handle: "@kira_animates",
+            text: "Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni."
           }
         ]}
       />
 
-      {/* Section 5: [CTA1] Flowbite split dashboard CTA */}
+      {/* Section 5: [CTA] Statement band */}
       <FlowbiteCtaSection
-        title="Build your private AI film studio today"
-        description="Join solo directors and independent creators building lasting cinematic universes with Gem Studio. Zero per-seat markups, full creator ownership."
-        ctaHref={entryHref}
-        ctaLabel={authenticated ? "Open Production Floor" : "Create Free Studio"}
+        title="Lorem ipsum dolor sit amet consectetur"
+        description="Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur."
+        ctaHref="/?auth=signup"
+        ctaLabel="Create Studio →"
       />
     </div>
   );

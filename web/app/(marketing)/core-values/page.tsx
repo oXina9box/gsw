@@ -1,28 +1,33 @@
+import { notFound } from "next/navigation";
 import { KometaC2Section, KometaF2Section } from "@/components/blocks/kometa/kometa-approved-sections";
-
 export const metadata = {
   title: "Core Values",
   description: "The core principles and architectural philosophy behind Gem Studio.",
 };
+export const dynamic = "force-dynamic";
 
 export default function CoreValuesPage() {
+  if (process.env.SITE_CONTENT_APPROVED !== "true") {
+    notFound();
+  }
+
   return (
     <article className="marketing-detail space-y-12 sm:space-y-16" data-archetype="A1">
       {/* Section 1: [C2] Manifesto heading + lede + 2 mission pills + studio photo */}
       <KometaC2Section
         title={
           <span>
-            Cinema needs craft. <span className="text-lime">Not random slop.</span>
+            Lorem ipsum dolor <span className="text-lime">sit amet.</span>
           </span>
         }
-        lede="We believe generative video only becomes art when directors have absolute, deterministic control over continuity, framing, tone, and pacing."
+        lede="Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident."
         pill1={{
-          title: "Creator First & Always",
-          description: "No mandatory subscriptions or hidden lock-ins. You own 100% of your generated media and character DNA."
+          title: "Lorem ipsum dolor",
+          description: "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo."
         }}
         pill2={{
-          title: "Open Core Standards",
-          description: "We build on open schemas, verifiable JSON shot contracts, and transparent background worker pipelines."
+          title: "Consectetur adipiscing",
+          description: "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla."
         }}
         imageSrc="https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260"
         imageAlt="Gem Studio Principles"
@@ -31,31 +36,31 @@ export default function CoreValuesPage() {
 
       {/* Section 2: [F2] 4 core studio principles */}
       <KometaF2Section
-        heading="Four Non-Negotiable Invariants"
-        lede="Every line of code and every agent contract in Gem Studio adheres to four foundational rules."
+        heading="Lorem ipsum dolor sit amet"
+        lede="Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur."
         cards={[
           {
-            title: "Continuity First",
-            description: "No scene generation proceeds without strict character and environment identity verification.",
-            bullets: ["Zero character morphing", "Persistent lighting vectors", "Location boundary locks"],
+            title: "Lorem ipsum",
+            description: "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore.",
+            bullets: ["Lorem ipsum dolor", "Consectetur adipiscing", "Sed do eiusmod"],
             href: "/studio"
           },
           {
-            title: "Human Director in the Loop",
-            description: "AI agents suggest and draft; human creators decide, approve, and finalize.",
-            bullets: ["Configurable approval gates", "Pre-render cost inspection", "Instant run pauses"],
+            title: "Dolor sit amet",
+            description: "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia.",
+            bullets: ["Tempor incididunt", "Ut labore et dolore", "Magna aliqua ut"],
             href: "/system"
           },
           {
-            title: "Zero Vendor Lock-In",
-            description: "Switch seamlessly between OpenAI, Anthropic, Replicate, and local open-weights models.",
-            bullets: ["Encrypted AES-256 BYOK", "Open-source contracts", "Direct model routing"],
+            title: "Consectetur",
+            description: "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi.",
+            bullets: ["Enim ad minim", "Quis nostrud exercitation", "Ullamco laboris nisi"],
             href: "/docs"
           },
           {
-            title: "Deterministic Reproducibility",
-            description: "Every generated shot is backed by an immutable ledger of prompts, seeds, and model revisions.",
-            bullets: ["Audit trail per frame", "Versioned DNA records", "One-click regeneration"],
+            title: "Adipiscing elit",
+            description: "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium.",
+            bullets: ["Aliquip ex ea", "Commodo consequat", "Duis aute irure"],
             href: "/pricing"
           }
         ]}

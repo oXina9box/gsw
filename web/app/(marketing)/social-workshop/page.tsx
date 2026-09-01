@@ -10,31 +10,32 @@ export default function SocialWorkshopPage() {
     <article className="marketing-detail space-y-12 sm:space-y-16" data-archetype="A1">
       {/* Section 1: [F1] 6-channel distribution targets */}
       <KometaF1Section
-        title="Multi-Channel Automated Distribution"
-        lede="Turn full-length studio productions into aspect-ratio optimized vertical shorts, teasers, and trailers across six major platforms."
+        title="Lorem ipsum dolor sit amet"
+        lede="Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur."
         items={[
-          { label: "YouTube Shorts" },
-          { label: "TikTok Video" },
-          { label: "Instagram Reels" },
-          { label: "X / Twitter" },
-          { label: "Discord Drops" },
-          { label: "LinkedIn Video" },
+          { label: "Lorem ipsum" },
+          { label: "Dolor sit" },
+          { label: "Consectetur" },
+          { label: "Adipiscing" },
+          { label: "Sed eiusmod" },
+          { label: "Tempor inc" },
         ]}
         ctaHref="/docs"
         ctaLabel="Learn About Channel Distribution"
+        headingLevel="h1"
       />
 
       {/* Section 2: [C3] 2-column channel workflow cards */}
       <KometaC3Section
         items={[
           {
-            title: "Automated Vertical Re-Framing (9:16)",
-            description: "Smart subject tracking keeps characters centered and subtitles dynamically positioned for mobile social feeds.",
+            title: "Lorem ipsum dolor sit",
+            description: "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
             href: "/docs",
           },
           {
-            title: "Multi-Variant Teaser Generation",
-            description: "Generate 5 distinct hook variations from one production cut to test thumbnail and retention performance.",
+            title: "Consectetur adipiscing elit",
+            description: "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.",
             href: "/docs",
           },
         ]}

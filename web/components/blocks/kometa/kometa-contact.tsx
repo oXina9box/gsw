@@ -23,8 +23,11 @@ export function KometaContact({
   formSlot,
   className = '',
 }: KometaContactProps) {
+  const baseClasses = 'py-12 md:py-20 animate-on-scroll [animation:animationIn_0.8s_ease-out_0.1s_both]';
+  const fullClassName = className ? `${baseClasses} ${className}` : baseClasses;
+
   return (
-    <section className={`py-12 md:py-20 ${className}`}>
+    <section className={fullClassName}>
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
         <div className="lg:col-span-5 space-y-6">
           {kicker && (

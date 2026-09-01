@@ -12,34 +12,34 @@ export default function PricingPage() {
       <KometaC2Section
         title={
           <span>
-            Predictable studio tiers. <span className="text-amber">Zero per-seat penalties.</span>
+            Lorem ipsum dolor <span className="text-amber">sit amet.</span>
           </span>
         }
-        lede="Pay for pipeline throughput, not headcount. Solo creators and full production teams scale freely on cloud and BYOK options."
+        lede="Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur."
         pill1={{
           title: "Pro Cloud ($49/mo)",
-          description: "All-inclusive managed credits, automated model routing, and cloud video rendering without managing keys."
+          description: "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo."
         }}
         pill2={{
           title: "BYOK Dedicated ($29/mo)",
-          description: "Bring your own OpenAI, Anthropic, and Replicate API keys. Pay pure wholesale inference costs."
+          description: "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla."
         }}
         imageSrc="https://images.pexels.com/photos/3184339/pexels-photo-3184339.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260"
         imageAlt="Gem Studio Pricing Models"
         highlightColor="amber"
+        headingLevel="h1"
       />
-
       {/* Section 2: [C3] Spotlight Comparison Cards */}
       <KometaC3Section
         items={[
           {
             title: "Pro Cloud Subscription",
-            description: "Direct access to all 13 departments with managed GPU rendering credits, automatic storage backups, and instant workspace provisioning.",
+            description: "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
             href: "/?auth=signup&plan=pro-monthly",
           },
           {
             title: "BYOK Autonomous Stack",
-            description: "Plug in your existing API credentials with AES-256 vault encryption. Unlimited team collaborators and zero pipeline markup.",
+            description: "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.",
             href: "/?auth=signup&plan=byok-monthly",
           },
         ]}
@@ -47,30 +47,30 @@ export default function PricingPage() {
 
       {/* Section 3: [S1] 3-step checkout & provisioning flow */}
       <KometaStepSection
-        badge="Instant Provisioning"
-        title="Three Steps to Directing Your AI Slate"
-        lede="Get your studio online in minutes with complete workspace isolation."
+        badge="Lorem ipsum"
+        title="Lorem ipsum dolor sit amet consectetur"
+        lede="Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
         steps={[
           {
             step: "01",
-            title: "Choose Your Tier",
-            description: "Select Pro Cloud for managed credits or BYOK for direct wholesale inference pricing.",
+            title: "Lorem ipsum dolor",
+            description: "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore.",
             href: "/?auth=signup",
             linkLabel: "Select Plan →",
           },
           {
             step: "02",
-            title: "Connect Studio Universe",
-            description: "Scaffold your primary channel, seed your lead character DNA, and define departmental roles.",
+            title: "Consectetur adipiscing",
+            description: "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt.",
             href: "/studio",
-            linkLabel: "Learn About DNA →",
+            linkLabel: "Learn more →",
           },
           {
             step: "03",
-            title: "Render First Production",
-            description: "Draft your pilot script, validate GenPlay shot contracts, and generate your first cinematic release.",
+            title: "Sed do eiusmod",
+            description: "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip.",
             href: "/system",
-            linkLabel: "View System Details →",
+            linkLabel: "Learn more →",
           },
         ]}
       />

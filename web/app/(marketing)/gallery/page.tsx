@@ -9,22 +9,22 @@ export default function GalleryPage() {
   return (
     <article className="marketing-detail space-y-12 sm:space-y-16" data-archetype="A1">
       <KometaC1Section
-        badge="Asset Gallery"
+        badge="Lorem ipsum"
         badgeColor="pink"
-        title="Visual Assets & Universe Continuities"
-        lede="Inspect high-fidelity render passes, location anchors, and lighting benchmarks generated with Gem Studio."
+        title="Lorem ipsum dolor sit amet"
+        lede="Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur."
         items={[
           {
-            title: "Character DNA Benchmarks",
-            description: "High-resolution multi-angle character studies with locked bone structure and material fidelity."
+            title: "Lorem ipsum dolor",
+            description: "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo."
           },
           {
-            title: "Lighting & Volumetric Sets",
-            description: "Cinematic anamorphic framing, rim lighting, and atmospheric volumetric fog setups."
+            title: "Consectetur adipiscing",
+            description: "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur."
           },
           {
-            title: "Costume & Wardrobe Binders",
-            description: "Persistent textile rendering, prop details, and equipment continuity across changing lighting conditions."
+            title: "Sed do eiusmod",
+            description: "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim."
           }
         ]}
         images={{
@@ -33,12 +33,13 @@ export default function GalleryPage() {
           small2: "https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260",
           alt: "Gallery render passes"
         }}
+        headingLevel="h1"
       />
 
       <KometaC4Section
-        badge="Production Floor Access"
-        title="Start Generating High-Continuity Assets"
-        description="Scaffold your private universe, seed characters with CDNA, and produce episodic video in your own isolated studio workspace."
+        badge="Lorem ipsum"
+        title="Lorem ipsum dolor sit amet consectetur"
+        description="Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident."
         imageSrc="https://images.pexels.com/photos/3182812/pexels-photo-3182812.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260"
         primaryCta={{ label: "Create Studio", href: "/?auth=signup" }}
         secondaryCta={{ label: "View Pricing", href: "/pricing" }}

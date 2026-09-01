@@ -52,6 +52,13 @@
   }
 }
 
+/* Hallmark · macrostructure: Marquee Hero · theme: Studio (locked palette — owner override: keep colors) · nav: N5 floating pill · footer: Ft5 statement · enrichment: none */
+@keyframes marquee-up { to { transform: translateY(-50%); } }
+.marquee-col { display:flex; flex-direction:column; gap:var(--space-4); animation:marquee-up 32s linear infinite; }
+.marquee-col-reverse { animation-direction:reverse; }
+.marquee-frame:hover .marquee-col { animation-play-state:paused; }
+@media (prefers-reduced-motion:reduce) { .marquee-col { animation:none; } }
+
 *,*::before,*::after { box-sizing:border-box; }
 html { overflow-x:clip; scroll-behavior:smooth; }
 body { margin:0; overflow-x:clip; background:var(--color-bg); color:var(--color-text); font:var(--text-md)/1.55 var(--font-body); }

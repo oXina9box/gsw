@@ -11,41 +11,42 @@ export default function StudioPage() {
     <article className="marketing-detail space-y-12 sm:space-y-16" data-archetype="A1">
       {/* Section 1: [C4] 50/50 split diagonal image hero */}
       <KometaC4Section
-        badge="Autonomous Production Floor"
-        title="Your Private AI Production Studio"
-        description="A full-spectrum studio built for solo directors: versioned character DNA, typed shot contracts, multi-agent department lanes, and human approval gates on every key cut."
+        badge="Lorem ipsum dolor"
+        title="Lorem ipsum dolor sit amet consectetur"
+        description="Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident."
         imageSrc="https://images.pexels.com/photos/3182812/pexels-photo-3182812.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260"
         primaryCta={{ label: "Create Studio", href: "/?auth=signup" }}
         secondaryCta={{ label: "View System Architecture", href: "/system" }}
+        headingLevel="h1"
       />
 
       {/* Section 2: [F2] 4-column studio department grid */}
       <KometaF2Section
-        heading="Four Specialized Departments"
-        lede="Gem Studio organizes generative filmmaking into distinct departmental lanes. Each lane executes with isolated agent scopes and typed artifact handoffs."
+        heading="Lorem ipsum dolor sit amet"
+        lede="Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur."
         cards={[
           {
-            title: "Script & Story",
-            description: "Narrative drafting, scene beats, and screenplay formatting aligned to character voice models.",
-            bullets: ["Screenplay parser", "Scene breakdown", "Voice model contracts"],
+            title: "Lorem ipsum",
+            description: "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore.",
+            bullets: ["Lorem ipsum dolor", "Consectetur adipiscing", "Sed do eiusmod"],
             href: "/docs"
           },
           {
-            title: "Visual & DNA",
-            description: "Studio Universe continuity locks for characters, wardrobe, props, and location sets.",
-            bullets: ["Character DNA locks", "Location anchors", "Style embeddings"],
+            title: "Dolor sit amet",
+            description: "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia.",
+            bullets: ["Tempor incididunt", "Ut labore et dolore", "Magna aliqua ut"],
             href: "/docs"
           },
           {
-            title: "Production Floor",
-            description: "GenPlay camera direction, lighting setups, actor positioning, and generative render queues.",
-            bullets: ["GenPlay shot contracts", "Multi-model workers", "Attempt audit ledger"],
+            title: "Consectetur",
+            description: "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi.",
+            bullets: ["Enim ad minim", "Quis nostrud exercitation", "Ullamco laboris nisi"],
             href: "/docs"
           },
           {
-            title: "Release Planning",
-            description: "Native assembly, stem rendering, metadata generation, and scheduled multi-channel distribution.",
-            bullets: ["Timeline assembly", "Channel profiles", "Automated release packs"],
+            title: "Adipiscing elit",
+            description: "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium.",
+            bullets: ["Aliquip ex ea", "Commodo consequat", "Duis aute irure"],
             href: "/docs"
           }
         ]}
@@ -53,22 +54,22 @@ export default function StudioPage() {
 
       {/* Section 3: [C1] 3 stacked production standards + 3-image asset collage */}
       <KometaC1Section
-        badge="Enterprise Guardrails"
+        badge="Lorem ipsum"
         badgeColor="lime"
-        title="Predictable Cinematic Guardrails"
-        lede="No random slop. Every step in your studio operates under strict invariants to keep continuity, costs, and rights under absolute control."
+        title="Lorem ipsum dolor sit amet"
+        lede="Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur."
         items={[
           {
-            title: "Zero Continuity Drift",
-            description: "Characters keep identical bone structures, facial features, and styling across months of episodic production."
+            title: "Lorem ipsum dolor",
+            description: "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo."
           },
           {
-            title: "Deterministic Secret BYOK",
-            description: "Your provider keys are encrypted with AES-256-GCM. Keys never reach browser bundles or shared agent logs."
+            title: "Consectetur adipiscing",
+            description: "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur."
           },
           {
-            title: "Human Director Approvals",
-            description: "Set approval thresholds per department. Automated passes pause before expensive render runs until you sign off."
+            title: "Sed do eiusmod",
+            description: "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim."
           }
         ]}
         images={{

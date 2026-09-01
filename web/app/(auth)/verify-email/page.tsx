@@ -9,8 +9,8 @@ export default function VerifyEmailPage() {
       <PrelineSplitAuth
         title="Verify your email"
         subtitle="We've sent a verification link to your registered email address. Follow the link to activate your production workspace."
-        sidebarTagline="Email Verification"
-        sidebarHeadline="Deterministic studio provisioning ready upon confirmation"
+        sidebarTagline="Lorem ipsum"
+        sidebarHeadline="Lorem ipsum dolor sit amet consectetur"
         footer={
           <p className="text-text-muted">
             Didn&apos;t receive an email?{" "}

@@ -10,22 +10,22 @@ export default function PortfolioPage() {
     <article className="marketing-detail space-y-12 sm:space-y-16" data-archetype="A1">
       {/* Section 1: [C1] Showcase lede + 3 capability highlights + 3-image production showcase */}
       <KometaC1Section
-        badge="Cinematic Showcase"
+        badge="Lorem ipsum"
         badgeColor="cyan"
-        title="Episodic Slates Powered by Gem Studio"
-        lede="Explore real productions assembled with Gem Studio's 13-stage pipeline, CDNA character continuity, and GenPlay camera contracts."
+        title="Lorem ipsum dolor sit amet"
+        lede="Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur."
         items={[
           {
-            title: "Cyberpunk Anthology: Neon Drift",
-            description: "A 4-part episodic sci-fi series with 12 distinct characters rendered with locked DNA continuity across 96 minutes of 4K video."
+            title: "Lorem ipsum dolor",
+            description: "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo."
           },
           {
-            title: "Documentary: Echoes of the Deep",
-            description: "Photorealistic nature storytelling generated with custom lighting and camera angle specifications."
+            title: "Consectetur adipiscing",
+            description: "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur."
           },
           {
-            title: "Animated Feature: Clockwork Kingdom",
-            description: "Stylized 3D anime aesthetics rendered across continuous sequence binders without model drift."
+            title: "Sed do eiusmod",
+            description: "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim."
           }
         ]}
         images={{
@@ -34,13 +34,14 @@ export default function PortfolioPage() {
           small2: "https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260",
           alt: "Portfolio showcase clips"
         }}
+        headingLevel="h1"
       />
 
       {/* Section 2: [C4] Featured film showcase banner */}
       <KometaC4Section
-        badge="Flagship Release"
-        title="Direct Your Next Project with Gem Studio"
-        description="Every project in our portfolio was directed by solo creators utilizing deterministic agent handoffs and locked DNA continuity."
+        badge="Lorem ipsum"
+        title="Lorem ipsum dolor sit amet consectetur"
+        description="Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident."
         imageSrc="https://images.pexels.com/photos/927022/pexels-photo-927022.jpeg?auto=compress&cs=tinysrgb&dpr=3&h=750&w=1260"
         primaryCta={{ label: "Launch a Studio Production", href: "/?auth=signup" }}
         secondaryCta={{ label: "Explore the Pipeline", href: "/system" }}

@@ -12,51 +12,52 @@ export default function SystemPage() {
     <article className="marketing-detail space-y-12 sm:space-y-16" data-archetype="A1">
       {/* Section 1: [F1] 6-node system architecture grid */}
       <KometaF1Section
-        title="Six Foundational System Layers"
-        lede="Gem Studio operates as a stateful, DB-driven orchestration engine connecting model providers, storage buckets, continuity vaults, and worker queues."
+        title="Lorem ipsum dolor sit amet"
+        lede="Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur."
         items={[
-          { label: "GenPlay Contracts" },
-          { label: "Continuity DNA" },
-          { label: "Worker Engine" },
-          { label: "Encrypted BYOK" },
-          { label: "Row-Level Security" },
-          { label: "Media Storage" },
+          { label: "Lorem ipsum" },
+          { label: "Dolor sit" },
+          { label: "Consectetur" },
+          { label: "Adipiscing" },
+          { label: "Sed eiusmod" },
+          { label: "Tempor inc" },
         ]}
         ctaHref="/docs"
         ctaLabel="Read System Architecture Specs"
+        headingLevel="h1"
       />
 
       {/* Section 2: [C5] 4-card system breakdown */}
       <KometaC5Section
-        badge="System Core"
-        title="Predictable Machine Guarantees"
-        lede="Designed for solo creators needing high uptime, cost caps, and reproducible media generation."
+        badge="Lorem ipsum"
+        title="Lorem ipsum dolor sit amet"
+        lede="Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur."
         cards={[
           {
-            title: "Continuity DNA Vaults",
-            description: "JSON schema validated records ensure facial landmarks, costume vectors, and location bounds persist across runs."
+            title: "Lorem ipsum dolor",
+            description: "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo."
           },
           {
-            title: "AES-256 Secret BYOK",
-            description: "Provider credentials are authenticated at worker boundaries and never leak to client JavaScript."
+            title: "Consectetur adipiscing",
+            description: "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla."
           },
           {
-            title: "Deterministic Workers",
-            description: "Background worker queues execute async generations with automatic retry caps and quota reservations."
+            title: "Sed do eiusmod",
+            description: "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit."
           },
           {
-            title: "Immutable Audit Ledger",
-            description: "Every prompt, model attempt, seed, and generated asset is permanently linked to its parent production."
+            title: "Tempor incididunt",
+            description: "Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur."
           }
         ]}
         ctaHref="/pricing"
         ctaLabel="View Studio Deployment Tiers"
       />
 
-      {/* Section 3: [CTA1] Split dashboard mockup CTA */}
+      {/* Section 3: [CTA1] Split statement CTA */}
       <FlowbiteCtaSection
-        title="Engineered for mission-critical generative cinema"
-        description="Deploy Gem Studio in the cloud with our Pro plans or self-host the open-core stack on your own infrastructure."
+        title="Lorem ipsum dolor sit amet consectetur"
+        description="Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur."
         ctaHref="/?auth=signup"
         ctaLabel="Launch Your System"
       />

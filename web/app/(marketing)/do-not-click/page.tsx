@@ -8,17 +8,17 @@ export default function DoNotClickPage() {
   return (
     <article className="marketing-detail" data-archetype="A1">
       <header className="detail-hero shell">
-        <p className="eyebrow">You were warned</p>
-        <h1>One little <span>video.</span></h1>
-        <p className="detail-lede">A tiny easter egg for people who read all the way to the footer.</p>
+        <p className="eyebrow">Lorem ipsum</p>
+        <h1>Lorem ipsum <span>dolor.</span></h1>
+        <p className="detail-lede">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
       </header>
 
       <Reveal>
         <section className="detail-band shell">
           <div className="w-full max-w-4xl mx-auto">
             <FlowbiteVideo
-              title="Studio Easter Egg"
-              caption="You scrolled all the way to the end of the script."
+              title="Lorem Ipsum Video"
+              caption="Lorem ipsum dolor sit amet, consectetur adipiscing elit."
               className="border-cyan/40"
             />
             <div className="mt-4 aspect-video w-full border border-border bg-surface rounded-md overflow-hidden">
@@ -37,7 +37,7 @@ export default function DoNotClickPage() {
 
       <Reveal>
         <section className="detail-cta shell">
-          <h2>Back to making something real.</h2>
+          <h2>Lorem ipsum dolor sit amet.</h2>
           <Link className="button button-outline" href="/">
             Return home ↗
           </Link>

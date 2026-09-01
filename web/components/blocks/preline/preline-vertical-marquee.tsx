@@ -23,8 +23,13 @@ export function PrelineVerticalMarquee({
   column2,
   className = '',
 }: PrelineVerticalMarqueeProps) {
+  const col1Items = [...column1, ...column1];
+  const col2Items = [...column2, ...column2];
+  const baseClasses = 'px-4 py-16 mx-auto sm:max-w-xl md:max-w-full lg:max-w-screen-xl md:px-8 lg:py-20 animate-on-scroll [animation:animationIn_0.8s_ease-out_0.1s_both]';
+  const fullClassName = className ? `${baseClasses} ${className}` : baseClasses;
+
   return (
-    <section className={`px-4 py-16 mx-auto sm:max-w-xl md:max-w-full lg:max-w-screen-xl md:px-8 lg:py-20 animate-on-scroll [animation:animationIn_0.8s_ease-out_0.1s_both] ${className}`}>
+    <section className={fullClassName}>
       <div className="max-w-xl mb-10 md:mx-auto sm:text-center lg:max-w-2xl md:mb-12">
         <span className="inline-block px-3 py-1 mb-4 text-xs font-mono font-semibold tracking-wider uppercase rounded-full border border-amber/30 text-amber bg-amber/10">
           Continuous Continuity
@@ -35,21 +40,21 @@ export function PrelineVerticalMarquee({
         <p className="text-base text-text-muted md:text-lg font-body">{subtitle}</p>
       </div>
 
-      <div className="relative max-w-5xl mx-auto overflow-hidden rounded-3xl border border-border bg-surface p-6 sm:p-8">
+      <div className="marquee-frame relative mx-auto max-w-5xl overflow-hidden border border-border rounded-md bg-surface p-6">
         {/* Soft top & bottom gradient masks */}
         <div className="pointer-events-none absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-surface to-transparent z-10" />
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-surface to-transparent z-10" />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[32rem] overflow-hidden">
           {/* Column 1 */}
-          <div className="flex flex-col space-y-4">
-            {column1.map((item, idx) => (
+          <div className="marquee-col">
+            {col1Items.map((item, idx) => (
               <div
                 key={idx}
-                className="p-5 rounded-2xl bg-surface-2 border border-border hover:border-amber/40 transition duration-200"
+                className="rounded-sm border border-border bg-surface-2 p-5"
               >
                 <div className="flex items-center gap-3 mb-3">
-                  <div className="w-10 h-10 rounded-full bg-amber/10 border border-amber/30 text-amber flex items-center justify-center font-mono font-bold text-xs shrink-0">
+                  <div className="w-9 h-9 rounded-full bg-amber/10 border border-amber/30 text-amber flex items-center justify-center font-mono font-bold text-xs shrink-0">
                     {item.avatar ? (
                       <img src={item.avatar} alt={item.name} className="w-full h-full object-cover rounded-full" />
                     ) : (
@@ -67,14 +72,14 @@ export function PrelineVerticalMarquee({
           </div>
 
           {/* Column 2 */}
-          <div className="flex flex-col space-y-4">
-            {column2.map((item, idx) => (
+          <div className="marquee-col marquee-col-reverse">
+            {col2Items.map((item, idx) => (
               <div
                 key={idx}
-                className="p-5 rounded-2xl bg-surface-2 border border-border hover:border-cyan/40 transition duration-200"
+                className="rounded-sm border border-border bg-surface-2 p-5"
               >
                 <div className="flex items-center gap-3 mb-3">
-                  <div className="w-10 h-10 rounded-full bg-cyan/10 border border-cyan/30 text-cyan flex items-center justify-center font-mono font-bold text-xs shrink-0">
+                  <div className="w-9 h-9 rounded-full bg-cyan/10 border border-cyan/30 text-cyan flex items-center justify-center font-mono font-bold text-xs shrink-0">
                     {item.avatar ? (
                       <img src={item.avatar} alt={item.name} className="w-full h-full object-cover rounded-full" />
                     ) : (
@@ -118,37 +123,29 @@ export function PrelineSplitAuth({
 }: PrelineSplitAuthProps) {
   return (
     <div className={`min-h-[calc(100vh-14rem)] flex items-center justify-center py-8 px-4 ${className}`}>
-      <div className="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-12 rounded-3xl bg-surface border border-border overflow-hidden shadow-2xl">
+      <div className="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-12 rounded-md bg-surface border border-border overflow-hidden">
         {/* Left Sidebar / Metric Cards */}
-        <div className="lg:col-span-5 p-8 lg:p-12 bg-surface-2/70 border-b lg:border-b-0 lg:border-r border-border flex flex-col justify-between">
+        <div className="lg:col-span-5 p-8 bg-surface-2 border-b lg:border-b-0 lg:border-r border-border flex flex-col justify-between">
           <div>
             <span className="inline-block px-3 py-1 mb-4 text-xs font-mono font-semibold tracking-wider uppercase rounded-full border border-pink/30 text-pink bg-pink/10">
               {sidebarTagline}
             </span>
-            <h2 className="text-2xl font-display font-bold text-text mb-8">
+            <h2 className="text-2xl font-display font-bold text-text mb-6">
               {sidebarHeadline}
             </h2>
 
-            <div className="space-y-4">
-              <div className="p-4 rounded-xl bg-surface border border-border shadow-sm">
-                <div className="flex items-center justify-between text-xs font-mono text-text-faint mb-1">
-                  <span>Referral Traffic</span>
-                  <span className="text-cyan">164k</span>
-                </div>
-                <div className="w-full h-1.5 bg-surface-3 rounded-full overflow-hidden">
-                  <div className="w-3/4 h-full bg-cyan" />
-                </div>
+            <div className="border-t border-border mt-6">
+              <div className="flex justify-between border-b border-border py-3 font-mono text-xs text-text-muted">
+                <span>Continuity locks</span>
+                <span className="text-text font-semibold">—</span>
               </div>
-
-              <div className="p-4 rounded-xl bg-surface border border-border shadow-sm flex items-center justify-between">
-                <div>
-                  <div className="text-xs font-mono text-text-faint">Continuity Lock</div>
-                  <div className="text-lg font-bold font-mono text-lime">27,058 <span className="text-xs text-lime">↑ 22%</span></div>
-                </div>
-                <div className="text-xs font-mono text-text-faint text-right">
-                  <div>Market Share</div>
-                  <div className="text-sm font-bold text-text">1,529</div>
-                </div>
+              <div className="flex justify-between border-b border-border py-3 font-mono text-xs text-text-muted">
+                <span>Active agents</span>
+                <span className="text-text font-semibold">—</span>
+              </div>
+              <div className="flex justify-between border-b border-border py-3 font-mono text-xs text-text-muted">
+                <span>Render queue</span>
+                <span className="text-text font-semibold">—</span>
               </div>
             </div>
           </div>
@@ -163,7 +160,7 @@ export function PrelineSplitAuth({
         </div>
 
         {/* Right Form Card */}
-        <div className="lg:col-span-7 p-8 lg:p-12 flex flex-col justify-center">
+        <div className="lg:col-span-7 p-8 flex flex-col justify-center">
           <div className="mb-6">
             <h1 className="text-2xl sm:text-3xl font-display font-bold text-text mb-2">
               {title}

@@ -29,8 +29,8 @@ export default function ResetPasswordPage() {
       <PrelineSplitAuth
         title="Reset your password"
         subtitle="Set a new secure password of at least 8 characters for your studio account."
-        sidebarTagline="Security Recovery"
-        sidebarHeadline="Encrypted credentials and isolated workspace protection"
+        sidebarTagline="Lorem ipsum"
+        sidebarHeadline="Lorem ipsum dolor sit amet consectetur"
         footer={
           <p className="text-text-muted">
             Remembered your credentials?{" "}
