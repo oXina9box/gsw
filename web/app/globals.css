@@ -42,13 +42,14 @@
   }
 }
 
-/* Default: paused */
-.animate-on-scroll {
-  animation-play-state: paused !important;
-}
-/* Activated by JS */
-.animate-on-scroll.animate {
-  animation-play-state: running !important;
+@media (scripting: enabled) {
+  /* ponytail: pause only when JS runs; no-JS/crawler sees content immediately */
+  .animate-on-scroll {
+    animation-play-state: paused !important;
+  }
+  .animate-on-scroll.animate {
+    animation-play-state: running !important;
+  }
 }
 
 *,*::before,*::after { box-sizing:border-box; }
@@ -218,8 +219,13 @@ main { min-height:calc(100vh - 12rem); }
 .closing-layout h2 { font:600 clamp(2.4rem,5.5vw,4.8rem)/.95 var(--font-display); letter-spacing:-.06em; }
 
 /* Viewport reveals: compositor-only, once, with reduced-motion fallback. */
-.reveal-on-scroll { opacity:0; transform:translateY(1rem); transition:opacity 280ms var(--ease-out),transform 280ms var(--ease-out); }
+@media (scripting: enabled) {
+  .reveal-on-scroll { opacity:0; transform:translateY(1rem); transition:opacity 280ms var(--ease-out),transform 280ms var(--ease-out); }
+}
 .reveal-on-scroll.is-visible { opacity:1; transform:none; }
+@media (scripting: none) {
+  .reveal-on-scroll { opacity:1; transform:none; }
+}
 .desk-card.reveal-on-scroll:nth-child(2) { transition-delay:70ms; }
 .desk-card.reveal-on-scroll:nth-child(3) { transition-delay:140ms; }
 .desk-card.reveal-on-scroll:nth-child(4) { transition-delay:210ms; }
