@@ -1,4 +1,5 @@
 import { KometaC3Section, KometaC5Section } from "@/components/blocks/kometa/kometa-approved-sections";
+import { docArticles } from "@/lib/docs/content";
 
 export const metadata = {
   title: "Documentation",
@@ -22,28 +23,11 @@ export default function DocsPage() {
 
       {/* Section 1: [C3] 2-column spotlight navigation cards */}
       <KometaC3Section
-        items={[
-          {
-            title: "Lorem Ipsum Quickstart",
-            description: "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo.",
-            href: "/docs/studio-pipeline",
-          },
-          {
-            title: "Consectetur GenPlay",
-            description: "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla.",
-            href: "/docs/genplay-contracts",
-          },
-          {
-            title: "Sed do Eiusmod DNA",
-            description: "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim.",
-            href: "/docs/dna-continuity",
-          },
-          {
-            title: "Tempor Incididunt BYOK",
-            description: "Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur.",
-            href: "/docs/byok-security",
-          },
-        ]}
+        items={docArticles.slice(0, 4).map((article) => ({
+          title: article.title,
+          description: article.description,
+          href: `/docs/${article.slug}`,
+        }))}
       />
       {/* Section 2: [C5] 4-card guide index */}
       <KometaC5Section
