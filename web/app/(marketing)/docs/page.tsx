@@ -26,22 +26,22 @@ export default function DocsPage() {
           {
             title: "Lorem Ipsum Quickstart",
             description: "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo.",
-            href: "/docs/quickstart",
+            href: "/docs/studio-pipeline",
           },
           {
             title: "Consectetur GenPlay",
             description: "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla.",
-            href: "/docs/genplay",
+            href: "/docs/genplay-contracts",
           },
           {
             title: "Sed do Eiusmod DNA",
             description: "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim.",
-            href: "/docs/dna",
+            href: "/docs/dna-continuity",
           },
           {
             title: "Tempor Incididunt BYOK",
             description: "Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur.",
-            href: "/docs/byok",
+            href: "/docs/byok-security",
           },
         ]}
       />

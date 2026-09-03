@@ -20,46 +20,46 @@ export function SiteFooter() {
           </Link>
           <nav
             aria-label="Footer navigation"
-            className="flex flex-wrap gap-x-6 gap-y-2 font-mono text-xs uppercase tracking-widest text-text-muted"
+            className="flex flex-wrap gap-x-6 gap-y-3 font-mono text-xs uppercase tracking-widest text-text-muted"
           >
-            <Link href="/studio" className="transition-colors hover:text-text">
+            <Link href="/studio" className="py-1.5 transition-colors hover:text-text">
               The Studio
             </Link>
-            <Link href="/system" className="transition-colors hover:text-text">
+            <Link href="/system" className="py-1.5 transition-colors hover:text-text">
               The System
             </Link>
-            <Link href="/docs" className="transition-colors hover:text-text">
+            <Link href="/docs" className="py-1.5 transition-colors hover:text-text">
               Docs
             </Link>
-            <Link href="/pricing" className="transition-colors hover:text-text">
+            <Link href="/pricing" className="py-1.5 transition-colors hover:text-text">
               Pricing
             </Link>
-            <Link href="/portfolio" className="transition-colors hover:text-text">
+            <Link href="/portfolio" className="py-1.5 transition-colors hover:text-text">
               Portfolio
             </Link>
-            <Link href="/contact" className="transition-colors hover:text-text">
+            <Link href="/contact" className="py-1.5 transition-colors hover:text-text">
               Contact
             </Link>
             {showDraftLinks && (
               <>
-                <Link href="/core-values" className="transition-colors hover:text-text">
+                <Link href="/core-values" className="py-1.5 transition-colors hover:text-text">
                   Core values
                 </Link>
-                <Link href="/terms" className="transition-colors hover:text-text">
+                <Link href="/terms" className="py-1.5 transition-colors hover:text-text">
                   Terms
                 </Link>
-                <Link href="/privacy" className="transition-colors hover:text-text">
+                <Link href="/privacy" className="py-1.5 transition-colors hover:text-text">
                   Privacy
                 </Link>
               </>
             )}
           </nav>
-          <div className="flex items-center space-x-6">
+          <div className="flex items-center gap-3">
             <a
               href="https://facebook.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-text-muted hover:text-text"
+              className="p-1.5 text-text-muted hover:text-text"
               aria-label="Facebook"
             >
               <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -74,7 +74,7 @@ export function SiteFooter() {
               href="https://instagram.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-text-muted hover:text-text"
+              className="p-1.5 text-text-muted hover:text-text"
               aria-label="Instagram"
             >
               <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -89,7 +89,7 @@ export function SiteFooter() {
               href="https://twitter.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-text-muted hover:text-text"
+              className="p-1.5 text-text-muted hover:text-text"
               aria-label="Twitter"
             >
               <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -100,7 +100,7 @@ export function SiteFooter() {
               href="https://github.com/oXina9box/gem-studio"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-text-muted hover:text-text"
+              className="p-1.5 text-text-muted hover:text-text"
               aria-label="GitHub"
             >
               <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -115,7 +115,7 @@ export function SiteFooter() {
               href="https://dribbble.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-text-muted hover:text-text"
+              className="p-1.5 text-text-muted hover:text-text"
               aria-label="Dribbble"
             >
               <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">

@@ -125,7 +125,7 @@ export function PrelineSplitAuth({
     <div className={`min-h-[calc(100vh-14rem)] flex items-center justify-center py-8 px-4 ${className}`}>
       <div className="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-12 rounded-md bg-surface border border-border overflow-hidden">
         {/* Left Sidebar / Metric Cards */}
-        <div className="lg:col-span-5 p-8 bg-surface-2 border-b lg:border-b-0 lg:border-r border-border flex flex-col justify-between">
+        <div className="lg:col-span-5 order-2 lg:order-none p-8 bg-surface-2 border-t lg:border-t-0 lg:border-r border-border flex flex-col justify-between">
           <div>
             <span className="inline-block px-3 py-1 mb-4 text-xs font-mono font-semibold tracking-wider uppercase rounded-full border border-pink/30 text-pink bg-pink/10">
               {sidebarTagline}
@@ -160,7 +160,7 @@ export function PrelineSplitAuth({
         </div>
 
         {/* Right Form Card */}
-        <div className="lg:col-span-7 p-8 flex flex-col justify-center">
+        <div className="lg:col-span-7 order-1 lg:order-none p-8 flex flex-col justify-center">
           <div className="mb-6">
             <h1 className="text-2xl sm:text-3xl font-display font-bold text-text mb-2">
               {title}
