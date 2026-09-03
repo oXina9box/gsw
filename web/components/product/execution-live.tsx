@@ -86,13 +86,13 @@ export function ExecutionLive({ executions, steps }: { executions: Execution[]; 
   }, []);
 
   return (
-    <div className="grid grid-single">
+    <div className="legacy-grid grid-single">
       {latestExecutions.map((execution) => {
         const execSteps = latestSteps.filter((s) => s.execution_id === execution.id);
         const activeStep = execSteps.find((s) => s.status === "running");
 
         return (
-          <div className="card" key={execution.id}>
+          <div className="legacy-card" key={execution.id}>
             <div className="section-head">
               <div>
                 <span className="eyebrow">Execution {execution.id.slice(0, 8)}</span>

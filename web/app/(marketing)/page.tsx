@@ -16,8 +16,9 @@ export default async function HomePage() {
   return (
     <div data-archetype="A1" className="space-y-12 sm:space-y-16">
       {/* Marquee Hero Section */}
-      <section className="py-12 sm:py-20 animate-on-scroll [animation:animationIn_0.8s_ease-out_0.1s_both]">
-        <div className="max-w-4xl">
+      <section className="px-4 py-12 sm:py-20 md:px-8 animate-on-scroll [animation:animationIn_0.8s_ease-out_0.1s_both]">
+        <div className="mx-auto w-full max-w-screen-xl">
+          <div className="max-w-4xl">
           <div className="flex items-center gap-3 mb-6">
             <span className="pulse-dot" />
             <span className="font-mono text-xs uppercase tracking-widest text-cyan">
@@ -26,7 +27,7 @@ export default async function HomePage() {
           </div>
 
           <h1
-            className="font-display font-extrabold tracking-tight text-text leading-tight mb-6"
+            className="font-display font-extrabold tracking-tight text-text leading-tight mb-6 [overflow-wrap:break-word]"
             style={{ fontSize: "clamp(2.8rem,7vw,6rem)" }}
           >
             Lorem ipsum dolor <span className="text-pink">consectetur.</span>
@@ -50,6 +51,7 @@ export default async function HomePage() {
               Explore the studio
             </Link>
           </div>
+        </div>
         </div>
       </section>
 
