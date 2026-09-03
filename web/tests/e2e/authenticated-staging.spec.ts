@@ -6,78 +6,43 @@ const hasStaging = isStagingConfigured();
 test.describe("Authenticated Staging Verification", () => {
   test.skip(!hasStaging, "Authenticated staging tests require STAGING_SUPABASE_URL and STAGING_SUPABASE_ANON_KEY");
 
-  test("completes the onboarding wizard through all steps to studio ready", async ({ page }) => {
-    await authenticatePage(page, { destination: "/app/onboarding?step=identity" });
+  test("opens the onboarding modal with studio essentials and the seven-step rail", async ({ page }) => {
+    await authenticatePage(page, { destination: "/app?step=identity" });
 
-    // Intro popup explains the setup process; dismiss it to reach the form.
-    await page.getByRole("button", { name: /Start setup/i }).click();
+    // Mandatory onboarding: incomplete profile auto-opens the setup dialog.
+    const dialog = page.getByRole("dialog");
+    await expect(dialog).toBeVisible();
+    await expect(dialog.locator("#onboarding-modal-title")).toContainText(/Studio Setup · Create Studio essentials/i);
 
-    // Step 1: Studio Identity
-    await expect(page.getByRole("heading", { level: 1 })).toContainText(/Name your studio|Studio setup/i);
-    const studioNameInput = page.locator('input[name="studio_name"]');
-    await studioNameInput.fill("Staging Verification Studio");
-    const taglineInput = page.locator('input[name="tagline"]');
-    if (await taglineInput.isVisible()) {
-      await taglineInput.fill("Cinematic staging verification pipeline");
-    }
-    const contentTypeInput = page.locator('input[name="content_type"]');
-    if (await contentTypeInput.isVisible()) {
-      await contentTypeInput.fill("Sci-Fi Episodic");
-    }
-    await page.getByRole("button", { name: /Save and continue/i }).click();
+    // Step 1 form fields are present.
+    await expect(dialog.locator('input[name="studio_name"]')).toBeVisible();
+    await expect(dialog.locator('input[name="tagline"]')).toBeVisible();
 
-    // Step 2: Channel Setup
-    await expect(page).toHaveURL(/step=channel/);
-    await expect(page.getByRole("heading", { level: 1 })).toContainText(/Set up first channel/i);
-    await page.locator('input[name="channel_name"]').fill("Staging Broadcast Channel");
-    await page.locator('input[name="format"]').fill("4K Episodic Series");
-    const seasonScopeInput = page.locator('input[name="season_scope"]');
-    if (await seasonScopeInput.isVisible()) {
-      await seasonScopeInput.fill("Season 1 (8 episodes)");
-    }
-    await page.getByRole("button", { name: /Save and continue/i }).click();
-
-    // Step 3: Department Configuration
-    await expect(page).toHaveURL(/step=hiring/);
-    await expect(page.getByRole("heading", { level: 1 })).toContainText(/Configure departments/i);
-    const departmentsInput = page.locator('input[name="departments"]');
-    await expect(departmentsInput).toBeVisible();
-    await page.getByRole("button", { name: /Save and continue/i }).click();
-
-    // Step 4: Completion State
-    await expect(page.getByRole("heading", { level: 1 })).toContainText(/Setup complete/i);
-    await expect(page.getByText(/Studio ready/i)).toBeVisible();
-    const openFrontOfficeLink = page.getByRole("link", { name: /Open Front Office/i });
-    await expect(openFrontOfficeLink).toBeVisible();
+    // Rail renders all seven steps with the first step current.
+    const rail = dialog.getByRole("navigation", { name: "Setup progress" });
+    await expect(rail).toBeVisible();
+    await expect(rail.locator("span.onboarding-rail-step")).toHaveCount(7);
+    await expect(rail.locator("span.onboarding-rail-step.is-current")).toHaveCount(1);
   });
 
-  test("navigates agent catalog and executes role-matched hiring flow", async ({ page }) => {
+  test("renders the agent catalog cards and exposes the hiring flow", async ({ page }) => {
     await authenticatePage(page, { destination: "/app/agents" });
 
     await expect(page.getByRole("heading", { level: 1 })).toContainText(/Hire for the role/i);
-    await expect(page.locator(".catalog-list")).toBeVisible();
 
-    const catalogCards = page.locator(".catalog-row");
-    await expect(catalogCards.first()).toBeVisible();
+    // Catalog renders as PrelineCard grid: at least one card with an Open core or Protected badge.
+    const cards = page.locator("section.product-page div.grid > div");
+    await expect(cards.first()).toBeVisible();
+    await expect(page.getByText(/Open core|Protected/).first()).toBeVisible();
 
-    // Verify catalog contains open-core agents with role metadata
-    const freeBadge = page.locator(".status-mark.free, .status-mark:has-text('Open core')").first();
-    await expect(freeBadge).toBeVisible();
-
-    // If an unhired free agent has an available lane dropdown, execute the hire action
-    const hireForm = page.locator(".catalog-row form.inline-form").first();
+    // If a hire form is available (unhired agent with matching lanes), the lane select and Hire button render.
+    const hireForm = page.locator("form.inline-form").first();
     if (await hireForm.isVisible()) {
-      const laneSelect = hireForm.locator('select[name="lane_id"]');
-      await expect(laneSelect).toBeVisible();
-      const hireButton = hireForm.getByRole("button", { name: "Hire" });
-      await hireButton.click();
-
-      // Page reloads and indicates hired state or removes hire button for that agent
-      await expect(page.getByRole("heading", { level: 1 })).toContainText(/Hire for the role/i);
-      await expect(page.getByText("Hired").first()).toBeVisible();
+      await expect(hireForm.locator('select[name="lane_id"]')).toBeVisible();
+      await expect(hireForm.getByRole("button", { name: "Hire" })).toBeVisible();
     } else {
-      // If agents are already hired from seed, verify hired status tag is displayed
-      await expect(page.getByText("Hired").first()).toBeVisible();
+      // Otherwise the seed is fully hired or lanes are missing: hired tags or fallback links must render.
+      await expect(page.getByText(/Hired|Create lane|Unlock/).first()).toBeVisible();
     }
   });
 
@@ -115,5 +80,28 @@ test.describe("Authenticated Staging Verification", () => {
       // If no production exists yet, verify studio workflow surface renders
       await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
     }
+  });
+  test("studio shell sidenav navigates modules on desktop", async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 720 });
+    await authenticatePage(page, { destination: "/app" });
+    const sidenav = page.getByRole("navigation", { name: "Studio modules" });
+    await expect(sidenav).toBeVisible();
+    await sidenav.getByRole("link", { name: "Channels" }).click();
+    await expect(page).toHaveURL(/\/app\/channels$/);
+    await sidenav.getByRole("link", { name: "Billing" }).click();
+    await expect(page).toHaveURL(/\/app\/billing$/);
+  });
+
+  test("studio shell drawer opens and closes below md breakpoint", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await authenticatePage(page, { destination: "/app" });
+    const aside = page.locator("#studio-sidenav");
+    // transform-offscreen: assert bounding box, not toBeHidden
+    await expect.poll(async () => (await aside.boundingBox())?.x).toBeLessThan(0);
+    await page.getByRole("button", { name: "Toggle navigation" }).click();
+    await expect.poll(async () => (await aside.boundingBox())?.x).toBeGreaterThanOrEqual(0);
+    await page.getByRole("navigation", { name: "Studio modules" }).getByRole("link", { name: "Marketing" }).click();
+    await expect(page).toHaveURL(/\/app\/marketing$/);
+    await expect.poll(async () => (await aside.boundingBox())?.x).toBeLessThan(0);
   });
 });

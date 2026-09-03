@@ -1,7 +1,5 @@
 import { Suspense } from "react";
-import { StudioNav } from "@/components/product/studio-nav";
-import { SiteFooter } from "@/components/shell/site-footer";
-import { CoreB } from "@/components/templates/core-shell";
+import { StudioShell } from "@/components/product/studio-shell";
 import { OnboardingModal } from "@/components/onboarding/onboarding-modal";
 import { shouldRedirectToOnboarding, type OnboardingStep } from "@/lib/studio/onboarding";
 import { getWorkspaceContext } from "@/lib/studio/workspace";
@@ -19,10 +17,7 @@ export default async function ProductLayout({ children }: Readonly<{ children: R
   const studioLogoUrl = typeof identity.logoUrl === "string" && identity.logoUrl.trim() ? identity.logoUrl.trim() : null;
   return (
     <>
-      <StudioNav studioName={studioName} studioLogoUrl={studioLogoUrl} userEmail={user.email ?? undefined} orchestrationEnabled />
-
-      <main id="main-content"><CoreB>{children}</CoreB></main>
-      <SiteFooter />
+      <StudioShell studioName={studioName} studioLogoUrl={studioLogoUrl} userEmail={user.email ?? undefined} orchestrationEnabled>{children}</StudioShell>
       <Suspense fallback={null}>
         <OnboardingModal
           defaultOpen={needsOnboarding}

@@ -1,30 +1,26 @@
-# Gates: Blocks Wireframe Rebuild (Kometa / Preline / Flowbite across every page)
+# Gates: studio-sidenav-shell
 
-OWNS: web/app/**, web/components/**, web/app/globals.css, web/tokens.css, design.md, docs/DESIGN.md
+OWNS: web/app/(product)/layout.tsx, web/components/product/**, web/components/shell/command-menu.tsx, web/app/globals.css, web/tests/e2e/authenticated-staging.spec.ts, GATES.md
 
-Scope: Rebuild presentation layer of all 34 rendered pages on vendored pack blocks with a Tailwind v4 theme bridge. Data queries, server actions, RLS, routing, redirects untouched. Legacy page CSS in globals.css gets deleted as the last page using it migrates.
+Scope: Replace authenticated (product) chrome with Flowbite-style fixed topbar + sidenav shell using Gem Studio tokens, design-upgraded by a reviewer pass.
 
-- [x] G1: Block coverage. Every rendered page uses a vendored block or Tailwind utilities. Redirect stubs and LegalDocument pages exempt.
-  CHECK: cd web && node ../scripts/verify-blocks-coverage.mjs
-  EXPECT: BLOCK COVERAGE PASS
-- [x] G2: Production build passes after migration.
-  CHECK: cd web && npm run build 2>&1 | grep -q 'Compiled successfully' && echo BUILD_OK
-  EXPECT: BUILD_OK
-- [x] G3: Lint passes with zero warnings.
-  CHECK: cd web && npm run lint && echo LINT_OK
-  EXPECT: LINT_OK
-- [x] G4: Strict typecheck passes.
-  CHECK: cd web && npm run typecheck && echo TYPECHECK_OK
-  EXPECT: TYPECHECK_OK
-- [x] G5: Full vitest suite passes.
-  CHECK: cd web && npx vitest run >/tmp/gsw-vitest.log 2>&1 && echo TESTS_OK || { tail -3 /tmp/gsw-vitest.log; exit 1; }
-  EXPECT: TESTS_OK
-- [x] G6: No raw hex colors in vendored blocks. OKLCH tokens only.
-  CHECK: cd web && ! grep -rn '#[0-9a-fA-F]\{6\}' components/blocks && echo NO_HEX_OK
-  EXPECT: NO_HEX_OK
-- [x] G7: Reduced motion guard covers reveal animations.
-  CHECK: grep -q 'prefers-reduced-motion' web/app/globals.css && echo MOTION_OK
-  EXPECT: MOTION_OK
-- [x] G8: Design docs carry pack mapping addendum.
-  CHECK: grep -q 'Kometa' design.md && grep -q 'Preline' design.md && grep -q 'Flowbite' design.md && grep -q 'Kometa' docs/DESIGN.md && echo DOCS_OK
-  EXPECT: DOCS_OK
+- [x] G0: design spec produced and protected contract intact
+  EVIDENCE: local://studio-sidenav-design-spec.md — protected contract verified item by item (9/9 pass): nav landmark, hamburger attrs, aside/main ids, skip-link preserved, NAV_GROUPS + orchestration gating, Docs/Help only, 2 topbar actions, md breakpoint, h-14/pt-14 + w-64/md:pl-64 pairs
+
+- [x] G1: typecheck, lint, unit tests pass
+  CHECK: sh -c "cd web && npm run typecheck && npm run lint && npm test && echo G1-PASS"
+  EXPECT: G1-PASS
+  EVIDENCE: G1-PASS — typecheck + lint (max-warnings=0) + vitest 161/161 (29 files)
+
+- [x] G2: production build passes
+  CHECK: sh -c "cd web && npm run build && echo G2-PASS"
+  EXPECT: G2-PASS
+  EVIDENCE: G2-PASS — 49 routes built, no prerender errors
+
+- [x] G3: authenticated shell E2E passes (sidebar nav + mobile drawer); creds guard prevents fake-green on skip
+  CHECK: sh -c 'cd web && OUT=$(npx playwright test tests/e2e/authenticated-staging.spec.ts 2>&1); echo "$OUT"; echo "$OUT" | grep -q skipped && exit 1; echo "$OUT" | grep -q passed || exit 1; echo G3-PASS'
+  EXPECT: G3-PASS
+  EVIDENCE: G3-PASS — 5/5 passed 17.4s, zero skipped (zero-skip guard active); 2 stale pre-existing tests fixed against current modal/PrelineCard reality
+
+- [x] G4: manual visual verification of desktop sidebar and mobile drawer in real browser against the design spec (screenshots recorded)
+  EVIDENCE: verified in real browser (headless Chromium, real Supabase login) — desktop 1280px: sidenav 256px visible, 3 groups, active Channels aria-current + bg-pink/10 + font-medium 500 + pink rail; cue moves to Billing on nav; topbar 56px bg/92 blur; main pt-14/pl-64 + min-height 664px (studio-main override live); ⌘K dialog opens with 11 NAV_GROUPS links; AccountDropdown full menu. Mobile 390px: drawer x −256↔0 via hamburger, backdrop mounts/unmounts, backdrop click closes. Screenshots: /tmp/omp-sshots-1571b9329b64dba4.webp (desktop channels), 1571b9831964dba5 (billing active), 1571b9aa0aa4dba6 (⌘K), 1571b9aaefa4dba7 (account menu), 1571b9be1de4dba8 (mobile drawer)

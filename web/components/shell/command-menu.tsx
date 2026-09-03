@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { useEffect, useRef } from "react";
+import { NAV_GROUPS } from "@/lib/studio/navigation";
+import { SearchIcon } from "@/components/product/shell-icons";
 
 export function CommandMenu({ authenticated }: { authenticated: boolean }) {
   const dialogRef = useRef<HTMLDialogElement>(null);
@@ -46,14 +48,43 @@ export function CommandMenu({ authenticated }: { authenticated: boolean }) {
   }, []);
 
   return <>
-    <button className="button button-outline command-pill" type="button" onClick={open} ref={triggerRef}><span>Explore</span><kbd>⌘ K</kbd></button>
-    <dialog className="command-dialog" ref={dialogRef} aria-modal="true" onClick={(event) => { if (event.target === event.currentTarget) close(); }} onClose={() => triggerRef.current?.focus()}>
-      <div className="dialog-topline"><span>Navigate the studio</span><button className="dialog-close" type="button" onClick={close} aria-label="Close command menu">×</button></div>
+    <button
+      type="button"
+      onClick={open}
+      ref={triggerRef}
+      className="hidden md:flex w-64 lg:w-80 items-center gap-2 rounded-sm border border-border-2 bg-surface px-3 py-2 font-mono text-xs text-text-muted transition-colors duration-150 hover:border-cyan hover:text-text"
+    >
+      <SearchIcon className="h-4 w-4" />
+      <span>Search</span>
+      <kbd className="ml-auto rounded border border-border px-1.5 py-0.5 text-[10px] text-text-faint">⌘K</kbd>
+    </button>
+    <button
+      type="button"
+      onClick={open}
+      aria-label="Search"
+      className="md:hidden rounded-sm p-2 text-text-muted transition-colors duration-150 hover:bg-surface-2 hover:text-text active:bg-surface-3"
+    >
+      <SearchIcon className="h-5 w-5" />
+    </button>
+    <dialog
+      className="command-dialog"
+      ref={dialogRef}
+      aria-modal="true"
+      onClick={(event) => { if (event.target === event.currentTarget) close(); }}
+      onClose={() => triggerRef.current?.focus()}
+    >
+      <div className="dialog-topline"><span>{authenticated ? "Navigate the studio" : "Explore Gem Studio"}</span><button className="dialog-close" type="button" onClick={close} aria-label="Close command menu">×</button></div>
       <nav className="command-list" aria-label="Quick navigation">
-        <Link href={authenticated ? "/app" : "/?auth=signup"} onClick={close}><span className="span-2">{authenticated ? "Open your Studio" : "Create your Studio"}</span><span>↗</span></Link>
-        <Link href="/studio" onClick={close}><span className="span-2">Walk the studio floor</span><span>↗</span></Link>
-        <Link href="/system" onClick={close}><span className="span-2">See the handoff system</span><span>↗</span></Link>
-        <Link href="/social-workshop" onClick={close}><span className="span-2">Open the social workshop</span><span>↗</span></Link>
+        {authenticated
+          ? NAV_GROUPS.flatMap((group) => group.items.map((item) => (
+              <Link key={item.href} href={item.href} onClick={close}><span className="span-2">{group.label === item.label ? item.label : `${group.label} · ${item.label}`}</span><span>↗</span></Link>
+            )))
+          : <>
+              <Link href={"/?auth=signup"} onClick={close}><span className="span-2">Create your Studio</span><span>↗</span></Link>
+              <Link href="/studio" onClick={close}><span className="span-2">Walk the studio floor</span><span>↗</span></Link>
+              <Link href="/system" onClick={close}><span className="span-2">See the handoff system</span><span>↗</span></Link>
+              <Link href="/social-workshop" onClick={close}><span className="span-2">Open the social workshop</span><span>↗</span></Link>
+            </>}
       </nav>
     </dialog>
   </>;
