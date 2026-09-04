@@ -511,7 +511,7 @@ export async function saveOnboardingStep(formData: FormData) {
   const { supabase, id } = await workspace();
   const { data: current } = await supabase.from("onboarding_profiles").select("step, provider_status").eq("workspace_id", id).maybeSingle();
   const currentStep = (current?.step as OnboardingStep | null) ?? null;
-  if (!nextOnboardingStep(currentStep, step)) redirect(failure("order"));
+  if (!destination.startsWith("/app/onboarding") && !nextOnboardingStep(currentStep, step)) redirect(failure("order"));
 
   if (step === "identity") {
     const brandColors = formData.getAll("brand_colors").map(String).filter(Boolean);
@@ -705,7 +705,7 @@ export async function saveOnboardingStep(formData: FormData) {
     });
     if (error) redirect(failure("save"));
     revalidatePath("/app");
-    redirect("/app");
+    redirect(destination);
   }
 
   redirect("/app");
@@ -763,4 +763,49 @@ export async function failExecutionStep(formData: FormData) {
 export async function cancelExecutionAction(formData: FormData) {
   const executionId = text(formData, "execution_id"); const { supabase, id, user } = await workspace(); if (!executionId || !(await ownedExecution(supabase, executionId, id))) redirect("/app/orchestration?error=execution");
   if (!(await cancelExecution(createAdminClient(), executionId, user.id)).ok) redirect("/app/orchestration?error=execution"); revalidatePath("/app/orchestration"); redirect("/app/orchestration");
+}
+
+export async function markNotificationsReadAction(formData?: FormData) {
+  const { supabase, id } = await workspace();
+  await supabase.rpc("mark_notifications_read", { target_workspace: id });
+  const returnTo = formData ? text(formData, "return_to") : null;
+  revalidatePath("/app", "layout");
+  if (returnTo && returnTo.startsWith("/")) redirect(returnTo);
+}
+
+export async function saveChannelMarketingBudget(formData: FormData) {
+  const channelId = textField(formData, "channel_id");
+  const credits = Number.parseInt(text(formData, "guideline_credits") || "0", 10);
+  const notes = textField(formData, "notes", 2_000) ?? "";
+  if (!channelId || !Number.isSafeInteger(credits) || credits < 0) {
+    redirect(`/app/channels/${channelId ?? ""}/marketing?error=budget`);
+  }
+  const { supabase, id } = await workspace();
+  const { error } = await supabase.from("channel_marketing_budgets").upsert({
+    channel_id: channelId,
+    workspace_id: id,
+    guideline_credits: credits,
+    notes,
+    updated_at: new Date().toISOString(),
+  });
+  if (error) redirect(`/app/channels/${channelId}/marketing?error=budget`);
+  revalidatePath(`/app/channels/${channelId}/marketing`);
+  redirect(`/app/channels/${channelId}/marketing?saved=1`);
+}
+
+export async function setChannelStaffAction(formData: FormData) {
+  const channelId = textField(formData, "channel_id");
+  const agentId = textField(formData, "agent_id");
+  const assign = formData.get("assign") === "true";
+  if (!channelId || !agentId) redirect(`/app/channels/${channelId ?? ""}/staffing?error=staff`);
+  const { supabase, id } = await workspace();
+  const { error } = await supabase.rpc("set_channel_staff", {
+    target_workspace: id,
+    target_channel: channelId,
+    target_agent: agentId,
+    assign,
+  });
+  if (error) redirect(`/app/channels/${channelId}/staffing?error=staff`);
+  revalidatePath(`/app/channels/${channelId}/staffing`);
+  redirect(`/app/channels/${channelId}/staffing?saved=1`);
 }

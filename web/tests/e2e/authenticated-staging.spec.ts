@@ -107,4 +107,37 @@ test.describe("Authenticated Staging Verification", () => {
     await expect(page).toHaveURL(/\/app\/collective$/);
     await expect.poll(async () => (await aside.boundingBox())?.x).toBeLessThan(0);
   });
+
+  test("channel navigation exposes subpages and channel subnav tabs", async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 720 });
+    await authenticatePage(page, { destination: "/app" });
+    const sidenav = page.getByRole("navigation", { name: "Studio modules" });
+
+    // Find the first channel link under Channels section in the sidenav
+    const firstChannel = sidenav.locator('a[href^="/app/channels/"]').first();
+    await expect(firstChannel).toBeVisible();
+    const channelHref = await firstChannel.getAttribute("href");
+    expect(channelHref).toBeTruthy();
+
+    await firstChannel.click();
+    await expect(page).toHaveURL(new RegExp(`${channelHref}$`));
+
+    // Channel subnav is present with all 6 tabs
+    const subnav = page.getByRole("navigation", { name: "Channel sections" });
+    await expect(subnav).toBeVisible();
+    await expect(subnav.getByRole("link", { name: "Dashboard" })).toBeVisible();
+    await expect(subnav.getByRole("link", { name: "Staffing" })).toBeVisible();
+    await expect(subnav.getByRole("link", { name: "Marketing" })).toBeVisible();
+    await expect(subnav.getByRole("link", { name: "Social Media" })).toBeVisible();
+    await expect(subnav.getByRole("link", { name: "Assets" })).toBeVisible();
+    await expect(subnav.getByRole("link", { name: "Production" })).toBeVisible();
+
+    // Navigate to Staffing subpage
+    await subnav.getByRole("link", { name: "Staffing" }).click();
+    await expect(page).toHaveURL(new RegExp(`${channelHref}/staffing$`));
+    await expect(page.getByRole("heading", { level: 1 })).toContainText(/Staffing/i);
+
+    // Sidenav expands the active channel sub-items
+    await expect(sidenav.getByRole("link", { name: "Staffing" })).toBeVisible();
+  });
 });

@@ -8,6 +8,7 @@ import { FlowbiteBadge } from "@/components/blocks/flowbite/flowbite-badge";
 import { FlowbiteProgress } from "@/components/blocks/flowbite/flowbite-progress";
 import { PrelineCard } from "@/components/blocks/preline/preline-card";
 
+import { ChannelSubnav } from "@/components/product/channel-subnav";
 export default async function ChannelPage({
   params,
   searchParams,
@@ -37,10 +38,10 @@ export default async function ChannelPage({
         />
       </div>
 
-      <div className="section-head mb-8 flex items-center justify-between">
+      <div className="section-head mb-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <h1 className="font-display text-3xl sm:text-4xl font-bold text-text">
-            {channel.name}
+            {channel.name} · Dashboard
           </h1>
           <FlowbiteBadge color={channel.status === "active" ? "lime" : "amber"}>
             {channel.status}
@@ -50,6 +51,8 @@ export default async function ChannelPage({
           Open production
         </Link>
       </div>
+
+      <ChannelSubnav channelId={channel.id} activeTab="dashboard" />
 
       {error === "channel" ? (
         <p className="form-error mb-6" role="alert">The channel could not be saved.</p>
