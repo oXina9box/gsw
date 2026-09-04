@@ -4,12 +4,12 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { GemLogo } from "@/components/shell/gem-brand-icon";
-import { StudioLogo } from "@/components/shell/studio-logo";
 import { AccountDropdown } from "@/components/shell/account-dropdown";
+import { ModulesDropdown } from "@/components/shell/modules-dropdown";
 import { CommandMenu } from "@/components/shell/command-menu";
 import { NotificationBell, type NotificationRecord } from "@/components/product/notification-bell";
 import { STUDIO_MODULE, navItemIsActive, type NavItem } from "@/lib/studio/navigation";
-import { CloseIcon, DocsIcon, HelpIcon, MenuIcon } from "@/components/product/shell-icons";
+import { ChevronDownIcon, CloseIcon, DocsIcon, HelpIcon, MenuIcon } from "@/components/product/shell-icons";
 
 export type ChannelSummary = Readonly<{ id: string; name: string; status: string; is_brand?: boolean }>;
 
@@ -37,6 +37,8 @@ const ITEM_CLASSES = "flex items-center gap-3 rounded-sm px-3 py-2 font-mono tex
 export function StudioShell({ studioName, studioLogoUrl, userEmail, orchestrationEnabled, channels, notifications = [], children }: StudioShellProps) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const [desktopCollapsed, setDesktopCollapsed] = useState(false);
+  const [expandedChannels, setExpandedChannels] = useState<Record<string, boolean>>({});
   // Render-time adjustment: close drawer on navigation without an effect
   const [lastPath, setLastPath] = useState(pathname);
   if (lastPath !== pathname) {
@@ -80,8 +82,14 @@ export function StudioShell({ studioName, studioLogoUrl, userEmail, orchestratio
             aria-label="Toggle navigation"
             aria-controls="studio-sidenav"
             aria-expanded={open}
-            onClick={() => setOpen((v) => !v)}
-            className="md:hidden rounded-sm p-2 text-text-muted transition-colors duration-150 hover:bg-surface-2 hover:text-text active:bg-surface-3"
+            onClick={() => {
+              if (typeof window !== "undefined" && window.innerWidth >= 768) {
+                setDesktopCollapsed((v) => !v);
+              } else {
+                setOpen((v) => !v);
+              }
+            }}
+            className="rounded-sm p-2 text-text-muted transition-colors duration-150 hover:bg-surface-2 hover:text-text active:bg-surface-3"
           >
             {open ? <CloseIcon className="h-5 w-5" /> : <MenuIcon className="h-5 w-5" />}
           </button>
@@ -91,16 +99,8 @@ export function StudioShell({ studioName, studioLogoUrl, userEmail, orchestratio
           <div className="ml-auto flex items-center gap-2">
             <CommandMenu authenticated />
             <NotificationBell notifications={notifications} />
-            <div aria-label="Modules" className="grid grid-flow-col gap-1 rounded-sm border border-border bg-surface-2 p-1">
-              <span className="rounded-sm bg-surface px-2 py-1.5 font-mono text-[11px] uppercase tracking-wider font-medium text-text">
-                Studio
-              </span>
-            </div>
-            <div className="hidden items-center gap-2 rounded-sm border border-border-2 bg-surface px-2 py-1 sm:flex">
-              <StudioLogo studioName={studioName} logoUrl={studioLogoUrl} size={24} />
-              <span className="max-w-32 truncate font-mono text-xs text-text">{studioName}</span>
-            </div>
-            <AccountDropdown userEmail={userEmail} />
+            <ModulesDropdown channels={channels} />
+            <AccountDropdown studioName={studioName} studioLogoUrl={studioLogoUrl} userEmail={userEmail} />
           </div>
         </div>
       </header>
@@ -114,7 +114,9 @@ export function StudioShell({ studioName, studioLogoUrl, userEmail, orchestratio
 
       <aside
         id="studio-sidenav"
-        className={`fixed left-0 top-14 bottom-0 z-40 w-64 border-r border-hairline bg-surface transition-transform duration-300 ease-out motion-reduce:transition-none ${open ? "translate-x-0" : "-translate-x-full md:translate-x-0"}`}
+        className={`fixed left-0 top-14 bottom-0 z-40 w-64 border-r border-hairline bg-surface transition-transform duration-300 ease-out motion-reduce:transition-none ${
+          open ? "translate-x-0" : "-translate-x-full"
+        } ${desktopCollapsed ? "md:-translate-x-full" : "md:translate-x-0"}`}
       >
         <div className="studio-sidenav-scroll flex h-full flex-col overflow-y-auto px-3 py-4">
           <nav aria-label="Studio modules">
@@ -130,24 +132,46 @@ export function StudioShell({ studioName, studioLogoUrl, userEmail, orchestratio
                   {channels.map((channel) => {
                     const href = `/app/channels/${channel.id}`;
                     const isChannelActive = pathname === href || pathname.startsWith(`${href}/`);
+                    const isExpanded = expandedChannels[channel.id] ?? isChannelActive;
+                    const toggleExpand = (e: React.MouseEvent) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setExpandedChannels((prev) => ({
+                        ...prev,
+                        [channel.id]: !(prev[channel.id] ?? isChannelActive),
+                      }));
+                    };
                     return (
                       <li key={channel.id} className="space-y-0.5">
-                        <Link
-                          href={href}
-                          aria-current={pathname === href ? "page" : undefined}
-                          className={`${ITEM_CLASSES} pl-4${isChannelActive ? " bg-surface-2 text-text font-medium" : ""}`}
-                        >
-                          <span aria-hidden="true" className={`h-4 w-0.5 rounded-full ${isChannelActive ? "bg-pink" : "bg-transparent"}`} />
-                          <span className="truncate">{channel.name}</span>
-                          {channel.is_brand ? (
-                            <span className="ml-1 rounded bg-pink/20 px-1 py-0.5 font-mono text-[9px] uppercase tracking-wider text-pink font-semibold">
-                              Brand
-                            </span>
-                          ) : null}
-                          <span className="ml-auto font-mono text-[10px] text-text-faint">{channel.status}</span>
-                        </Link>
-                        {isChannelActive ? (
-                          <ul className="ml-6 space-y-0.5 border-l border-border-2 pl-2">
+                        <div className="flex items-center gap-1 group">
+                          <Link
+                            href={href}
+                            aria-current={pathname === href ? "page" : undefined}
+                            className={`flex-1 flex items-center gap-2.5 rounded-sm px-3 py-2 font-mono text-sm text-text-muted transition-colors duration-150 hover:bg-surface-2 hover:text-text active:bg-surface-3 ${
+                              isChannelActive ? " bg-surface-2 text-text font-medium" : ""
+                            }`}
+                          >
+                            <span aria-hidden="true" className={`h-4 w-0.5 rounded-full ${isChannelActive ? "bg-pink" : "bg-transparent"}`} />
+                            <span className="truncate">{channel.name}</span>
+                            {channel.is_brand ? (
+                              <span className="ml-1 rounded bg-pink/20 px-1 py-0.5 font-mono text-[9px] uppercase tracking-wider text-pink font-semibold">
+                                Brand
+                              </span>
+                            ) : null}
+                            <span className="ml-auto font-mono text-[10px] text-text-faint">{channel.status}</span>
+                          </Link>
+                          <button
+                            type="button"
+                            aria-label={`Toggle ${channel.name} subpages`}
+                            aria-expanded={isExpanded}
+                            onClick={toggleExpand}
+                            className="p-2 rounded-sm text-text-faint hover:text-text hover:bg-surface-2 transition-colors"
+                          >
+                            <ChevronDownIcon className={`h-3.5 w-3.5 transition-transform duration-200 ${isExpanded ? "rotate-180 text-text" : ""}`} />
+                          </button>
+                        </div>
+                        {isExpanded ? (
+                          <ul className="ml-5 space-y-0.5 border-l border-border-2 pl-2">
                             {CHANNEL_SUBPAGES.map((sub) => {
                               const subHref = `${href}${sub.subpath}`;
                               const isSubActive = sub.subpath === "" ? pathname === href : pathname === subHref || pathname.startsWith(`${subHref}/`);
@@ -189,7 +213,7 @@ export function StudioShell({ studioName, studioLogoUrl, userEmail, orchestratio
         </div>
       </aside>
 
-      <main id="main-content" className="studio-main pt-14 md:pl-64">{children}</main>
+      <main id="main-content" className={`studio-main pt-14 transition-all duration-300 ${desktopCollapsed ? "md:pl-0" : "md:pl-64"}`}>{children}</main>
     </>
   );
 }

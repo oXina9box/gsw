@@ -4,12 +4,15 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/browser";
+import { StudioLogo } from "@/components/shell/studio-logo";
 
 type AccountDropdownProps = Readonly<{
   userEmail?: string;
+  studioName?: string;
+  studioLogoUrl?: string | null;
 }>;
 
-export function AccountDropdown({ userEmail }: AccountDropdownProps) {
+export function AccountDropdown({ userEmail, studioName = "Studio", studioLogoUrl }: AccountDropdownProps) {
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -50,19 +53,25 @@ export function AccountDropdown({ userEmail }: AccountDropdownProps) {
       <button
         ref={buttonRef}
         type="button"
-        className="account-dropdown-trigger"
+        className="account-dropdown-trigger flex items-center gap-2"
         aria-haspopup="menu"
         aria-expanded={open}
         aria-controls="account-menu"
         onClick={() => setOpen((v) => !v)}
       >
-        <span className="account-dropdown-label">Account</span>
+        <StudioLogo studioName={studioName} logoUrl={studioLogoUrl} size={20} />
+        <span className="account-dropdown-label max-w-[130px] truncate">{studioName}</span>
         <span className="account-dropdown-chevron" aria-hidden="true">▾</span>
       </button>
       {open ? (
         <div ref={menuRef} id="account-menu" role="menu" className="account-dropdown-menu">
-          {userEmail ? <div className="account-dropdown-email" aria-hidden="true">{userEmail}</div> : null}
-
+          <div className="flex items-center gap-3 p-3 border-b border-hairline bg-surface-2/40 rounded-t-sm" role="presentation">
+            <StudioLogo studioName={studioName} logoUrl={studioLogoUrl} size={32} />
+            <div className="min-w-0 flex-1">
+              <div className="font-mono text-xs font-semibold text-text truncate">{studioName}</div>
+              {userEmail ? <div className="font-mono text-[11px] text-text-faint truncate">{userEmail}</div> : null}
+            </div>
+          </div>
           <div className="account-dropdown-group" role="group" aria-label="Profile">
             <Link role="menuitem" href="/account" onClick={close}>Profile</Link>
             <Link role="menuitem" href="/account#settings" onClick={close}>Settings</Link>
