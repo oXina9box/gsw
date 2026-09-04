@@ -77,15 +77,27 @@ test.describe("Authenticated Staging Verification", () => {
     const sidenav = page.getByRole("navigation", { name: "Studio modules" });
     await expect(sidenav).toBeVisible();
 
-    // Single Studio module: Collective, Integrations, Secrets, Studio setup + channels.
-    await sidenav.getByRole("link", { name: "Collective" }).click();
+    // Modules live in the topbar launcher dropdown
+    const modulesButton = page.locator('header [aria-label="Modules"]').getByRole("button");
+    await modulesButton.click();
+    await page.getByRole("link", { name: /Studio Reports/i }).click();
     await expect(page).toHaveURL(/\/app\/collective$/);
-    await sidenav.getByRole("link", { name: "Secrets" }).click();
+
+    await modulesButton.click();
+    await page.getByRole("link", { name: /Secrets/i }).click();
     await expect(page).toHaveURL(/\/app\/secrets$/);
 
     // Module chip and studio identity sit in the topbar, left of the account dropdown.
     await expect(page.locator('header [aria-label="Modules"]')).toContainText("Studio");
     await expect(page.locator("header").getByText("Staging Verification Studio")).toBeVisible();
+
+    // Sidenav exposes the channel subpages
+    await expect(sidenav.getByRole("link", { name: "Dashboard" })).toBeVisible();
+    await expect(sidenav.getByRole("link", { name: "Channel Staffing" })).toBeVisible();
+    await expect(sidenav.getByRole("link", { name: "Marketing" })).toBeVisible();
+    await expect(sidenav.getByRole("link", { name: "Social Media" })).toBeVisible();
+    await expect(sidenav.getByRole("link", { name: "Assets" })).toBeVisible();
+    await expect(sidenav.getByRole("link", { name: "Production" })).toBeVisible();
 
     // Account access lives only in the top-right dropdown, never in the sidenav.
     await expect(sidenav.getByRole("link", { name: "Billing" })).toHaveCount(0);
@@ -103,8 +115,8 @@ test.describe("Authenticated Staging Verification", () => {
     await expect.poll(async () => (await aside.boundingBox())?.x).toBeLessThan(0);
     await page.getByRole("button", { name: "Toggle navigation" }).click();
     await expect.poll(async () => (await aside.boundingBox())?.x).toBeGreaterThanOrEqual(0);
-    await page.getByRole("navigation", { name: "Studio modules" }).getByRole("link", { name: "Collective" }).click();
-    await expect(page).toHaveURL(/\/app\/collective$/);
+    await page.getByRole("navigation", { name: "Studio modules" }).getByRole("link", { name: "Dashboard" }).click();
+    await expect(page).toHaveURL(/\/app/);
     await expect.poll(async () => (await aside.boundingBox())?.x).toBeLessThan(0);
   });
 
@@ -113,16 +125,20 @@ test.describe("Authenticated Staging Verification", () => {
     await authenticatePage(page, { destination: "/app" });
     const sidenav = page.getByRole("navigation", { name: "Studio modules" });
 
-    // Find the first channel link under Channels section in the sidenav
-    const firstChannel = sidenav.locator('a[href^="/app/channels/"]').first();
-    await expect(firstChannel).toBeVisible();
-    const channelHref = await firstChannel.getAttribute("href");
-    expect(channelHref).toBeTruthy();
+    // Sidenav directly exposes all 6 subpages for the active channel
+    await expect(sidenav.getByRole("link", { name: "Dashboard" })).toBeVisible();
+    await expect(sidenav.getByRole("link", { name: "Channel Staffing" })).toBeVisible();
+    await expect(sidenav.getByRole("link", { name: "Marketing" })).toBeVisible();
+    await expect(sidenav.getByRole("link", { name: "Social Media" })).toBeVisible();
+    await expect(sidenav.getByRole("link", { name: "Assets" })).toBeVisible();
+    await expect(sidenav.getByRole("link", { name: "Production" })).toBeVisible();
 
-    await firstChannel.click();
-    await expect(page).toHaveURL(new RegExp(`${channelHref}$`));
+    // Navigate to Staffing subpage from sidenav
+    await sidenav.getByRole("link", { name: "Channel Staffing" }).click();
+    await expect(page).toHaveURL(/\/staffing$/);
+    await expect(page.getByRole("heading", { level: 1 })).toContainText(/Staffing/i);
 
-    // Channel subnav is present with all 6 tabs
+    // Channel subnav is also present with all 6 tabs
     const subnav = page.getByRole("navigation", { name: "Channel sections" });
     await expect(subnav).toBeVisible();
     await expect(subnav.getByRole("link", { name: "Dashboard" })).toBeVisible();
@@ -131,13 +147,5 @@ test.describe("Authenticated Staging Verification", () => {
     await expect(subnav.getByRole("link", { name: "Social Media" })).toBeVisible();
     await expect(subnav.getByRole("link", { name: "Assets" })).toBeVisible();
     await expect(subnav.getByRole("link", { name: "Production" })).toBeVisible();
-
-    // Navigate to Staffing subpage
-    await subnav.getByRole("link", { name: "Staffing" }).click();
-    await expect(page).toHaveURL(new RegExp(`${channelHref}/staffing$`));
-    await expect(page.getByRole("heading", { level: 1 })).toContainText(/Staffing/i);
-
-    // Sidenav expands the active channel sub-items
-    await expect(sidenav.getByRole("link", { name: "Staffing" })).toBeVisible();
   });
 });

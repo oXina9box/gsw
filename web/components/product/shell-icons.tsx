@@ -150,3 +150,54 @@ export function WorkflowIcon({ className }: IconProps) {
     </Svg>
   );
 }
+
+export function DashboardIcon({ className }: IconProps) {
+  return (
+    <Svg className={className}>
+      <rect width="7" height="9" x="3" y="3" rx="1" />
+      <rect width="7" height="5" x="14" y="3" rx="1" />
+      <rect width="7" height="9" x="14" y="12" rx="1" />
+      <rect width="7" height="5" x="3" y="16" rx="1" />
+    </Svg>
+  );
+}
+
+export function StaffingIcon({ className }: IconProps) {
+  return (
+    <Svg className={className}>
+      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+      <circle cx="9" cy="7" r="4" />
+      <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+      <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+    </Svg>
+  );
+}
+
+export function MarketingIcon({ className }: IconProps) {
+  return (
+    <Svg className={className}>
+      <path d="m3 11 18-5v12L3 14v-3z" />
+      <path d="M11.6 16.8a3 3 0 1 1-5.8-1.6" />
+    </Svg>
+  );
+}
+
+export function SocialIcon({ className }: IconProps) {
+  return (
+    <Svg className={className}>
+      <circle cx="18" cy="5" r="3" />
+      <circle cx="6" cy="12" r="3" />
+      <circle cx="18" cy="19" r="3" />
+      <line x1="8.59" x2="15.42" y1="13.51" y2="17.49" />
+      <line x1="15.41" x2="8.59" y1="6.51" y2="10.49" />
+    </Svg>
+  );
+}
+
+export function AssetsIcon({ className }: IconProps) {
+  return (
+    <Svg className={className}>
+      <path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z" />
+    </Svg>
+  );
+}
