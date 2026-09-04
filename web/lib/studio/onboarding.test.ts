@@ -5,6 +5,7 @@ import {
   LOGO_ALLOWED_MIME_TYPES,
   LOGO_MAX_BYTES,
   LOGO_MAX_DIMENSION,
+  furthestOnboardingStep,
   maskApiKey,
   nextOnboardingStep,
   shouldRedirectToOnboarding,
@@ -26,6 +27,12 @@ describe("onboarding transitions", () => {
     expect(nextOnboardingStep("providers", "identity")).toBe("identity");
     expect(nextOnboardingStep("providers", "commercial")).toBe("commercial");
     expect(nextOnboardingStep("hiring", "channel")).toBe("channel");
+  });
+
+  it("never regresses saved progress", () => {
+    expect(furthestOnboardingStep("complete", "commercial")).toBe("complete");
+    expect(furthestOnboardingStep("identity", "commercial")).toBe("commercial");
+    expect(furthestOnboardingStep(null, "identity")).toBe("identity");
   });
 });
 

@@ -120,7 +120,7 @@ Unknown User header contains:
 - Sign up
 - Log in
 
-Authenticated pages use a dashboard shell instead of the public header: a fixed topbar (brand, search, notifications bell, account dropdown) and a fixed left sidenav. The sidenav carries a module switcher selecting the Studio module (Collective, workspace channels, studio floor, assets, orchestration where enabled, integrations, secrets) or the Front Office module (overview, channels, marketing, socials, staffing), with fixed utility links (Docs, Help, Contact) at the bottom. Account access (profile, settings, billing, subscription, credits) exists only through the top-right account dropdown. Every workspace has an implicit Studio Brand Channel seeded first; user channels follow in creation order, and each channel carries its own dashboard, staffing, marketing, social media, assets, and production surfaces.
+Authenticated pages use a dashboard shell instead of the public header: a fixed topbar (brand, search, notifications bell, module indicator, studio identity, account dropdown) and a fixed left sidenav. One Studio module governs the authenticated app: the sidenav lists Collective, workspace channels, Integrations, Secrets, and Studio setup, with fixed utility links (Docs, Help, Contact) at the bottom. Account access (profile, settings, billing, subscription, credits) exists only through the top-right account dropdown. Every workspace has an implicit Studio Brand Channel seeded first; user channels follow in creation order, and each channel carries its own dashboard, staffing, marketing, social media, assets, and production surfaces.
 
 Footer appears on every public page and contains:
 

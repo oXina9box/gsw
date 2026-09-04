@@ -61,40 +61,24 @@ export type NavGroup = Readonly<{
 
 export const STUDIO_MODULE: NavGroup = {
   label: "Studio",
-  href: "/app/studio",
-  paths: ["/app/studio", "/app/front-office", "/app/assets", "/app/productions", "/app/universe", "/app/dna", "/app/genplay", "/app/orchestration", "/app/collective", "/app/secrets", "/app/integrations"],
+  href: "/app/collective",
+  paths: ["/app", "/app/studio", "/app/front-office", "/app/assets", "/app/productions", "/app/universe", "/app/dna", "/app/genplay", "/app/orchestration", "/app/collective", "/app/secrets", "/app/integrations", "/app/channels", "/app/marketing", "/app/social", "/app/staffing", "/app/agents", "/app/builder", "/app/onboarding"],
   items: [
     { label: "Collective", href: "/app/collective" },
-    { label: "Studio Floor", href: "/app/studio", paths: ["/app/studio", "/app/front-office", "/app/productions"] },
-    { label: "Assets", href: "/app/assets", paths: ["/app/assets", "/app/universe", "/app/dna", "/app/genplay"] },
-    { label: "Orchestration", href: "/app/orchestration" },
     { label: "Integrations", href: "/app/integrations" },
     { label: "Secrets", href: "/app/secrets" },
-  ],
-} as const;
-
-export const FRONT_OFFICE_MODULE: NavGroup = {
-  label: "Front Office",
-  href: "/app",
-  paths: ["/app", "/app/channels", "/app/marketing", "/app/social", "/app/staffing", "/app/agents", "/app/builder", "/app/onboarding"],
-  items: [
-    { label: "Overview", href: "/app" },
     { label: "Studio setup", href: "/app/onboarding" },
-    { label: "Channels", href: "/app/channels" },
-    { label: "Marketing", href: "/app/marketing" },
-    { label: "Socials", href: "/app/social" },
-    { label: "Staffing", href: "/app/staffing", paths: ["/app/staffing", "/app/agents", "/app/builder"] },
   ],
 } as const;
 
-export const MODULES: readonly NavGroup[] = [STUDIO_MODULE, FRONT_OFFICE_MODULE] as const;
+export const MODULES: readonly NavGroup[] = [STUDIO_MODULE] as const;
 
 export function pathMatches(pathname: string, href: string) {
   return pathname === href || (href !== "/app" && pathname.startsWith(`${href}/`));
 }
 
 export function navGroupForPath(pathname: string) {
-  return MODULES.find(({ paths }) => paths.some((path) => pathMatches(pathname, path))) ?? FRONT_OFFICE_MODULE;
+  return MODULES.find(({ paths }) => paths.some((path) => pathMatches(pathname, path))) ?? STUDIO_MODULE;
 }
 
 export function navItemIsActive(pathname: string, item: NavItem) {

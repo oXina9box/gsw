@@ -71,20 +71,21 @@ test.describe("Authenticated Staging Verification", () => {
       await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
     }
   });
-  test("studio shell module switcher navigates on desktop", async ({ page }) => {
+  test("studio shell sidenav navigates the studio module on desktop", async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 720 });
     await authenticatePage(page, { destination: "/app" });
     const sidenav = page.getByRole("navigation", { name: "Studio modules" });
     await expect(sidenav).toBeVisible();
 
-    // Front Office module is default at /app; Channels link navigates.
-    await sidenav.getByRole("link", { name: "Channels" }).click();
-    await expect(page).toHaveURL(/\/app\/channels$/);
-
-    // Module switcher exposes Studio and Front Office; switching shows Collective.
-    await page.getByRole("button", { name: "Studio", exact: true }).click();
+    // Single Studio module: Collective, Integrations, Secrets, Studio setup + channels.
     await sidenav.getByRole("link", { name: "Collective" }).click();
     await expect(page).toHaveURL(/\/app\/collective$/);
+    await sidenav.getByRole("link", { name: "Secrets" }).click();
+    await expect(page).toHaveURL(/\/app\/secrets$/);
+
+    // Module chip and studio identity sit in the topbar, left of the account dropdown.
+    await expect(page.locator('header [aria-label="Modules"]')).toContainText("Studio");
+    await expect(page.locator("header").getByText("Staging Verification Studio")).toBeVisible();
 
     // Account access lives only in the top-right dropdown, never in the sidenav.
     await expect(sidenav.getByRole("link", { name: "Billing" })).toHaveCount(0);
@@ -102,8 +103,8 @@ test.describe("Authenticated Staging Verification", () => {
     await expect.poll(async () => (await aside.boundingBox())?.x).toBeLessThan(0);
     await page.getByRole("button", { name: "Toggle navigation" }).click();
     await expect.poll(async () => (await aside.boundingBox())?.x).toBeGreaterThanOrEqual(0);
-    await page.getByRole("navigation", { name: "Studio modules" }).getByRole("link", { name: "Marketing" }).click();
-    await expect(page).toHaveURL(/\/app\/marketing$/);
+    await page.getByRole("navigation", { name: "Studio modules" }).getByRole("link", { name: "Collective" }).click();
+    await expect(page).toHaveURL(/\/app\/collective$/);
     await expect.poll(async () => (await aside.boundingBox())?.x).toBeLessThan(0);
   });
 });

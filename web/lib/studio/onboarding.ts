@@ -71,6 +71,11 @@ export function nextOnboardingStep(current: OnboardingStep | null, requested: On
   return requestedIndex === currentIndex + 1 || requestedIndex <= currentIndex ? requested : null;
 }
 
+export function furthestOnboardingStep(current: OnboardingStep | null, next: OnboardingStep): OnboardingStep {
+  if (!current) return next;
+  return ONBOARDING_STEPS.indexOf(current) >= ONBOARDING_STEPS.indexOf(next) ? current : next;
+}
+
 /**
  * Legacy compatibility helper for callers that still inspect setup progress.
  * Product layout no longer uses this value as an access gate; incomplete

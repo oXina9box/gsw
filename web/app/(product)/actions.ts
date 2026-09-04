@@ -10,7 +10,7 @@ import { getWorkspaceContext, type WorkspaceContext } from "@/lib/studio/workspa
 import { advanceExecution, cancelExecution, completeStep, failStep, startExecution, validateConditions, validatePassOrder } from "@/lib/orchestration/engine";
 import { evaluateClipUploadAdmission } from "@/lib/studio/caps";
 import { canPublish, transitionRelease } from "@/lib/studio/social";
-import { nextOnboardingStep, ONBOARDING_STEPS, type OnboardingStep, validateCommercialChoice, validateStudioIdentity } from "@/lib/studio/onboarding";
+import { furthestOnboardingStep, nextOnboardingStep, ONBOARDING_STEPS, type OnboardingStep, validateCommercialChoice, validateStudioIdentity } from "@/lib/studio/onboarding";
 
 function text(formData: FormData, name: string) { return String(formData.get(name) ?? "").trim(); }
 function valid(value: string) { return value.length > 0 && value.length <= 120; }
@@ -502,12 +502,16 @@ async function upsertOnboardingProfile(
 
 export async function saveOnboardingStep(formData: FormData) {
   const step = text(formData, "step") as OnboardingStep;
-  if (!(ONBOARDING_STEPS as readonly string[]).includes(step)) redirect("/app?error=step");
+  const destination = safeInternalPath(text(formData, "return_to"), "/app/onboarding");
+  const cleanDestination = destination.replace(/([?&])saved=[^&]*/g, "$1").replace(/[?&]$/, "");
+  const failure = (code: string) => errorPath(cleanDestination, code);
+  if (!(ONBOARDING_STEPS as readonly string[]).includes(step)) redirect(failure("step"));
   const mode = text(formData, "mode") === "fast" ? "fast" : "guided";
-  const payload = Object.fromEntries([...formData.entries()].filter(([key]) => !["step", "mode", "payload"].includes(key)).map(([key, value]) => [key, String(value).slice(0, 2_000)]));
+  const payload = Object.fromEntries([...formData.entries()].filter(([key]) => !["step", "mode", "payload", "return_to"].includes(key)).map(([key, value]) => [key, String(value).slice(0, 2_000)]));
   const { supabase, id } = await workspace();
-  const { data: current } = await supabase.from("onboarding_profiles").select("step").eq("workspace_id", id).maybeSingle();
-  if (!nextOnboardingStep((current?.step as OnboardingStep | null) ?? null, step)) redirect("/app?error=order");
+  const { data: current } = await supabase.from("onboarding_profiles").select("step, provider_status").eq("workspace_id", id).maybeSingle();
+  const currentStep = (current?.step as OnboardingStep | null) ?? null;
+  if (!nextOnboardingStep(currentStep, step)) redirect(failure("order"));
 
   if (step === "identity") {
     const brandColors = formData.getAll("brand_colors").map(String).filter(Boolean);
@@ -521,7 +525,7 @@ export async function saveOnboardingStep(formData: FormData) {
       contentDescription: payload.content_description,
     };
     const check = validateStudioIdentity(identityInput);
-    if (!check.valid || !check.data) redirect("/app?error=identity");
+    if (!check.valid || !check.data) redirect(failure("identity"));
 
     const finalStudioName = check.data.studioName || "Untitled Studio";
     const { error: renameErr } = await supabase.rpc("rename_studio", { target_workspace: id, studio_name: finalStudioName });
@@ -540,28 +544,28 @@ export async function saveOnboardingStep(formData: FormData) {
 
     const error = await upsertOnboardingProfile(supabase, id, {
       mode,
-      step: "commercial",
+      step: furthestOnboardingStep(currentStep, "commercial"),
       studio_identity: check.data as unknown as Record<string, unknown>,
     });
-    if (error) redirect("/app?error=save");
+    if (error) redirect(failure("save"));
     revalidatePath("/app");
-    redirect("/app?step=commercial");
+    redirect(destination);
   }
 
   if (step === "commercial") {
     const plan = payload.plan;
     const byokEnabled = payload.byok_enabled === "true" || plan === "byok";
     const check = validateCommercialChoice({ plan, byokEnabled });
-    if (!check.valid || !check.data) redirect("/app?error=commercial");
+    if (!check.valid || !check.data) redirect(failure("commercial"));
 
     const error = await upsertOnboardingProfile(supabase, id, {
       mode,
-      step: "providers",
+      step: furthestOnboardingStep(currentStep, "providers"),
       commercial_choice: check.data as unknown as Record<string, unknown>,
     });
-    if (error) redirect("/app?error=save");
+    if (error) redirect(failure("save"));
     revalidatePath("/app");
-    redirect("/app?step=providers");
+    redirect(destination);
   }
 
   if (step === "providers") {
@@ -603,22 +607,23 @@ export async function saveOnboardingStep(formData: FormData) {
       });
     }
 
+    const previousProviderStatus = (current?.provider_status ?? {}) as Record<string, unknown>;
     const error = await upsertOnboardingProfile(supabase, id, {
       mode,
-      step: "channel",
+      step: furthestOnboardingStep(currentStep, "channel"),
       provider_status: {
-        openai_connected: Boolean(openaiKey.length >= 8),
-        anthropic_connected: Boolean(anthropicKey.length >= 8),
+        openai_connected: Boolean(openaiKey.length >= 8 || previousProviderStatus.openai_connected),
+        anthropic_connected: Boolean(anthropicKey.length >= 8 || previousProviderStatus.anthropic_connected),
       },
     });
-    if (error) redirect("/app?error=save");
+    if (error) redirect(failure("save"));
     revalidatePath("/app");
-    redirect("/app?step=channel");
+    redirect(destination);
   }
 
   if (step === "channel") {
     const channelName = String(payload.channel_name ?? "").trim();
-    if (!channelName) redirect("/app?error=channel");
+    if (!channelName) redirect(failure("channel"));
     const { error: chErr } = await supabase.from("channels").insert({
       workspace_id: id,
       name: channelName,
@@ -644,26 +649,26 @@ export async function saveOnboardingStep(formData: FormData) {
 
     const error = await upsertOnboardingProfile(supabase, id, {
       mode,
-      step: "hiring",
+      step: furthestOnboardingStep(currentStep, "hiring"),
       channel_setup: payload,
     });
-    if (error) redirect("/app?error=save");
+    if (error) redirect(failure("save"));
     revalidatePath("/app");
-    redirect("/app?step=hiring");
+    redirect(destination);
   }
 
   if (step === "hiring") {
     const names = String(payload.departments ?? "Marketing, Creative, Production, Social").split(",").map((name) => name.trim()).filter(Boolean).slice(0, 12);
-    if (!names.length) redirect("/app?error=hiring");
+    if (!names.length) redirect(failure("hiring"));
 
     const error = await upsertOnboardingProfile(supabase, id, {
       mode,
-      step: "lane",
+      step: furthestOnboardingStep(currentStep, "lane"),
       department_setup: payload,
     });
-    if (error) redirect("/app?error=save");
+    if (error) redirect(failure("save"));
     revalidatePath("/app");
-    redirect("/app?step=lane");
+    redirect(destination);
   }
 
   if (step === "lane") {
@@ -671,7 +676,7 @@ export async function saveOnboardingStep(formData: FormData) {
     const channelDiscoveryApproved = payload.channel_discovery_approved === "true";
     const mediaPlanApproved = payload.media_plan_approved === "true";
     if (!studioBrandApproved || !channelDiscoveryApproved || !mediaPlanApproved) {
-      redirect("/app?error=lane");
+      redirect(failure("lane"));
     }
 
     await installDefaultWorkflow(supabase, id);
@@ -686,9 +691,9 @@ export async function saveOnboardingStep(formData: FormData) {
       },
       completed_at: new Date().toISOString(),
     });
-    if (error) redirect("/app?error=save");
+    if (error) redirect(failure("save"));
     revalidatePath("/app");
-    redirect("/app?step=complete");
+    redirect(destination);
   }
 
   if (step === "complete") {
@@ -698,7 +703,7 @@ export async function saveOnboardingStep(formData: FormData) {
       step: "complete",
       completed_at: new Date().toISOString(),
     });
-    if (error) redirect("/app?error=save");
+    if (error) redirect(failure("save"));
     revalidatePath("/app");
     redirect("/app");
   }
