@@ -10,12 +10,16 @@ import { CommandMenu } from "@/components/shell/command-menu";
 import { NotificationBell, type NotificationRecord } from "@/components/product/notification-bell";
 import {
   AssetsIcon,
+  ChannelIcon,
+  ChartIcon,
   CloseIcon,
   DashboardIcon,
   DocsIcon,
   HelpIcon,
+  KeyIcon,
   MarketingIcon,
   MenuIcon,
+  PlugIcon,
   SocialIcon,
   StaffingIcon,
   WorkflowIcon,
@@ -58,45 +62,67 @@ export function StudioShell({ studioName, studioLogoUrl, userEmail, channels, no
     return () => document.removeEventListener("keydown", onKey);
   }, []);
 
-  const activeChannel = channels.find((c) => pathname.startsWith(`/app/channels/${c.id}`)) ?? channels[0];
-  const channelBasePath = activeChannel ? `/app/channels/${activeChannel.id}` : "/app";
+  // Active module resolution based on pathname
+  let activeModuleTitle = "Studio Reports";
+  let moduleCategory = "Reports";
+  let activeModuleLabel = "Reports";
+  let navItems: readonly { label: string; href: string; icon: React.ComponentType<{ className?: string }> }[] = [];
 
-  const channelSubpages = [
-    { label: "Dashboard", href: channelBasePath, icon: DashboardIcon },
-    { label: "Channel Staffing", href: activeChannel ? `${channelBasePath}/staffing` : "/app/staffing", icon: StaffingIcon },
-    { label: "Marketing", href: activeChannel ? `${channelBasePath}/marketing` : "/app/marketing", icon: MarketingIcon },
-    { label: "Social Media", href: activeChannel ? `${channelBasePath}/social` : "/app/social", icon: SocialIcon },
-    { label: "Assets", href: activeChannel ? `${channelBasePath}/assets` : "/app/assets", icon: AssetsIcon },
-    { label: "Production", href: activeChannel ? `${channelBasePath}/production` : "/app/orchestration", icon: WorkflowIcon },
-  ] as const;
+  const brandChannel = channels.find((c) => c.is_brand) ?? channels[0];
+  const matchedChannel = channels.find((c) => pathname.startsWith(`/app/channels/${c.id}`));
+
+  if (pathname.startsWith("/app/integrations")) {
+    activeModuleTitle = "Integrations";
+    moduleCategory = "Connected";
+    activeModuleLabel = "Integrations";
+    navItems = [
+      { label: "Connected Apps", href: "/app/integrations", icon: PlugIcon },
+      { label: "Git Repositories", href: "/app/integrations#github", icon: WorkflowIcon },
+      { label: "AI & OAuths", href: "/app/integrations#oauths", icon: KeyIcon },
+    ];
+  } else if (pathname.startsWith("/app/secrets")) {
+    activeModuleTitle = "Secrets";
+    moduleCategory = "Security";
+    activeModuleLabel = "Secrets";
+    navItems = [
+      { label: "Key Vault", href: "/app/secrets", icon: KeyIcon },
+      { label: "BYOK Encryption", href: "/app/secrets#byok", icon: PlugIcon },
+    ];
+  } else if (pathname === "/app/collective") {
+    activeModuleTitle = "Studio Reports";
+    moduleCategory = "Reports";
+    activeModuleLabel = "Studio Reports";
+    navItems = [
+      { label: "Overview", href: "/app/collective", icon: ChartIcon },
+      { label: "Channels Rollup", href: "/app/channels", icon: ChannelIcon },
+    ];
+  } else {
+    // Channel or Studio Branding: looks just like any other channel with the 6 subpages
+    const ch = matchedChannel ?? brandChannel ?? channels[0];
+    const isBrand = ch?.is_brand || ch?.id === brandChannel?.id;
+    activeModuleTitle = isBrand ? "Studio Branding" : (ch?.name ?? "Channel");
+    moduleCategory = isBrand ? "Studio Branding" : "Channel";
+    activeModuleLabel = isBrand ? "Studio Branding" : (ch?.name ?? "Channel");
+    navItems = [
+      { label: "Dashboard", href: ch ? `/app/channels/${ch.id}` : "/app", icon: DashboardIcon },
+      { label: "Channel Staffing", href: ch ? `/app/channels/${ch.id}/staffing` : "/app/staffing", icon: StaffingIcon },
+      { label: "Marketing", href: ch ? `/app/channels/${ch.id}/marketing` : "/app/marketing", icon: MarketingIcon },
+      { label: "Social Media", href: ch ? `/app/channels/${ch.id}/social` : "/app/social", icon: SocialIcon },
+      { label: "Assets", href: ch ? `/app/channels/${ch.id}/assets` : "/app/assets", icon: AssetsIcon },
+      { label: "Production", href: ch ? `/app/channels/${ch.id}/production` : "/app/orchestration", icon: WorkflowIcon },
+    ];
+  }
 
   return (
     <>
       <header className="fixed inset-x-0 top-0 z-50 h-14 border-b border-hairline bg-bg/92 backdrop-blur-md">
         <div className="flex h-full items-center gap-3 px-4">
-          <button
-            type="button"
-            aria-label="Toggle navigation"
-            aria-controls="studio-sidenav"
-            aria-expanded={open}
-            onClick={() => {
-              if (typeof window !== "undefined" && window.innerWidth >= 768) {
-                setDesktopCollapsed((v) => !v);
-              } else {
-                setOpen((v) => !v);
-              }
-            }}
-            className="rounded-sm p-2 text-text-muted transition-colors duration-150 hover:bg-surface-2 hover:text-text active:bg-surface-3"
-          >
-            {open ? <CloseIcon className="h-5 w-5" /> : <MenuIcon className="h-5 w-5" />}
-          </button>
           <Link href="/app" aria-label="Gem Studio" className="rounded-sm transition-opacity duration-150 hover:opacity-80">
             <GemLogo width={96} />
           </Link>
           <div className="ml-auto flex items-center gap-2">
-            <CommandMenu authenticated />
             <NotificationBell notifications={notifications} />
-            <ModulesDropdown channels={channels} />
+            <ModulesDropdown channels={channels} activeModuleLabel={activeModuleLabel} />
             <AccountDropdown studioName={studioName} studioLogoUrl={studioLogoUrl} userEmail={userEmail} />
           </div>
         </div>
@@ -116,47 +142,56 @@ export function StudioShell({ studioName, studioLogoUrl, userEmail, channels, no
         } ${desktopCollapsed ? "md:-translate-x-full" : "md:translate-x-0"}`}
       >
         <div className="studio-sidenav-scroll flex h-full flex-col overflow-y-auto px-3 py-4">
-          <nav aria-label="Studio modules">
-            {channels.length > 0 && activeChannel ? (
-              <div className="mb-4 pb-3 border-b border-hairline">
-                <div className="px-2 pb-1.5 font-mono text-[10px] uppercase tracking-wider text-text-faint flex items-center justify-between">
-                  <span>Channel</span>
-                  {channels.length > 1 ? (
-                    <span className="text-pink font-semibold">{channels.length} channels</span>
-                  ) : null}
-                </div>
-                <div className="flex items-center gap-2 px-2 py-1.5 rounded-sm bg-surface-2/60 border border-border">
-                  <span className="h-2 w-2 rounded-full bg-pink shrink-0" />
-                  <span className="font-mono text-xs font-semibold text-text truncate flex-1">{activeChannel.name}</span>
-                  {activeChannel.is_brand ? (
-                    <span className="rounded bg-pink/20 px-1 py-0.5 font-mono text-[9px] uppercase tracking-wider text-pink font-semibold">
-                      Brand
-                    </span>
-                  ) : null}
-                  <span className="font-mono text-[10px] text-text-faint">{activeChannel.status}</span>
-                </div>
-                {channels.length > 1 ? (
-                  <div className="mt-1.5 space-y-0.5">
-                    {channels.filter((c) => c.id !== activeChannel.id).map((other) => (
-                      <Link
-                        key={other.id}
-                        href={`/app/channels/${other.id}`}
-                        className="flex items-center gap-2 px-2 py-1 rounded-sm text-text-faint hover:text-text hover:bg-surface-2 font-mono text-[11px] transition-colors"
-                      >
-                        <span className="h-1.5 w-1.5 rounded-full bg-border-2 shrink-0" />
-                        <span className="truncate">{other.name}</span>
-                      </Link>
-                    ))}
-                  </div>
-                ) : null}
-              </div>
-            ) : null}
+          <div className="flex items-center justify-between pb-3 mb-3 border-b border-hairline">
+            <div className="min-w-0 flex-1 pr-2">
+              <span className="font-mono text-[10px] uppercase tracking-wider text-text-faint block leading-none mb-1">
+                {moduleCategory}
+              </span>
+              <h2 className="font-mono text-sm font-semibold text-text truncate">
+                {activeModuleTitle}
+              </h2>
+            </div>
+            <button
+              type="button"
+              aria-label="Toggle navigation"
+              aria-controls="studio-sidenav"
+              onClick={() => {
+                if (typeof window !== "undefined" && window.innerWidth >= 768) {
+                  setDesktopCollapsed(true);
+                } else {
+                  setOpen(false);
+                }
+              }}
+              className="rounded-sm p-1.5 text-text-faint hover:text-text hover:bg-surface-2 transition-colors"
+            >
+              <CloseIcon className="h-4 w-4" />
+            </button>
+          </div>
 
+          {matchedChannel && channels.length > 1 ? (
+            <div className="mb-3 pb-3 border-b border-hairline space-y-1">
+              <span className="font-mono text-[9px] uppercase tracking-wider text-text-faint px-1 block">
+                Switch Channel
+              </span>
+              <div className="space-y-0.5">
+                {channels.filter((c) => c.id !== matchedChannel.id).map((other) => (
+                  <Link
+                    key={other.id}
+                    href={`/app/channels/${other.id}`}
+                    className="flex items-center gap-2 px-2 py-1 rounded-sm text-text-muted hover:text-text hover:bg-surface-2 font-mono text-xs transition-colors truncate"
+                  >
+                    <span className="h-1.5 w-1.5 rounded-full bg-border-2 shrink-0" />
+                    <span className="truncate">{other.name}</span>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          ) : null}
+
+          <nav aria-label="Studio modules" className="flex-1">
             <ul className="space-y-1">
-              {channelSubpages.map((item) => {
-                const isSubActive = item.label === "Dashboard"
-                  ? (activeChannel ? pathname === item.href : pathname === "/app")
-                  : pathname === item.href || pathname.startsWith(`${item.href}/`);
+              {navItems.map((item) => {
+                const isSubActive = pathname === item.href || (item.href !== "/app" && pathname.startsWith(`${item.href}/`));
                 const Icon = item.icon;
                 return (
                   <li key={item.label}>
@@ -175,21 +210,51 @@ export function StudioShell({ studioName, studioLogoUrl, userEmail, channels, no
             </ul>
           </nav>
 
-          <div className="mt-auto space-y-1 border-t border-hairline pt-3">
-            <Link href="/docs" className={ITEM_CLASSES}>
-              <span aria-hidden="true" className="h-4 w-0.5 rounded-full bg-transparent" />
-              <DocsIcon className="h-5 w-5 shrink-0 text-text-muted" />
-              <span className="truncate">Docs</span>
-            </Link>
-            <Link href="/contact" className={ITEM_CLASSES}>
-              <span aria-hidden="true" className="h-4 w-0.5 rounded-full bg-transparent" />
-              <HelpIcon className="h-5 w-5 shrink-0 text-text-muted" />
-              <span className="truncate">Help</span>
-            </Link>
+          <div className="mt-auto pt-3">
+            <div className="mb-3 px-0.5">
+              <CommandMenu
+                authenticated
+                className="flex w-full items-center gap-2 rounded-sm border border-border bg-surface-2/40 px-2.5 py-1.5 font-mono text-xs text-text-muted transition-colors duration-150 hover:border-border-2 hover:text-text"
+              />
+            </div>
+            <div className="space-y-1 border-t border-hairline pt-3">
+              <Link href="/docs" className={ITEM_CLASSES}>
+                <span aria-hidden="true" className="h-4 w-0.5 rounded-full bg-transparent" />
+                <DocsIcon className="h-5 w-5 shrink-0 text-text-muted" />
+                <span className="truncate">Docs</span>
+              </Link>
+              <Link href="/contact" className={ITEM_CLASSES}>
+                <span aria-hidden="true" className="h-4 w-0.5 rounded-full bg-transparent" />
+                <HelpIcon className="h-5 w-5 shrink-0 text-text-muted" />
+                <span className="truncate">Help</span>
+              </Link>
+            </div>
           </div>
         </div>
       </aside>
-
+      {desktopCollapsed ? (
+        <button
+          type="button"
+          aria-label="Toggle navigation"
+          aria-controls="studio-sidenav"
+          onClick={() => setDesktopCollapsed(false)}
+          className="fixed left-3 top-16 z-40 flex items-center gap-1.5 rounded-sm bg-surface border border-border px-2.5 py-1.5 font-mono text-xs text-text-muted hover:text-text shadow-lg hover:border-border-2 transition-all"
+        >
+          <MenuIcon className="h-4 w-4" />
+          <span className="font-mono text-[10px] uppercase font-semibold">Nav</span>
+        </button>
+      ) : null}
+      {!open ? (
+        <button
+          type="button"
+          aria-label="Toggle navigation"
+          aria-controls="studio-sidenav"
+          onClick={() => setOpen(true)}
+          className="md:hidden fixed left-3 top-16 z-40 flex items-center gap-1.5 rounded-sm bg-surface border border-border p-2 text-text-muted hover:text-text shadow-lg transition-all"
+        >
+          <MenuIcon className="h-4 w-4" />
+        </button>
+      ) : null}
       <main id="main-content" className={`studio-main pt-14 transition-all duration-300 ${desktopCollapsed ? "md:pl-0" : "md:pl-64"}`}>{children}</main>
     </>
   );

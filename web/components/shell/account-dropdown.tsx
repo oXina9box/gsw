@@ -76,25 +76,11 @@ export function AccountDropdown({ userEmail, studioName = "Studio", studioLogoUr
             <Link role="menuitem" href="/account" onClick={close}>Profile</Link>
             <Link role="menuitem" href="/account#settings" onClick={close}>Settings</Link>
           </div>
-
-          <div className="account-dropdown-group" role="group" aria-label="Integrations">
-            <span className="account-dropdown-group-label">Integrations</span>
-            <Link role="menuitem" href="/app/integrations#github" onClick={close}>GitHub</Link>
-            <Link role="menuitem" href="/app/integrations#gitlab" onClick={close}>GitLab</Link>
-            <Link role="menuitem" href="/app/integrations#gitkraken" onClick={close}>GitKraken</Link>
-            <Link role="menuitem" href="/app/integrations#oauths" onClick={close}>OAuths</Link>
-            <Link role="menuitem" href="/app/integrations#apis" onClick={close}>APIs</Link>
-          </div>
-
           <div className="account-dropdown-group" role="group" aria-label="Billing">
-            <span className="account-dropdown-group-label">Billing</span>
             <Link role="menuitem" href="/app/billing" onClick={close}>Billing</Link>
             <Link role="menuitem" href="/app/billing#subscription" onClick={close}>Subscription</Link>
             <Link role="menuitem" href="/app/billing#credits" onClick={close}>Credits</Link>
-            <Link role="menuitem" href="/app/billing#add-more" onClick={close}>Add more</Link>
-            <Link role="menuitem" href="/app/billing#payment" onClick={close}>Payment</Link>
           </div>
-
           <div className="account-dropdown-group account-dropdown-signout" role="group" aria-label="Session">
             <button role="menuitem" type="button" onClick={signOut}>Sign Out</button>
           </div>

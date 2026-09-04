@@ -7,7 +7,6 @@ import {
   ChartIcon,
   PaletteIcon,
   ChannelIcon,
-  WorkflowIcon,
   PlugIcon,
   KeyIcon,
 } from "@/components/product/shell-icons";
@@ -21,54 +20,10 @@ type ChannelItem = Readonly<{
 
 type ModulesDropdownProps = Readonly<{
   channels?: readonly ChannelItem[];
+  activeModuleLabel?: string;
 }>;
 
-const MODULE_ITEMS = [
-  {
-    name: "Studio Reports",
-    href: "/app/collective",
-    subtext: "Stats Rollup",
-    icon: ChartIcon,
-    accent: "text-pink",
-  },
-  {
-    name: "Studio Branding",
-    href: "/app/onboarding",
-    subtext: "Identity & Profile",
-    icon: PaletteIcon,
-    accent: "text-cyan",
-  },
-  {
-    name: "Channels",
-    href: "/app/channels",
-    subtext: "Show Slates",
-    icon: ChannelIcon,
-    accent: "text-lime",
-  },
-  {
-    name: "Production",
-    href: "/app/orchestration",
-    subtext: "13-Stage Canvas",
-    icon: WorkflowIcon,
-    accent: "text-pink",
-  },
-  {
-    name: "Integrations",
-    href: "/app/integrations",
-    subtext: "GitHub & AI",
-    icon: PlugIcon,
-    accent: "text-cyan",
-  },
-  {
-    name: "Secrets",
-    href: "/app/secrets",
-    subtext: "BYOK Vault",
-    icon: KeyIcon,
-    accent: "text-amber",
-  },
-] as const;
-
-export function ModulesDropdown({ channels = [] }: ModulesDropdownProps) {
+export function ModulesDropdown({ channels = [], activeModuleLabel = "Studio" }: ModulesDropdownProps) {
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -110,6 +65,48 @@ export function ModulesDropdown({ channels = [] }: ModulesDropdownProps) {
 
   const close = () => setOpen(false);
 
+  // Separate brand channel (Studio Branding) from other channels
+  const brandChannel = channels.find((c) => c.is_brand) ?? channels[0];
+  const otherChannels = brandChannel ? channels.filter((c) => c.id !== brandChannel.id) : channels;
+
+  const items = [
+    {
+      name: "Studio Reports",
+      href: "/app/collective",
+      subtext: "Stats Rollup",
+      icon: ChartIcon,
+      accent: "text-pink",
+    },
+    {
+      name: "Studio Branding",
+      href: brandChannel ? `/app/channels/${brandChannel.id}` : "/app/channels",
+      subtext: "Brand Channel",
+      icon: PaletteIcon,
+      accent: "text-cyan",
+    },
+    ...otherChannels.map((ch) => ({
+      name: ch.name,
+      href: `/app/channels/${ch.id}`,
+      subtext: "Channel",
+      icon: ChannelIcon,
+      accent: "text-lime",
+    })),
+    {
+      name: "Integrations",
+      href: "/app/integrations",
+      subtext: "GitHub & AI",
+      icon: PlugIcon,
+      accent: "text-cyan",
+    },
+    {
+      name: "Secrets",
+      href: "/app/secrets",
+      subtext: "BYOK Vault",
+      icon: KeyIcon,
+      accent: "text-amber",
+    },
+  ];
+
   return (
     <div className="relative" ref={rootRef} aria-label="Modules">
       <button
@@ -124,7 +121,7 @@ export function ModulesDropdown({ channels = [] }: ModulesDropdownProps) {
       >
         <AppsIcon className="h-5 w-5 text-text-muted transition-colors hover:text-text" />
         <span className="hidden sm:inline font-mono text-[11px] uppercase tracking-wider font-semibold text-text">
-          Studio
+          {activeModuleLabel}
         </span>
         <span className="text-[9px] text-text-faint" aria-hidden="true">▾</span>
       </button>
@@ -134,20 +131,17 @@ export function ModulesDropdown({ channels = [] }: ModulesDropdownProps) {
           ref={menuRef}
           id="modules-menu"
           role="dialog"
-          aria-label="Studio Applications and Modules"
-          className="absolute right-0 top-[calc(100%+0.5rem)] z-50 w-80 max-w-[90vw] rounded-sm border border-border-2 bg-surface shadow-2xl p-3 divide-y divide-hairline"
+          aria-label="Studio Modules"
+          className="absolute right-0 top-[calc(100%+0.5rem)] z-50 w-80 max-w-[90vw] rounded-sm border border-border-2 bg-surface shadow-2xl p-3"
         >
-          <div className="pb-2.5 px-1 flex items-center justify-between">
+          <div className="pb-2 px-1 border-b border-hairline">
             <span className="font-mono text-xs font-semibold uppercase tracking-wider text-text">
               Studio Modules
             </span>
-            <span className="font-mono text-[10px] text-text-faint">
-              Applications
-            </span>
           </div>
 
-          <div className="grid grid-cols-3 gap-2 py-3">
-            {MODULE_ITEMS.map((item) => {
+          <div className="grid grid-cols-3 gap-2 pt-2.5">
+            {items.map((item) => {
               const Icon = item.icon;
               return (
                 <Link
@@ -159,46 +153,16 @@ export function ModulesDropdown({ channels = [] }: ModulesDropdownProps) {
                   <div className="mb-1.5 flex h-9 w-9 items-center justify-center rounded-sm bg-surface-2 group-hover:bg-surface-3 transition-colors">
                     <Icon className={`h-5 w-5 ${item.accent} transition-transform duration-150 group-hover:scale-110`} />
                   </div>
-                  <span className="font-mono text-[11px] font-semibold text-text leading-tight group-hover:text-pink transition-colors">
+                  <span className="font-mono text-[11px] font-semibold text-text leading-tight group-hover:text-pink transition-colors truncate max-w-full">
                     {item.name}
                   </span>
-                  <span className="font-mono text-[9px] text-text-faint mt-0.5 leading-none">
+                  <span className="font-mono text-[9px] text-text-faint mt-0.5 leading-none truncate max-w-full">
                     {item.subtext}
                   </span>
                 </Link>
               );
             })}
           </div>
-
-          {channels.length > 0 ? (
-            <div className="pt-2.5 px-1 space-y-1">
-              <div className="flex items-center justify-between">
-                <span className="font-mono text-[10px] uppercase tracking-wider text-text-faint">
-                  Active Channels
-                </span>
-                <Link
-                  href="/app/channels"
-                  onClick={close}
-                  className="font-mono text-[10px] text-cyan hover:underline"
-                >
-                  View all →
-                </Link>
-              </div>
-              <div className="grid grid-cols-2 gap-1 pt-1">
-                {channels.slice(0, 4).map((ch) => (
-                  <Link
-                    key={ch.id}
-                    href={`/app/channels/${ch.id}`}
-                    onClick={close}
-                    className="flex items-center gap-2 rounded-sm px-2 py-1 text-left font-mono text-xs text-text-muted hover:bg-surface-2 hover:text-text transition-colors truncate"
-                  >
-                    <span className="h-1.5 w-1.5 rounded-full bg-pink shrink-0" />
-                    <span className="truncate">{ch.name}</span>
-                  </Link>
-                ))}
-              </div>
-            </div>
-          ) : null}
         </div>
       ) : null}
     </div>

@@ -5,7 +5,7 @@ import { useEffect, useRef } from "react";
 import { MODULES } from "@/lib/studio/navigation";
 import { SearchIcon } from "@/components/product/shell-icons";
 
-export function CommandMenu({ authenticated }: { authenticated: boolean }) {
+export function CommandMenu({ authenticated, className }: { authenticated: boolean; className?: string }) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
 
@@ -52,19 +52,14 @@ export function CommandMenu({ authenticated }: { authenticated: boolean }) {
       type="button"
       onClick={open}
       ref={triggerRef}
-      className="hidden md:flex w-64 lg:w-80 items-center gap-2 rounded-sm border border-border-2 bg-surface px-3 py-2 font-mono text-xs text-text-muted transition-colors duration-150 hover:border-cyan hover:text-text"
+      className={
+        className ??
+        "flex w-full items-center gap-2 rounded-sm border border-border-2 bg-surface px-3 py-2 font-mono text-xs text-text-muted transition-colors duration-150 hover:border-cyan hover:text-text"
+      }
     >
       <SearchIcon className="h-4 w-4" />
       <span>Search</span>
       <kbd className="ml-auto rounded border border-border px-1.5 py-0.5 text-[10px] text-text-faint">⌘K</kbd>
-    </button>
-    <button
-      type="button"
-      onClick={open}
-      aria-label="Search"
-      className="md:hidden rounded-sm p-2 text-text-muted transition-colors duration-150 hover:bg-surface-2 hover:text-text active:bg-surface-3"
-    >
-      <SearchIcon className="h-5 w-5" />
     </button>
     <dialog
       className="command-dialog"
