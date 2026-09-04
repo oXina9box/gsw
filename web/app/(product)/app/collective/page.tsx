@@ -2,7 +2,7 @@ import Link from "next/link";
 import { getWorkspaceContext } from "@/lib/studio/workspace";
 import { PrelineStatsGrid, type PrelineStat } from "@/components/blocks/preline/preline-stats-grid";
 
-export const metadata = { title: "Collective" };
+export const metadata = { title: "Studio Reports" };
 
 export default async function CollectivePage() {
   const { supabase } = await getWorkspaceContext();
@@ -25,7 +25,7 @@ export default async function CollectivePage() {
     <section className="product-page shell" data-archetype="B1-B">
       <div className="mb-8 space-y-2">
         <h1 className="font-display text-3xl sm:text-4xl font-bold text-text">
-          The Collective.
+          Studio Reports
         </h1>
         <p className="text-base text-text-muted font-body">
           Every number for this studio in one place — the brand channel and every channel roll up here.
@@ -33,14 +33,14 @@ export default async function CollectivePage() {
       </div>
 
       {error ? (
-        <p className="form-error" role="alert">Unable to load collective stats.</p>
+        <p className="form-error" role="alert">Unable to load studio reports.</p>
       ) : (
         <>
           <PrelineStatsGrid stats={stats} />
           {list.length === 0 ? (
             <div className="panel empty-state mt-8">
               <h3>No channels yet.</h3>
-              <p>Once channels exist, their stats roll up into the Collective.</p>
+              <p>Once channels exist, their stats roll up into Studio Reports.</p>
               <Link className="button button-primary" href="/app/channels">Open channels</Link>
             </div>
           ) : (

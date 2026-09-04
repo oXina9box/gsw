@@ -20,10 +20,9 @@ type ChannelItem = Readonly<{
 
 type ModulesDropdownProps = Readonly<{
   channels?: readonly ChannelItem[];
-  activeModuleLabel?: string;
 }>;
 
-export function ModulesDropdown({ channels = [], activeModuleLabel = "Studio" }: ModulesDropdownProps) {
+export function ModulesDropdown({ channels = [] }: ModulesDropdownProps) {
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -65,43 +64,45 @@ export function ModulesDropdown({ channels = [], activeModuleLabel = "Studio" }:
 
   const close = () => setOpen(false);
 
-  // Separate brand channel (Studio Branding) from other channels
-  const brandChannel = channels.find((c) => c.is_brand) ?? channels[0];
-  const otherChannels = brandChannel ? channels.filter((c) => c.id !== brandChannel.id) : channels;
+  const brandChannel = channels.find((c) => c.is_brand);
 
   const items = [
     {
       name: "Studio Reports",
       href: "/app/collective",
-      subtext: "Stats Rollup",
       icon: ChartIcon,
       accent: "text-pink",
     },
     {
       name: "Studio Branding",
-      href: brandChannel ? `/app/channels/${brandChannel.id}` : "/app/channels",
-      subtext: "Brand Channel",
+      href: brandChannel ? `/app/channels/${brandChannel.id}` : "/app/onboarding",
       icon: PaletteIcon,
       accent: "text-cyan",
     },
-    ...otherChannels.map((ch) => ({
-      name: ch.name,
-      href: `/app/channels/${ch.id}`,
-      subtext: "Channel",
-      icon: ChannelIcon,
-      accent: "text-lime",
-    })),
+    ...(channels.length > 0
+      ? channels.map((ch) => ({
+          name: ch.name,
+          href: `/app/channels/${ch.id}`,
+          icon: ChannelIcon,
+          accent: "text-lime",
+        }))
+      : [
+          {
+            name: "Channels",
+            href: "/app/channels",
+            icon: ChannelIcon,
+            accent: "text-lime",
+          },
+        ]),
     {
       name: "Integrations",
       href: "/app/integrations",
-      subtext: "GitHub & AI",
       icon: PlugIcon,
       accent: "text-cyan",
     },
     {
       name: "Secrets",
       href: "/app/secrets",
-      subtext: "BYOK Vault",
       icon: KeyIcon,
       accent: "text-amber",
     },
@@ -121,7 +122,7 @@ export function ModulesDropdown({ channels = [], activeModuleLabel = "Studio" }:
       >
         <AppsIcon className="h-5 w-5 text-text-muted transition-colors hover:text-text" />
         <span className="hidden sm:inline font-mono text-[11px] uppercase tracking-wider font-semibold text-text">
-          {activeModuleLabel}
+          Studio
         </span>
         <span className="text-[9px] text-text-faint" aria-hidden="true">▾</span>
       </button>
@@ -132,15 +133,15 @@ export function ModulesDropdown({ channels = [], activeModuleLabel = "Studio" }:
           id="modules-menu"
           role="dialog"
           aria-label="Studio Modules"
-          className="absolute right-0 top-[calc(100%+0.5rem)] z-50 w-80 max-w-[90vw] rounded-sm border border-border-2 bg-surface shadow-2xl p-3"
+          className="absolute right-0 top-[calc(100%+0.5rem)] z-50 w-96 max-w-[95vw] rounded-sm border border-border-2 bg-surface shadow-2xl p-4"
         >
-          <div className="pb-2 px-1 border-b border-hairline">
+          <div className="pb-2.5 px-1 border-b border-hairline">
             <span className="font-mono text-xs font-semibold uppercase tracking-wider text-text">
               Studio Modules
             </span>
           </div>
 
-          <div className="grid grid-cols-3 gap-2 pt-2.5">
+          <div className="grid grid-cols-3 gap-2.5 pt-3">
             {items.map((item) => {
               const Icon = item.icon;
               return (
@@ -148,16 +149,13 @@ export function ModulesDropdown({ channels = [], activeModuleLabel = "Studio" }:
                   key={item.href}
                   href={item.href}
                   onClick={close}
-                  className="group flex flex-col items-center text-center p-2.5 rounded-sm border border-transparent transition-all duration-150 hover:border-border-2 hover:bg-surface-2"
+                  className="group flex flex-col items-center justify-center text-center p-3 rounded-sm border border-border/50 bg-surface-2/40 transition-all duration-150 hover:border-cyan hover:bg-surface-2"
                 >
-                  <div className="mb-1.5 flex h-9 w-9 items-center justify-center rounded-sm bg-surface-2 group-hover:bg-surface-3 transition-colors">
+                  <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-sm bg-surface group-hover:bg-surface-3 transition-colors">
                     <Icon className={`h-5 w-5 ${item.accent} transition-transform duration-150 group-hover:scale-110`} />
                   </div>
-                  <span className="font-mono text-[11px] font-semibold text-text leading-tight group-hover:text-pink transition-colors truncate max-w-full">
+                  <span className="font-mono text-xs font-semibold text-text leading-tight group-hover:text-pink transition-colors text-center">
                     {item.name}
-                  </span>
-                  <span className="font-mono text-[9px] text-text-faint mt-0.5 leading-none truncate max-w-full">
-                    {item.subtext}
                   </span>
                 </Link>
               );

@@ -65,16 +65,14 @@ export function StudioShell({ studioName, studioLogoUrl, userEmail, channels, no
   // Active module resolution based on pathname
   let activeModuleTitle = "Studio Reports";
   let moduleCategory = "Reports";
-  let activeModuleLabel = "Reports";
   let navItems: readonly { label: string; href: string; icon: React.ComponentType<{ className?: string }> }[] = [];
 
-  const brandChannel = channels.find((c) => c.is_brand) ?? channels[0];
+  const brandChannel = channels.find((c) => c.is_brand);
   const matchedChannel = channels.find((c) => pathname.startsWith(`/app/channels/${c.id}`));
 
   if (pathname.startsWith("/app/integrations")) {
     activeModuleTitle = "Integrations";
     moduleCategory = "Connected";
-    activeModuleLabel = "Integrations";
     navItems = [
       { label: "Connected Apps", href: "/app/integrations", icon: PlugIcon },
       { label: "Git Repositories", href: "/app/integrations#github", icon: WorkflowIcon },
@@ -83,7 +81,6 @@ export function StudioShell({ studioName, studioLogoUrl, userEmail, channels, no
   } else if (pathname.startsWith("/app/secrets")) {
     activeModuleTitle = "Secrets";
     moduleCategory = "Security";
-    activeModuleLabel = "Secrets";
     navItems = [
       { label: "Key Vault", href: "/app/secrets", icon: KeyIcon },
       { label: "BYOK Encryption", href: "/app/secrets#byok", icon: PlugIcon },
@@ -91,18 +88,28 @@ export function StudioShell({ studioName, studioLogoUrl, userEmail, channels, no
   } else if (pathname === "/app/collective") {
     activeModuleTitle = "Studio Reports";
     moduleCategory = "Reports";
-    activeModuleLabel = "Studio Reports";
     navItems = [
       { label: "Overview", href: "/app/collective", icon: ChartIcon },
       { label: "Channels Rollup", href: "/app/channels", icon: ChannelIcon },
     ];
+  } else if (pathname.startsWith("/app/onboarding") || (matchedChannel && matchedChannel.is_brand)) {
+    // Studio Branding
+    const ch = matchedChannel?.is_brand ? matchedChannel : (brandChannel ?? channels[0]);
+    activeModuleTitle = "Studio Branding";
+    moduleCategory = "Branding";
+    navItems = [
+      { label: "Dashboard", href: ch ? `/app/channels/${ch.id}` : "/app", icon: DashboardIcon },
+      { label: "Channel Staffing", href: ch ? `/app/channels/${ch.id}/staffing` : "/app/staffing", icon: StaffingIcon },
+      { label: "Marketing", href: ch ? `/app/channels/${ch.id}/marketing` : "/app/marketing", icon: MarketingIcon },
+      { label: "Social Media", href: ch ? `/app/channels/${ch.id}/social` : "/app/social", icon: SocialIcon },
+      { label: "Assets", href: ch ? `/app/channels/${ch.id}/assets` : "/app/assets", icon: AssetsIcon },
+      { label: "Production", href: ch ? `/app/channels/${ch.id}/production` : "/app/orchestration", icon: WorkflowIcon },
+    ];
   } else {
-    // Channel or Studio Branding: looks just like any other channel with the 6 subpages
-    const ch = matchedChannel ?? brandChannel ?? channels[0];
-    const isBrand = ch?.is_brand || ch?.id === brandChannel?.id;
-    activeModuleTitle = isBrand ? "Studio Branding" : (ch?.name ?? "Channel");
-    moduleCategory = isBrand ? "Studio Branding" : "Channel";
-    activeModuleLabel = isBrand ? "Studio Branding" : (ch?.name ?? "Channel");
+    // Active Channel (e.g. sadf, Channel 1, etc.)
+    const ch = matchedChannel ?? channels[0];
+    activeModuleTitle = ch ? ch.name : "Channel";
+    moduleCategory = "Channel";
     navItems = [
       { label: "Dashboard", href: ch ? `/app/channels/${ch.id}` : "/app", icon: DashboardIcon },
       { label: "Channel Staffing", href: ch ? `/app/channels/${ch.id}/staffing` : "/app/staffing", icon: StaffingIcon },
@@ -122,7 +129,7 @@ export function StudioShell({ studioName, studioLogoUrl, userEmail, channels, no
           </Link>
           <div className="ml-auto flex items-center gap-2">
             <NotificationBell notifications={notifications} />
-            <ModulesDropdown channels={channels} activeModuleLabel={activeModuleLabel} />
+            <ModulesDropdown channels={channels} />
             <AccountDropdown studioName={studioName} studioLogoUrl={studioLogoUrl} userEmail={userEmail} />
           </div>
         </div>
