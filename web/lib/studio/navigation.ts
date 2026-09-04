@@ -31,7 +31,7 @@ export const ROUTE_CONTRACTS = [
   ["/app/social", "Front Office", "authenticated-workspace"],
   ["/app/staffing", "Front Office", "authenticated-workspace"],
   ["/app/agents", "Front Office", "authenticated-workspace"],
-  ["/app/onboarding", "Front Office", "redirect-to-/app"],
+  ["/app/onboarding", "Front Office", "authenticated-workspace"],
   ["/app/builder", "Studio", "authenticated-workspace"],
   ["/app/studio", "Studio", "authenticated-workspace"],
   ["/app/front-office", "Studio", "authenticated-workspace"],
@@ -42,9 +42,11 @@ export const ROUTE_CONTRACTS = [
   ["/app/dna", "Studio", "redirect-to-/app/universe"],
   ["/app/genplay", "Studio", "redirect-to-/app/studio"],
   ["/app/orchestration", "Studio", "authenticated-workspace"],
+  ["/app/collective", "Studio", "authenticated-workspace"],
+  ["/app/secrets", "Studio", "authenticated-workspace"],
   ["/account", "Account", "authenticated-account-workspace"],
   ["/app/billing", "Account", "authenticated-account-workspace"],
-  ["/app/integrations", "Account", "authenticated-account-workspace"],
+  ["/app/integrations", "Studio", "authenticated-workspace"],
   ["/dashboard", "Compatibility", "redirect-to-/app"],
   ["not-found", "Unknown User", "context-dependent"],
   ["error", "Unknown User", "context-dependent"],
@@ -57,47 +59,42 @@ export type NavGroup = Readonly<{
   items: readonly NavItem[];
 }>;
 
-export const NAV_GROUPS: readonly NavGroup[] = [
-  {
-    label: "Front Office",
-    href: "/app",
-    paths: ["/app", "/app/channels", "/app/marketing", "/app/social", "/app/staffing", "/app/agents", "/app/builder"],
-    items: [
-      { label: "Overview", href: "/app" },
-      { label: "Channels", href: "/app/channels" },
-      { label: "Marketing", href: "/app/marketing" },
-      { label: "Socials", href: "/app/social" },
-      { label: "Staffing", href: "/app/staffing", paths: ["/app/staffing", "/app/agents", "/app/builder"] },
-    ],
-  },
-  {
-    label: "Studio",
-    href: "/app/studio",
-    paths: ["/app/studio", "/app/front-office", "/app/assets", "/app/productions", "/app/universe", "/app/dna", "/app/genplay", "/app/orchestration"],
-    items: [
-      { label: "Overview", href: "/app/studio", paths: ["/app/studio", "/app/front-office", "/app/productions"] },
-      { label: "Assets", href: "/app/assets", paths: ["/app/assets", "/app/universe", "/app/dna", "/app/genplay"] },
-      { label: "Orchestration", href: "/app/orchestration" },
-    ],
-  },
-  {
-    label: "Account",
-    href: "/account",
-    paths: ["/account", "/app/integrations", "/app/billing"],
-    items: [
-      { label: "Profile & Settings", href: "/account" },
-      { label: "Integrations", href: "/app/integrations" },
-      { label: "Billing", href: "/app/billing" },
-    ],
-  },
-] as const;
+export const STUDIO_MODULE: NavGroup = {
+  label: "Studio",
+  href: "/app/studio",
+  paths: ["/app/studio", "/app/front-office", "/app/assets", "/app/productions", "/app/universe", "/app/dna", "/app/genplay", "/app/orchestration", "/app/collective", "/app/secrets", "/app/integrations"],
+  items: [
+    { label: "Collective", href: "/app/collective" },
+    { label: "Studio Floor", href: "/app/studio", paths: ["/app/studio", "/app/front-office", "/app/productions"] },
+    { label: "Assets", href: "/app/assets", paths: ["/app/assets", "/app/universe", "/app/dna", "/app/genplay"] },
+    { label: "Orchestration", href: "/app/orchestration" },
+    { label: "Integrations", href: "/app/integrations" },
+    { label: "Secrets", href: "/app/secrets" },
+  ],
+} as const;
+
+export const FRONT_OFFICE_MODULE: NavGroup = {
+  label: "Front Office",
+  href: "/app",
+  paths: ["/app", "/app/channels", "/app/marketing", "/app/social", "/app/staffing", "/app/agents", "/app/builder", "/app/onboarding"],
+  items: [
+    { label: "Overview", href: "/app" },
+    { label: "Studio setup", href: "/app/onboarding" },
+    { label: "Channels", href: "/app/channels" },
+    { label: "Marketing", href: "/app/marketing" },
+    { label: "Socials", href: "/app/social" },
+    { label: "Staffing", href: "/app/staffing", paths: ["/app/staffing", "/app/agents", "/app/builder"] },
+  ],
+} as const;
+
+export const MODULES: readonly NavGroup[] = [STUDIO_MODULE, FRONT_OFFICE_MODULE] as const;
 
 export function pathMatches(pathname: string, href: string) {
   return pathname === href || (href !== "/app" && pathname.startsWith(`${href}/`));
 }
 
 export function navGroupForPath(pathname: string) {
-  return NAV_GROUPS.find(({ paths }) => paths.some((path) => pathMatches(pathname, path))) ?? NAV_GROUPS[0];
+  return MODULES.find(({ paths }) => paths.some((path) => pathMatches(pathname, path))) ?? FRONT_OFFICE_MODULE;
 }
 
 export function navItemIsActive(pathname: string, item: NavItem) {

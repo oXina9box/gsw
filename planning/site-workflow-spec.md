@@ -120,9 +120,9 @@ Unknown User header contains:
 - Sign up
 - Log in
 
-Authenticated header keeps public-site access and exposes Front Office, Studio, and Account navigation.
+Authenticated pages use a dashboard shell instead of the public header: a fixed topbar (brand, search, notifications bell, account dropdown) and a fixed left sidenav. The sidenav carries a module switcher selecting the Studio module (Collective, workspace channels, studio floor, assets, orchestration where enabled, integrations, secrets) or the Front Office module (overview, channels, marketing, socials, staffing), with fixed utility links (Docs, Help, Contact) at the bottom. Account access (profile, settings, billing, subscription, credits) exists only through the top-right account dropdown. Every workspace has an implicit Studio Brand Channel seeded first; user channels follow in creation order, and each channel carries its own dashboard, staffing, marketing, social media, assets, and production surfaces.
 
-Footer appears on every public and authenticated page and contains:
+Footer appears on every public page and contains:
 
 - Home
 - The Studio
@@ -150,7 +150,7 @@ Protected footer links redirect to authentication and preserve the requested des
 - Expired sessions show a recoverable sign-in state.
 - Sign-out invalidates the session and returns to a public page.
 - No password, provider secret, or private agent file enters browser storage.
-- Onboarding is mandatory: account creation lands in the authenticated app where an onboarding popup modal gates entry until completion (`onboarding_profiles.step === 'complete'`). The modal collects core studio identity (Studio Name with deferred option, SVG/PNG/WebP logo, brand color palette with primary/secondary/accent, Studio Tag Line, content direction taxonomy, free-form description), allows commercial plan selection (`content-pro`, `creator-pro`, `hollywood-pro`, `content-byok`, `creator-byok`, `self-host`) with standalone or companion BYOK, and connects OpenAI/Anthropic providers with AES-256-GCM encrypted server-side storage and masked display. Once saved, the user configures the 4 core departments (Marketing, Socials, Development, Production) where Pro users select/deselect preconfigured lanes and BYOK users build custom lanes, with full 6-file custom agent editing while strictly protecting proprietary catalog IP agent configurations. See `planning/flow-revamp-spec.md`.
+- Account creation lands in the authenticated app with the complete studio floor available for inspection. Onboarding is a normal, resumable page at `/app/onboarding`; it never gates authenticated navigation and never opens automatically. It collects studio identity (Studio Name with deferred option, SVG/PNG/WebP logo, brand color palette with primary/secondary/accent, Studio Tag Line, content direction taxonomy, free-form description), commercial choice, optional OpenAI/Anthropic providers with AES-256-GCM encrypted server-side storage and masked display, an optional starter channel, the 4 core departments (Marketing, Socials, Development, Production), and first-lane approvals. Existing data formats remain stable. No channel or workflow is created until its section is explicitly submitted. See `planning/flow-revamp-spec.md`.
 ### 2.2A Day-zero operating limits
 
 Owner-only access does not mean unlimited access. All product writes, uploads, jobs, provider calls, exports, and publishing use server-side capability and operational policy. Provisional launch values live in `service-level-requirements.md` section 5 and are enforced centrally: provider spend, Storage, bandwidth, job concurrency, request/auth rates, upload size/count, and retry budget. Values include UTC reset windows, warning thresholds, hard-stop behavior, global emergency ceilings, and audited expiring overrides.

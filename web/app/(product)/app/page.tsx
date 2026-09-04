@@ -86,6 +86,15 @@ export default async function AppPage() {
         </div>
       </div>
 
+      <section className="panel mb-6 flex flex-wrap items-center justify-between gap-4" aria-labelledby="setup-heading">
+        <div>
+          <p className="kicker">Optional setup</p>
+          <h2 id="setup-heading">Make this studio yours</h2>
+          <p className="muted">Add identity, providers, departments, or a starter channel whenever you are ready.</p>
+        </div>
+        <Link className="button button-outline" href="/app/onboarding">Open studio setup</Link>
+      </section>
+
       {loadError ? (
         <p className="form-error" role="alert">
           Some Front Office data could not load. Refresh to try again.

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef } from "react";
-import { NAV_GROUPS } from "@/lib/studio/navigation";
+import { MODULES } from "@/lib/studio/navigation";
 import { SearchIcon } from "@/components/product/shell-icons";
 
 export function CommandMenu({ authenticated }: { authenticated: boolean }) {
@@ -76,8 +76,8 @@ export function CommandMenu({ authenticated }: { authenticated: boolean }) {
       <div className="dialog-topline"><span>{authenticated ? "Navigate the studio" : "Explore Gem Studio"}</span><button className="dialog-close" type="button" onClick={close} aria-label="Close command menu">×</button></div>
       <nav className="command-list" aria-label="Quick navigation">
         {authenticated
-          ? NAV_GROUPS.flatMap((group) => group.items.map((item) => (
-              <Link key={item.href} href={item.href} onClick={close}><span className="span-2">{group.label === item.label ? item.label : `${group.label} · ${item.label}`}</span><span>↗</span></Link>
+          ? MODULES.flatMap((module) => module.items.map((item) => (
+              <Link key={item.href} href={item.href} onClick={close}><span className="span-2">{module.label} · {item.label}</span><span>↗</span></Link>
             )))
           : <>
               <Link href={"/?auth=signup"} onClick={close}><span className="span-2">Create your Studio</span><span>↗</span></Link>

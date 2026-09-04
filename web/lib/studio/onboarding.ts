@@ -71,7 +71,11 @@ export function nextOnboardingStep(current: OnboardingStep | null, requested: On
   return requestedIndex === currentIndex + 1 || requestedIndex <= currentIndex ? requested : null;
 }
 
-/** Onboarding is mandatory: any step other than "complete" keeps the studio in setup. */
+/**
+ * Legacy compatibility helper for callers that still inspect setup progress.
+ * Product layout no longer uses this value as an access gate; incomplete
+ * studios remain browsable and can open onboarding on demand.
+ */
 export function shouldRedirectToOnboarding(step: unknown): boolean {
   return step !== "complete";
 }

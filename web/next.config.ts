@@ -43,11 +43,6 @@ const nextConfig: NextConfig = {
         destination: "/?auth=signup",
         permanent: false,
       },
-      {
-        source: "/app/onboarding",
-        destination: "/app",
-        permanent: false,
-      },
     ];
   },
 };

@@ -29,8 +29,8 @@ describe("onboarding transitions", () => {
   });
 });
 
-describe("onboarding gate", () => {
-  it("only releases when step is complete", () => {
+describe("onboarding progress", () => {
+  it("reports completion for legacy callers", () => {
     expect(shouldRedirectToOnboarding("complete")).toBe(false);
     expect(shouldRedirectToOnboarding("identity")).toBe(true);
     expect(shouldRedirectToOnboarding("commercial")).toBe(true);

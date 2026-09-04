@@ -112,8 +112,8 @@ Both BYOK subscriptions feature the **Payroll Budget Options** for human and age
 
 ---
 
-### 2.5 Logged In -> Create Studio Essentials (Onboarding Modal)
-Upon first login, the Studio Essentials wizard captures:
+### 2.5 Logged In -> Inspect Studio and Open Setup
+Upon first login, the complete authenticated Studio is available for inspection. `/app/onboarding` provides resumable Studio Essentials setup without blocking navigation or opening automatically. It captures:
 1. **Studio Name:** Required studio title (or explicit "Decide later" deferred option).
 2. **Studio Brand:**
    - **Logo:** Upload (SVG, PNG, WebP ≤ 5MB, ≤ 4096px) or select a default studio mark.
