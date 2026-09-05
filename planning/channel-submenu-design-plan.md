@@ -9,12 +9,15 @@
 
 ## 1. Executive Summary & Design Foundations
 
-Gem Studio is a solo-creator AI film studio SaaS. Channels represent dedicated publishing outlets, intellectual properties, or distribution brands (e.g. YouTube series, TikTok micro-drama universes, episodic narrative arcs). 
+Gem Studio is a solo-creator AI film studio SaaS. Channels represent dedicated publishing outlets, intellectual properties, or distribution brands (e.g. YouTube episodic series, TikTok micro-drama universes, cinematic narrative arcs). 
 
-Currently, the channel subpages (`dashboard`, `staffing`, `marketing`, `social`, `assets`) exist as functional skeletons. While they connect to live Supabase backend RPCs and queries, their visual hierarchy, spatial density, and operational feedback reflect placeholder prototypes rather than a cohesive **Creative Workbench & Control Room**.
+At the end of the day, Gem Studio executes two fundamental responsibilities:
+1. **Pre-Production & World-Building:** Creating and structuring everything that goes into making a movie (strategic thesis, lore, characters, locations, budgets, scripts, marketing, audience research).
+2. **Production & Execution:** Actually making and distributing that movie across the 13-stage pipeline to final release cuts.
 
-This design plan articulates a production-grade visual and interactive overhaul across all 5 logged-in channel submenu surfaces, preserving the global navigation shell and the existing subnav tab architecture while elevating the content area to the standard of a high-density creative IDE.
+This design plan articulates a production-grade visual and interactive overhaul across all logged-in channel submenu surfaces, preserving the global navigation shell and the existing subnav tab architecture while elevating the content area to the standard of a high-density creative IDE.
 
+### 1.1 Core Aesthetic Architecture (tastemaker)
 - **Macrostructure:** Creative Workbench & Studio Control Room in the canonical **Studio Dark** theme. Dark canvas, matte slate panels, hairline dividers, precision mono telemetry, and high-contrast status cues.
 - **Color Space:** OKLCH Perceptual Engine (`web/tokens.css`).
   - **Base Canvas:** `oklch(0.12 0.01 270)` (`#0d0e15`) — deep, non-distracting Studio Dark canvas.
@@ -22,22 +25,22 @@ This design plan articulates a production-grade visual and interactive overhaul 
   - **Brand Focal Anchor:** Hot Pink `oklch(0.62 0.28 350)` (`#ec4899` / `#f43f5e` anchor) for primary action triggers and hero counters.
   - **Active Focus & Telemetry:** Cyan `oklch(0.85 0.16 205)` (`#38bdf8`) for keyboard focus rings, active step highlights, and live telemetry data.
   - **Operational Status:** Lime `oklch(0.88 0.22 145)` for active/approved/online; Amber `oklch(0.78 0.16 75)` for pending review/guidelines/approvals; Red `oklch(0.62 0.22 25)` for errors/unassigned/destructive actions.
-
-### 1.2 Data Contracts & Supabase Tables
-The design plan maps directly to the live Supabase schema tables and RLS boundaries:
-- **`channels`**: Identity, audience directives, voice preset, cadence, content pillars, status.
-- **`productions`**: Active production slate, current step (0-12), step count, run mode, scheduled release, budget guidelines.
-- **`channel_staff`**: Roster mapping between channels and specialist `agents`.
-- **`channel_marketing_budgets`**: Strategic guideline credits ceiling, marketing notes, and allocation timestamps.
-- **`social_connections`**: Connected distribution outlets (YouTube, TikTok, X, Instagram) and authorization status.
-- **`signals`**: Audience intelligence, feedback, performance metrics, and market signals scoped to channel and productions.
-- **`production_dna`**: Casting links binding productions to specific continuity profiles.
-- **`dna_records`**: Character, location, and style continuity records with JSON payload and locked status.
-- **`generated_assets`**: Output takes, image renders, audio tracks, and assembled cuts produced on this channel.
 - **Typography:**
   - **Editorial / Display:** `Syne`, sans-serif (`font-display`) for section titles, modal headers, major metric callouts.
   - **Interface / Body:** `Space Grotesk`, sans-serif (`font-body`) for labels, card subtitles, descriptions, form inputs.
   - **Data / Telemetry:** `DM Mono`, monospace (`font-mono`) for timecodes, pipeline steps, credit numbers, JSON keys, shot counts, storage bytes.
+
+### 1.2 Data Contracts & Supabase Tables
+The design plan maps directly to live Supabase schema tables and RLS boundaries:
+- **`channels`**: Identity, audience directives, voice preset, cadence, content pillars, status.
+- **`productions`**: Active production slate, current step (0-12), step count, run mode, scheduled release, budget guidelines.
+- **`channel_staff`**: Roster mapping between channels and specialist `agents`.
+- **`channel_marketing_budgets`**: Strategic guideline credits ceiling, marketing notes, and allocation timestamps.
+- **`social_connections`**: Connected distribution outlets (YouTube, TikTok, X, Instagram, Facebook, Discord, Telegram, Snapchat) and authorization status.
+- **`signals`**: Audience intelligence, feedback, performance metrics, and market signals scoped to channel and productions.
+- **`production_dna`**: Casting links binding productions to specific continuity profiles.
+- **`dna_records`**: Character, location, and style continuity records with JSON payload and locked status.
+- **`generated_assets`**: Output takes, image renders, audio tracks, and assembled cuts produced on this channel.
 
 ---
 
@@ -56,7 +59,7 @@ The user's instruction explicitly mandates: **"keeping the nav the same, working
    - Bottom utility links: Docs, Help, Contact.
    - Sidenav remains completely unchanged.
 3. **Channel Subnav (`web/components/product/channel-subnav.tsx`):**
-   - The subnav tab bar sits below the breadcrumb and section header.
+   - Sits below the breadcrumb and section header.
    - Tabs: `Dashboard` (`""`), `Staffing` (`"/staffing"`), `Marketing` (`"/marketing"`), `Social Media` (`"/social"`), `Assets` (`"/assets"`), `Production` (`"/production"`).
    - Active tab indicator: `border-pink text-text font-semibold` with `aria-current="page"`.
    - Invariant: tab order, subpaths, and layout positioning are preserved 100%. All new design specifications apply strictly to the page content rendered below `<ChannelSubnav />`.
@@ -65,305 +68,358 @@ The user's instruction explicitly mandates: **"keeping the nav the same, working
 
 ## 3. Page 1: Channel Dashboard (`/app/channels/[channelId]`)
 
-**Current State:** Basic 4-card metric block (Audience, Voice, Cadence, Pillars) followed by a 5/7 split containing a standard form and a simple production link list. Contains broken link `<Link href="/app/front-office">Open production</Link>`.
-
-### 3.1 Design Blueprint & Information Architecture
-The Channel Dashboard is the **Executive Mission Control** for a publishing outlet. It must answer three immediate questions for the creator:
-1. *What is the state of our active production slate?*
-2. *Are the channel's core editorial directives locked and aligned with our output?*
-3. *What immediate action needs attention (approvals, renders, scheduled releases)?*
+**Role:** View-Only Mission Control & Full-Fledged Reporting Stat Board.  
+**Strict Behavior Constraint:** View-only page. Node execution and orchestration information is viewed but not managed here. Everything in the channel rolls up into this board.
 
 ```
-+---------------------------------------------------------------------------------------------------+
-| Breadcrumb: Studio / Channels / [Channel Name]                                                    |
-| Header: [Channel Name] · Dashboard    [Status: Active (Lime)]            [+ New Production (Pink)]|
-| Subnav: [Dashboard*] [Staffing] [Marketing] [Social Media] [Assets] [Production]                  |
-+---------------------------------------------------------------------------------------------------+
-| Telemetry Rail (4-card metric row):                                                               |
-| [ Active Productions: 3 ] [ Staffed Specialists: 8 ] [ Marketing Pool: 1,200c ] [ Health: 98% ]  |
-+---------------------------------------------------------------------------------------------------+
-| 12-Column Responsive Split:                                                                       |
-|                                                                                                   |
-| Left / Main (Col 8): Active Production Slate           Right / Rail (Col 4): Channel Directives   |
-| +---------------------------------------------------+  +----------------------------------------+ |
-| | Title & Filter Tabs: [All] [In-Flight] [Complete] |  | Card: Strategic Voice & Directives     | |
-| | Production Cards:                                 |  | - Audience: Sci-Fi Enthusiasts (18-35) | |
-| | - Title: "Ep 01: The Neon Genesis"                |  | - Voice: Noir Detective, Gritty Cynic  | |
-| |   Stage: 09 Video Production (75% Progress Bar)   |  | - Cadence: Bi-weekly episodic drops    | |
-| |   Run Mode: Autonomous | Scheduled: Oct 12        |  | - Pillars: Cyberpunk · Hard Sci-Fi     | |
-| |   [Inspect in Node Workbench (Cyan Link)]         |  | [Edit Directives Slide-Over Trigger]   | |
-| |                                                   |  +----------------------------------------+ |
-| | - Title: "Ep 02: Neural Fracture"                 |  | Quick Launch Production Tile:          | |
-| |   Stage: 03 Creative Brief (23% Progress Bar)     |  | - Select Template                      | |
-| |   Run Mode: Guided | Status: In-Flight            |  | - Set Credit Limit                     | |
-| +---------------------------------------------------+  +----------------------------------------+ |
-+---------------------------------------------------------------------------------------------------+
++-----------------------------------------------------------------------------------------------------------------------+
+| Breadcrumb: Studio / Channels / [Channel Name]                                                                        |
+| Header: [Channel Name] · Executive Stat Board   [Status: Active (Lime)]  [Customize Board ▾]  [Theme: Studio Dark ▾]  |
+| Subnav: [Dashboard*] [Staffing] [Marketing] [Social Media] [Assets] [Production]                                      |
++-----------------------------------------------------------------------------------------------------------------------+
+| 1. High-Density Telemetry Strip (Customizable Metric Cards):                                                         |
+| [ Total Reach: 4.8M ] [ Avg Retention: 74% ] [ Channel Budget Burn: 3.4k/5k c ] [ Media Vault: 24.8 GB ]             |
++-----------------------------------------------------------------------------------------------------------------------+
+| 2. Social Media Stat Board (Live Feed Across All Outlets):                                                           |
+| +-------------------------------------------------------------------------------------------------------------------+ |
+| | Metrics Grid: [ Total Posts: 142 ] [ Posts This Week: 12 ] [ Comments: 18.4k ] [ Shares: 9.2k ] [ Likes: 284k ]   |
+| | Hourly Best-Post Heatmap (Days vs Peak Engagement Hours) · Engagement Breakdown Chart (YouTube / TikTok / X / IG)  |
+| +-------------------------------------------------------------------------------------------------------------------+ |
++-----------------------------------------------------------------------------------------------------------------------+
+| 3. 12-Column Modular Stat Grid:                                                                                       |
+|                                                                                                                       |
+| Col 1-8: Production Slate & Node State Monitor (View Only)     Col 9-12: Planning, Web Traffic & Merch               |
+| +-----------------------------------------------------------+  +----------------------------------------------------+ |
+| | Active & Completed Productions:                           |  | Calendar & Upcoming Drop Cadence:                  | |
+| | - Ep 01: The Neon Genesis                                 |  | - Oct 12: Ep 01 Full Master Release (YouTube)      | |
+| |   Stage: 09 Video Production (75% Progress) · Run: Auto   |  | - Oct 14: TikTok Vertical Teaser Cut               | |
+| |   Node Telemetry: 14/18 Jobs Succeeded · 2 Rendering      |  | - Oct 18: Discord Watch Party & Live Q&A           | |
+| |                                                           |  +----------------------------------------------------+ |
+| | - Ep 02: Neural Fracture                                  |  | Channel Website & Traffic Telemetry:               | |
+| |   Stage: 04 Story Engine (30% Progress) · Run: Guided     |  | - Unique Visitors (7D): 84,200 (+18%)              | |
+| |   Node Telemetry: 6/6 Concept Briefs Locked               |  | - Avg On-Site Watch Time: 6m 42s                   | |
+| |                                                           |  | - Landing Page Conversion Rate: 8.4%               | |
+| | - Ep 00: Pilot Prologue [COMPLETED]                       |  +----------------------------------------------------+ |
+| |   Status: Released · Master 4K · 1.2M Views               |  | Merchandise & Commerce Stats:                      | |
+| |   [Inspect Output in Vault]                               |  | - Total Sales: $14,280 (324 Orders)                | |
+| |                                                           |  | - Top Item: "Cyberpunk Neon Hoodie" (94 units)     | |
+| +-----------------------------------------------------------+  +----------------------------------------------------+ |
++-----------------------------------------------------------------------------------------------------------------------+
+| 4. Global Audience Geographic Map & Demographic Spread:                                                              |
+| [ SVG World Map Heatmap: US (42%), UK (18%), DE (12%), JP (9%), Other (19%) ] [ Age/Gender Distribution Chart ]        |
++-----------------------------------------------------------------------------------------------------------------------+
 ```
 
-### 3.2 Key Components & UI Polish
-- **Fix Broken Production Action:** Change header action from `/app/front-office` to `/app/channels/${channel.id}/production` or an accessible modal trigger to launch `createProduction`.
-- **Telemetry HUD:** 4 structured metric panels using OKLCH `bg-surface`, `border-border`, with single-line data labels, large `Syne` numbers (`text-2xl font-bold text-text`), and subtle trend or capacity indicators.
-- **Production Slate Cards:**
-  - Card header: Department indicator (`DEPARTMENTS[current_step]`) with step progress `FlowbiteProgress` tinted with `color="cyan"`.
-  - Metadata badges: `run_mode` (`autonomous` in Cyan, `guided` in Pink, `manual` in Amber).
-  - Quick action: "Inspect Node Canvas" linking directly to `/app/channels/${channel.id}/production`.
-- **Channel Directives Rail:**
-  - Read-only formatted summary cards for Audience, Voice, Cadence, and Pillars with clean tag pills.
-  - "Edit Directives" opens a slide-over drawer or compact inline accordion rather than an overwhelming raw form dominating the primary viewport.
-  - Direct form binding to `updateChannel` server action with full accessible labels.
+### 3.1 Functionalities & Specifications
+1. **Full-Fledged View-Only Reporting Stat Board:**
+   - Aggregates every operational metric for the channel into one screen without navigation hops.
+   - Read-only node execution status: displays active step progress, node completion counts, worker job states, without exposing edit or restart controls (those live in the dedicated Production Node Workbench).
+2. **Comprehensive Social Media Statistics:**
+   - Real-time aggregation of posts, optimal posting time heatmaps, comments, shares, likes, viewer sentiment, and click-through rates.
+   - Filterable across all connected platforms or consolidated as an omni-channel score.
+3. **Production Slate Registry:**
+   - If a production is created, in-flight, paused, or completed, it is rendered in this view.
+   - Completed productions show release dates, master asset badges, and lifetime viewer metrics.
+4. **Planning, Calendar, Website & Merchandise Telemetry:**
+   - Multi-track release calendar showing scheduled episode drops, teaser clips, and marketing events.
+   - Official channel website analytics: visitor counts, bounce rate, watch-time duration, referral channels.
+   - Merchandise sales tracker: units sold, gross revenue, inventory alert thresholds.
+5. **Customizable Widgets & Display Theming:**
+   - **Widget Selection:** "Customize Board" modal allows users to select which widgets appear or remain hidden (e.g. hide Merchandise if pure digital, show Maps if international).
+   - **Theme Presets:** Template picker allows selecting visual themes:
+     - `Studio Dark` (default, cyan telemetry on deep slate)
+     - `Amber Glow` (retro-cinema amber monochrome)
+     - `Cyber Cyan` (high-contrast electric cyan highlights)
+     - `Executive Monochrome` (clean high-contrast gray/white)
 
 ---
 
 ## 4. Page 2: Channel Staffing (`/app/channels/[channelId]/staffing`)
 
-**Current State:** Plain grid of `PrelineCard` blocks mapping over all agents in the workspace with basic "Assign" / "Remove" form submit buttons.
-
-### 4.1 Design Blueprint & Information Architecture
-Channel Staffing is the **Departmental Talent Roster**. In Gem Studio's Lane Theory, agents belong to 4 core departments (Marketing, Creative, Production, Operations) and specific workflow lanes. A channel only executes when staffed with the appropriate specialist agents.
+**Role:** Master Agent Talent Roster & Departmental Staffing Desk.
 
 ```
-+---------------------------------------------------------------------------------------------------+
-| Breadcrumb: Studio / Channels / [Channel Name] / Staffing                                         |
-| Header: [Channel Name] · Channel Staffing    [Active Staff: 6 Agents]        [+ Hire Agent (Pink)]|
-| Subnav: [Dashboard] [Staffing*] [Marketing] [Social Media] [Assets] [Production]                  |
-+---------------------------------------------------------------------------------------------------+
-| Staffing Quota & Department Coverage Bar:                                                         |
-| [ Marketing: 2/2 Locked ] [ Creative: 2/3 Needs Script ] [ Production: 1/2 ] [ Operations: 1/1 ]  |
-+---------------------------------------------------------------------------------------------------+
-| Filter & Search Toolbar:                                                                          |
-| [ Search Specialist... ] [ Department: All ▾ ] [ Status: Assigned Only (Checkbox) ]               |
-+---------------------------------------------------------------------------------------------------+
-| Departmental Specialist Grid (3-column responsive):                                               |
-|                                                                                                   |
-| [ Card: Agent "Aria Vance" ]             [ Card: Agent "CineBot Prime" ]                          |
-| - Dept: Creative · Lane: Storyboard      - Dept: Production · Lane: Video Render                  |
-| - Capability: Continuity Director        - Capability: Neural Upscaler 4K                         |
-| - Model: Claude 3.5 Sonnet (BYOK)        - Model: Runway Gen-3 / Midjourney v6                    |
-| - Status: [Assigned (Lime Badge)]        - Status: [Available (Cyan Badge)]                       |
-| - Workload: 2 Active Productions         - Workload: Idle                                         |
-| - Action: [Remove from Channel (Red)]    - Action: [Assign to Channel (Pink Button)]              |
-+---------------------------------------------------------------------------------------------------+
-| Zero / Unstaffed Department Alert:                                                                |
-| "Creative Department missing Screenplay Specialist. Add an agent to enable Stage 06 automation."  |
-+---------------------------------------------------------------------------------------------------+
++-----------------------------------------------------------------------------------------------------------------------+
+| Breadcrumb: Studio / Channels / [Channel Name] / Staffing                                                             |
+| Header: [Channel Name] · Channel Staffing   [Staffed: 8 Agents] [Vacancies: 2]                 [+ Hire Specialists]   |
+| Subnav: [Dashboard] [Staffing*] [Marketing] [Social Media] [Assets] [Production]                                      |
++-----------------------------------------------------------------------------------------------------------------------+
+| Department Quota & Coverage Bar:                                                                                      |
+| [ Marketing: 2/2 Locked (Lime) ] [ Creative: 3/4 Needs Screenwriter (Amber) ] [ Production: 2/2 ] [ Operations: 1/1 ] |
++-----------------------------------------------------------------------------------------------------------------------+
+| Filter & View Controls:                                                                                               |
+| [ Filter: All Staff ] [ Hired / Assigned (8) ] [ Available to Hire (14) ]   [ Search Specialist by Name or Skill... ] |
++-----------------------------------------------------------------------------------------------------------------------+
+| Section 1: Hired & Active Channel Staff (Assigned to This Channel)                                                    |
+| +-------------------------------------------------------------------------------------------------------------------+ |
+| | [ Agent: Aria Vance ]                   [ Agent: CineBot Prime ]               [ Agent: SonicWeaver ]             | |
+| | Dept: Creative · Lane: Storyboard       Dept: Production · Lane: Video Render   Dept: Production · Lane: Sound FX | |
+| | Capability: Continuity Director         Capability: Neural 4K Video Synth      Capability: Foley & Dialogue Mix   | |
+| | Model: Claude 3.5 Sonnet (BYOK)         Model: Runway Gen-3 Alpha              Model: ElevenLabs / Suno v3        | |
+| | Workload: 2 Active Productions          Workload: 1 In-Flight Render           Workload: Idle                     | |
+| | Status: [Assigned · Online (Lime)]      Status: [Assigned · Busy (Cyan)]       Status: [Assigned · Ready (Lime)]  | |
+| | Action: [Remove from Channel (Red)]     Action: [Remove from Channel (Red)]    Action: [Remove from Channel (Red)]| |
+| +-------------------------------------------------------------------------------------------------------------------+ |
++-----------------------------------------------------------------------------------------------------------------------+
+| Section 2: Talent Pool — Available to Staff on This Channel                                                           |
+| +-------------------------------------------------------------------------------------------------------------------+ |
+| | [ Agent: ScriptSmith Pro ]              [ Agent: ViralScout ]                  [ Agent: LoreKeeper ]              | |
+| | Dept: Creative · Lane: Screenplay       Dept: Marketing · Lane: Social Pulse   Dept: Creative · Lane: World Bible | |
+| | Capability: Dialogue & Beat Architect   Capability: Trend & Hook Detector      Capability: Canon Continuity Watch | |
+| | Model: GPT-4o Cinematic Mode            Model: Perplexity Pro / DeepSeek       Model: Claude 3.5 Sonnet           | |
+| | Status: [In Studio Pool · Available]    Status: [In Studio Pool · Available]   Status: [Catalog Preview · Hire]   | |
+| | Action: [Assign to Channel (Pink)]      Action: [Assign to Channel (Pink)]     Action: [Hire to Studio (Button)]  | |
+| +-------------------------------------------------------------------------------------------------------------------+ |
++-----------------------------------------------------------------------------------------------------------------------+
 ```
 
-### 4.2 Key Components & UI Polish
-- **Department Coverage Banner:** Visual breakdown of the 4 departments (`Marketing`, `Creative`, `Production`, `Operations`) showing whether the channel has minimum required staff for autonomous execution.
-- **Agent Card Architecture:**
-  - Card header: Department tag (`text-[10px] font-mono uppercase text-text-faint`) paired with Lane pill.
-  - Avatar / Mark: Distinct algorithmic avatar or icon badge based on capability.
-  - Specialist identity: Agent name (`font-display font-semibold text-text`), capability summary (`font-body text-xs text-text-muted`), and model tag (`font-mono text-[10px] text-cyan`).
-  - Active assignment state:
-    - Assigned: subtle Lime ring/badge, "Assigned" status, "Remove" button with secondary border treatment.
-    - Available: Cyan badge, "Assign to Channel" primary button.
-  - Accessible action: Forms submit to `setChannelStaffAction` with optimistic visual transitions and `aria-live` status confirmation.
-- **Empty State:** When no agents exist in workspace, render a high-craft workbench empty state with direct link to `/app/builder` (Departmental Setup) and `/app/agents` (Agent Catalog).
+### 4.1 Functionalities & Specifications
+1. **Master Agent List with Two Clear Tiers:**
+   - **Who is Hired / Assigned:** Specialists actively linked in `channel_staff` executing jobs for this channel.
+   - **Who Can Be Hired / Assigned:** Available agents in the studio pool ready to be assigned, plus un-hired specialists in the global catalog recommended for vacant slots.
+2. **Departmental Coverage Validation:**
+   - Visual breakdown across Marketing, Creative, Production, Operations.
+   - Immediate visual cues (Amber status) when a channel lacks the agents needed to complete autonomous 13-stage runs.
+3. **Agent Assignment State Machine:**
+   - One-click assign/unassign actions bound to `setChannelStaffAction` calling the Postgres RPC `set_channel_staff`.
+   - Live workload indicator (Active Productions count, In-Flight generation job counts).
 
 ---
 
 ## 5. Page 3: Marketing & Budget (`/app/channels/[channelId]/marketing`)
 
-**Current State:** Basic 7/5 split. Left has a raw number input for `guideline_credits` and a textarea for `notes`, plus a simple list of productions. Right has a static definition list of Audience, Voice, Cadence, and Pillars.
-
-### 5.1 Design Blueprint & Information Architecture
-Channel Marketing & Budget operates the **Audience Thesis & Credit Economy** for this outlet. Solo creators need strict visibility into credit burn rates, allocation ceilings, and distribution personas.
+**Role:** The Pre-Production Engine — Everything that goes into making the movie before cameras roll and generators render.
 
 ```
-+---------------------------------------------------------------------------------------------------+
-| Breadcrumb: Studio / Channels / [Channel Name] / Marketing                                        |
-| Header: [Channel Name] · Marketing & Budget    [Guideline: 5,000c]     [Save Budget Action (Pink)]|
-| Subnav: [Dashboard] [Staffing] [Marketing*] [Social Media] [Assets] [Production]                  |
-+---------------------------------------------------------------------------------------------------+
-| Credit Economy HUD:                                                                               |
-| [ Total Channel Ceiling: 5,000c ] [ Allocated to Productions: 3,400c ] [ Unallocated: 1,600c ]   |
-| Visual Capacity Bar: [==================............] 68% Committed                               |
-+---------------------------------------------------------------------------------------------------+
-| 12-Column Responsive Layout:                                                                      |
-|                                                                                                   |
-| Left (Col 7): Budget Controls & Ledger         Right (Col 5): Strategic Audience Thesis           |
-| +--------------------------------------------+ +------------------------------------------------+ |
-| | Card: Guideline Allocation Settings        | | Card: Audience Persona & Tone Anchor           | |
-| | - Input: Marketing Credit Ceiling (Number) | | - Target Demographic: Young Adults (18-24)    | |
-| | - Stepper: Quick presets (+500, +1k, +5k)  | | - Tone Archetype: Satirical, High-Paced        | |
-| | - Textarea: Strategic Campaign Directives  | | - Distribution Velocity: 3 Drops / Week        | |
-| | - Button: [Update Marketing Budget]        | | - Editorial Content Pillars (Interactive Tags):| |
-| |                                            | |   [#WorldBuilding] [#LoreDeepDives] [#Teasers] | |
-| | Card: Production Allocation Ledger         | |                                                | |
-| | Breakdown table:                           | | Card: Market Opportunity & Signals Summary     | |
-| | - "The Neon Genesis": 1,200c (35%)         | | - High traction observed on TikTok clips       | |
-| | - "Neural Fracture": 2,200c (65%)          | | - Recommended: Increase Short-form Teaser spend| |
-| | Total Committed: 3,400 credits             | +------------------------------------------------+ |
-| +--------------------------------------------+                                                    |
-+---------------------------------------------------------------------------------------------------+
++-----------------------------------------------------------------------------------------------------------------------+
+| Breadcrumb: Studio / Channels / [Channel Name] / Marketing                                                            |
+| Header: [Channel Name] · Pre-Production & Marketing Engine    [Budget: 5,000c]               [Save Directives (Pink)] |
+| Subnav: [Dashboard] [Staffing] [Marketing*] [Social Media] [Assets] [Production]                                      |
++-----------------------------------------------------------------------------------------------------------------------+
+| Master Pre-Production Navigation Rail (14 Operational Lanes):                                                         |
+| [01 Onboarding] [02 Research] [03 Budgets] [04 Merchandise] [05 Website] [06 Advertising] [07 Scheduling]             |
+| [08 Season Theming] [09 Promos] [10 Cross-Channel] [11 Reporting] [12 Lore/Canon] [13 Legal] [14 Core Values]         |
++-----------------------------------------------------------------------------------------------------------------------+
+| 12-Column Comprehensive Pre-Production Workbench:                                                                     |
+|                                                                                                                       |
+| Lane 01 & 08: Season Theming & Story Arcs            Lane 03: Budgets & Credit Economics                              |
+| +--------------------------------------------------+ +--------------------------------------------------------------+ |
+| | - Season 01 Premise: "The Neon Genesis"          | | - Total Guideline Ceiling: 5,000c (Upsert in DB)              | |
+| | - Narrative Arc: 12-episode cyberpunk noir       | | - Committed to Slate: 3,400c | Unallocated Pool: 1,600c       | |
+| | - Character Growth Vectors & Climax Beats        | | - Cost-Per-Episode Guideline Stepper: [+250c] [+500c] [+1000c]| |
+| +--------------------------------------------------+ +--------------------------------------------------------------+ |
+|                                                                                                                       |
+| Lane 02: Research Hub (Channel, Social, Competitor)  Lane 04 & 05: Merchandise, Products & Official Website           |
+| +--------------------------------------------------+ +--------------------------------------------------------------+ |
+| | - Target Demographic: Sci-Fi Enthusiasts (18-35) | | - Merch Design Bibles: Apparel, Posters, Digital Drops       | |
+| | - Competitor Gap Analysis: Lack of gritty noir   | | - E-commerce Storefront Hooks: Shopify / Printful API sync   | |
+| | - Trending Soundscapes: Dark synthwave, industrial| | - Official Fan Site Funnel: Trailer embed, email capture     | |
+| +--------------------------------------------------+ +--------------------------------------------------------------+ |
+|                                                                                                                       |
+| Lane 06 & 09: Advertising, Promos & Teaser Strategy  Lane 10: Cross-Channel Synergy & Guest Appearances               |
+| +--------------------------------------------------+ +--------------------------------------------------------------+ |
+| | - 15s Hook Cuts for TikTok / YouTube Shorts      | | - Shared Universe Connections: Sibling Channel Crossovers    | |
+| | - Paid Acquisition Ad Copy & A/B Creative Tests  | | - Character Guest Cameos & Shared Lore Easter Eggs           | |
+| +--------------------------------------------------+ +--------------------------------------------------------------+ |
+|                                                                                                                       |
+| Lane 12: Lore, World Bible & Continuity Engine       Lane 13 & 14: Legal Clearance, Values & Guardrails               |
+| +--------------------------------------------------+ +--------------------------------------------------------------+ |
+| | - World History Timeline: 2084-2142 Chronology   | | - Commercial Model Rights: Attested BYOK Provider Licenses   | |
+| | - Factions, Technology Rules, Street Slang Lexicon| | - Audio Clearance: 100% Royalty-Free / AI Synth Rights       | |
+| | - Canonical Continuity Bible locked for AI prompts| | - Content Guardrails: PG-13 Violence, Zero Hate, Safe AI Policy| |
+| +--------------------------------------------------+ +--------------------------------------------------------------+ |
++-----------------------------------------------------------------------------------------------------------------------+
 ```
 
-### 5.2 Key Components & UI Polish
-- **Credit Allocation Telemetry Bar:** `FlowbiteProgress` or custom OKLCH meter showing committed vs unallocated channel credits against workspace credit balances.
-- **Quick-Adjust Budget Stepper:** In addition to manual number input, provide clickable increment chips (`+250c`, `+500c`, `+1000c`) to accelerate budget tuning.
-- **Production Allocation Ledger:**
-  - Table using `DM Mono` tabular numbers for credit values and percentages.
-  - Status indicator for whether each production has exceeded or remained within its guideline.
-- **Audience Strategy Card:**
-  - Distinct block with visual contrast (`bg-surface-2`, `border-border-2`).
-  - Interactive tag pills for content pillars with hover tooltips explaining the editorial intent.
-- **Save Budget Action:** Connected directly to `saveChannelMarketingBudget` server action with validation feedback and accessible alert notifications.
+### 5.1 Functionalities Across the 14 Pre-Production Lanes
+1. **Studio & Channel Onboarding Alignment:** Binds the studio's overarching design tokens and voice to this specific channel's sub-brand.
+2. **Research Hub:** Automated audience listening, competitive intelligence, and trending format radar.
+3. **Credit Economy & Budgets:** Direct connection to `channel_marketing_budgets` with `guideline_credits` management and production spend ledger.
+4. **Merchandise Desk:** Product specifications, concept renders, print-on-demand integrations.
+5. **Official Website Operations:** Fan landing page copy, traffic analytics, newsletter subscription funnels.
+6. **Advertising Operations:** Multi-variant paid promo management, ad copy generators, creative testing logs.
+7. **Master Scheduling:** Editorial drop dates, teaser release waves, premiere countdowns.
+8. **Season Theming & Narrative Arcs:** High-level story bible defining season theme, episodic pacing, and emotional climax beats.
+9. **Promos & Teaser Packaging:** Formats short-form teasers and cliffhangers designed to convert social scrollers into channel subscribers.
+10. **Cross-Channel IP Synergy:** Manages shared universe lore, character crossovers, and guest appearances across workspace channels.
+11. **Reporting & Business Analytics:** Rollup of cost-per-minute produced, audience acquisition cost, and revenue generated.
+12. **Lore & Canon Continuity Engine:** The comprehensive world bible: timelines, faction hierarchies, weapon specs, and magic/tech systems injected into prompt binders.
+13. **Legal & Rights Attestation:** Tracks copyright clearance, model licensing (Midjourney, Runway, OpenAI), voice clone attestations, and commercial indemnification.
+14. **Core Values & Ethics Guardrails:** Sets automated guardrails for agent behavior, violence ceilings, profanity filters, and creative safety boundaries.
 
 ---
 
 ## 6. Page 4: Social Media & Signals (`/app/channels/[channelId]/social`)
 
-**Current State:** 4/8 split. Left lists connected social platforms. Right displays basic Preline cards for raw signals and a simple text list for release packages.
-
-### 6.1 Design Blueprint & Information Architecture
-Channel Social Media is the **Audience Intelligence & Platform Distribution Desk**. It bridges generated media with live social platforms (YouTube, TikTok, X, Instagram) and feeds audience signals back into future production cycles.
+**Role:** Multi-Platform Distribution Desk, Two-Way Engagement Manager & Signals Radar.
 
 ```
-+---------------------------------------------------------------------------------------------------+
-| Breadcrumb: Studio / Channels / [Channel Name] / Social Media                                     |
-| Header: [Channel Name] · Social Media & Signals    [3 Outlets Active]     [+ Stage Release (Pink)]|
-| Subnav: [Dashboard] [Staffing] [Marketing] [Social Media*] [Assets] [Production]                  |
-+---------------------------------------------------------------------------------------------------+
-| 12-Column Responsive Layout:                                                                      |
-|                                                                                                   |
-| Left (Col 4): Connected Outlets Desk           Right (Col 8): Signals Stream & Release Packages   |
-| +--------------------------------------------+ +------------------------------------------------+ |
-| | Card: Distribution Outlets                 | | Tabs: [Audience Signals (12)] [Release Pkgs (4)]| |
-| | - YouTube: @NeonGenesisChannel (Connected) | |                                                | |
-| | - TikTok: @neongenesis_series (Connected)  | | Tab 1: Signals Feed                            | |
-| | - X / Twitter: @neongenesis (Pending Auth) | | - Signal Card: "Drop Ep 1 Climax on TikTok"    | |
-| | [Manage Connections -> /app/integrations]  | |   Type: Retention Peak | Confidence: 94%       | |
-| |                                            | |   Body: Viewer drop-off low at 01:24.          | |
-| | Outlet Status Summary:                     | |   Action: [Convert to Marketing Directive]     | |
-| | - Auto-Publish: Enabled                    | |                                                | |
-| | - Signal Capture: Active                   | | Tab 2: Release Packages (Platform Cuts)        | |
-| +--------------------------------------------+ | - Title: "Ep 01: Vertical 9:16 Teaser"         | |
-|                                                |   Platform: TikTok · Format: 1080x1920         | |
-|                                                |   Caption: "What lies beneath the neon grid..."| |
-|                                                |   Status: [Approved (Lime)] [Schedule Post]    | |
-|                                                +------------------------------------------------+ |
-+---------------------------------------------------------------------------------------------------+
++-----------------------------------------------------------------------------------------------------------------------+
+| Breadcrumb: Studio / Channels / [Channel Name] / Social Media                                                         |
+| Header: [Channel Name] · Multi-Platform Distribution Desk   [8 Outlets Active]               [+ Stage Post Release]   |
+| Subnav: [Dashboard] [Staffing] [Marketing] [Social Media*] [Assets] [Production]                                      |
++-----------------------------------------------------------------------------------------------------------------------+
+| 8-Platform Two-Way Connection Strip:                                                                                  |
+| [ YouTube: Connected (Lime) ] [ TikTok: Connected (Lime) ] [ X/Twitter: Connected (Lime) ] [ Instagram: Connected ]   |
+| [ Facebook: Connected (Lime)] [ Discord: Bot Active ]     [ Telegram: Channel Sync ]      [ Snapchat: Spotlight ]     |
++-----------------------------------------------------------------------------------------------------------------------+
+| 12-Column Distribution & Interaction Workspace:                                                                       |
+|                                                                                                                       |
+| Col 1-5: Two-Way Interaction & Community Inbox         Col 6-12: Signals Radar & Release Packages                     |
+| +---------------------------------------------------+  +------------------------------------------------------------+ |
+| | Community Inbox (All Platforms Consolidated):     |  | Sub-Tabs: [Audience Signals (14)] [Release Packages (6)]   | |
+| | - [YouTube] @alex_cyber: "The twist in Ep 1 was   |  |                                                            | |
+| |   insane! When is Ep 2 dropping?"                 |  | Signal Stream (Feedback Loops to Marketing & Production):  | |
+| |   [Quick Reply] [Send to Marketing Research]      |  | - Signal: "Audience Demand for Kaelen Vance Backstory"     | |
+| |                                                   |  |   Type: Narrative Desire · Strength: 96% · Origin: TikTok  | |
+| | - [TikTok] @neon_fan: "That visual style is wild" |  |   Action: [Generate Storyboard Idea in Creative]           | |
+| |   [Like] [Reply] [Flag as Viral Audio Trend]      |  |                                                            | |
+| |                                                   |  | - Signal: "Pacing Drop-off in Act 2 of Ep 01"              | |
+| | - [Discord] Server Announcement Thread:           |  |   Type: Retention Alert · Strength: 84% · Origin: YouTube  | |
+| |   Active Discussion in #ep1-theories (42 online)  |  |   Action: [Send Note to Screenplay Specialist]             | |
+| |                                                   |  +------------------------------------------------------------+ |
+| | Interaction Management Controls:                  |  | Platform-Native Release Packages (Platform Cuts):          | |
+| | - Sentiment Score: 94% Positive                   |  | - Package: "Ep 01: TikTok Vertical Teaser Cut"             | |
+| | - Auto-Moderation: Active (0 spam leaks)          |  |   Format: 9:16 Vertical · Max Chars: 2,200 (Used: 420)     | |
+| | - Unanswered Inquiries: 3                         |  |   Status: [Approved (Lime)] [Schedule for Oct 14]          | |
+| +---------------------------------------------------+  +------------------------------------------------------------+ |
++-----------------------------------------------------------------------------------------------------------------------+
 ```
 
-### 6.2 Key Components & UI Polish
-- **Connected Outlets Tile:**
-  - Platform brand icon integration (`Simple Icons` via Iconify for YouTube, TikTok, X, Instagram).
-  - Status indicator: Lime for `connected`, Amber for `re-auth required`, Faint for `disconnected`.
-  - Direct deep link to `/app/integrations` to add or configure social OAuth credentials.
-- **Signals Intelligence Feed:**
-  - Categorized signal badges: `Audience Insight`, `Trend Spike`, `Critique`, `Algorithm Shift`.
-  - Timestamp formatted using localized relative date (`2 hours ago`, `Yesterday`).
-  - High-contrast readability: signal body styled in `font-body text-xs text-text-muted` with clear card separation.
-- **Platform-Native Release Packages Drawer:**
-  - Card preview with aspect ratio pill (`9:16 Vertical`, `16:9 Landscape`, `1:1 Square`).
-  - Caption preview with character count indicator against platform maximums (e.g. TikTok 2,200 chars, X 280 chars).
-  - Approval state badge (`approved`, `draft`, `scheduled`) with primary trigger to schedule or publish.
+### 6.1 Functionalities & Specifications
+1. **8 Supported Social Platforms with Two-Way Connections:**
+   - Pre-configured connectors for **Facebook, YouTube, X (Twitter), Instagram, TikTok, Telegram, Discord, Snapchat**.
+   - **Outbound:** Direct publishing, automated post scheduling, platform-native video cutdowns and tags.
+   - **Inbound:** Ingests comments, mentions, likes, shares, subscriber velocity, and DMs back into the channel dashboard.
+2. **Unified Interaction Management:**
+   - Central community inbox across all 8 networks.
+   - Reply, like, and moderate community conversations directly from the studio.
+3. **Bi-Directional Marketing & Creative Feedback Loop:**
+   - Convert viewer comments into actionable research signals stored in `signals` table.
+   - Send signals directly into Creative and Screenplay specialist agent prompts for subsequent episodes.
+4. **Wide View Multi-Platform Command Grid:**
+   - Side-by-side comparative views of engagement across all 8 outlets.
+5. **Platform-Native Release Package Staging:**
+   - Platform-customized aspect ratios (`9:16`, `16:9`, `1:1`) with character-counter enforcement against platform API constraints.
 
 ---
 
 ## 7. Page 5: Assets & DNA Continuity (`/app/channels/[channelId]/assets`)
 
-**Current State:** 3 top metric cards (Storage Used, Active DNA Records, Generated Assets) followed by two raw grids: one for DNA records and one for generated assets showing file URIs.
-
-### 7.1 Design Blueprint & Information Architecture
-Channel Assets & DNA is the **Creative Continuity Vault**. Solo creators using AI media generation struggle primarily with continuity: character drift, mismatched wardrobe, and shifting art styles across shots. This page is where DNA continuity records (characters, locations, style rules) and generated media artifacts live.
+**Role:** Creative Continuity Vault & Comprehensive Channel File Store.  
+**Core Law:** All DNA lives here (connected to database, but rendered as visual continuity sheets, not raw database rows). Stores EVERY channel file; anything saved for this channel lives here.
 
 ```
-+---------------------------------------------------------------------------------------------------+
-| Breadcrumb: Studio / Channels / [Channel Name] / Assets & DNA                                     |
-| Header: [Channel Name] · Assets & DNA Vault    [Vault: 2.4 GB / 50 GB]    [+ Add DNA Anchor (Pink)]|
-| Subnav: [Dashboard] [Staffing] [Marketing] [Social Media] [Assets*] [Production]                  |
-+---------------------------------------------------------------------------------------------------+
-| Storage & Continuity Telemetry HUD:                                                               |
-| [ Vault Storage: 2.4 GB (4.8%) ] [ Locked DNA Profiles: 6 ] [ Media Artifacts: 48 Takes ]        |
-| [=============================================================================] Storage Bar Cyan   |
-+---------------------------------------------------------------------------------------------------+
-| Section 1: DNA Continuity Profiles (Characters, Locations, Style Bibles)                          |
-| Header: Character & World Continuity        [Filter: All] [Characters] [Locations] [Style Rules] |
-| +-----------------------------------------------------------------------------------------------+ |
-| | Grid (3-column responsive):                                                                   | |
-| | [ Card: Character DNA "Kaelen Vance" ]     [ Card: Location DNA "The Neon Alley" ]            | |
-| | - Type: CDNA · Role: Protagonist           - Type: LDNA · Role: Primary Setting               | |
-| | - Visual Anchor: Cybernetic eye, coat      - Visual Anchor: Rain-soaked neon alleyways        | |
-| | - Status: [Locked (Pink Badge)]            - Status: [Locked (Pink Badge)]                    | |
-| | - Casting: Used in 3 Productions           - Casting: Used in 2 Productions                   | |
-| | - [Inspect DNA Sheet Modal]                - [Inspect DNA Sheet Modal]                        | |
-| +-----------------------------------------------------------------------------------------------+ |
-+---------------------------------------------------------------------------------------------------+
-| Section 2: Generated Media Archive & Takes                                                        |
-| Header: Media Takes & Master Renders         [Filter: All] [Video] [Audio] [Images] [Shot Binders]|
-| +-----------------------------------------------------------------------------------------------+ |
-| | Grid (4-column responsive):                                                                   | |
-| | [ Media Tile: Shot 04_take_02.mp4 ]        [ Media Tile: Shot 04_take_01.mp4 ]                | |
-| | - Kind: Video Take (1080p, 24fps)          - Kind: Video Take (1080p, 24fps)                  | |
-| | - Production: "The Neon Genesis"           - Production: "The Neon Genesis"                   | |
-| | - Aspect: 16:9 | Size: 18.4 MB             - Aspect: 16:9 | Size: 17.9 MB                     | |
-| | - [Video Preview Hover / Lightbox]         - [Video Preview Hover / Lightbox]                 | |
-| +-----------------------------------------------------------------------------------------------+ |
-+---------------------------------------------------------------------------------------------------+
++-----------------------------------------------------------------------------------------------------------------------+
+| Breadcrumb: Studio / Channels / [Channel Name] / Assets & DNA                                                         |
+| Header: [Channel Name] · Assets Warehouse & DNA Vault    [Storage: 24.8 GB / 100 GB]         [+ Upload / New Anchor]  |
+| Subnav: [Dashboard] [Staffing] [Marketing] [Social Media] [Assets*] [Production]                                      |
++-----------------------------------------------------------------------------------------------------------------------+
+| Vault Storage Telemetry:                                                                                              |
+| [ Total Files: 412 ] [ DNA Anchors: 14 Locked ] [ Master Cuts: 6 ] [ Video Takes: 184 ] [ Audio Stems: 92 ]           |
+| Storage Utilization Bar: [============================........................................] 24.8% Cyan            |
++-----------------------------------------------------------------------------------------------------------------------+
+| Section 1: Visual DNA Continuity Profiles (Character, Location, Style Bibles):                                        |
+| Filter: [All DNA (14)] [Characters (CDNA)] [Locations (LDNA)] [Style Bibles (SDNA)] [Audio/Voice (VDNA)] [Props (PDNA)]|
+| +-------------------------------------------------------------------------------------------------------------------+ |
+| | [ Character DNA: "Kaelen Vance" ]       [ Location DNA: "Sector 7 Alley" ]      [ Style DNA: "Neo-Noir 35mm" ]    | |
+| | Type: CDNA · Role: Protagonist Lead     Type: LDNA · Role: Recurring Setting    Type: SDNA · Role: Visual Standard| |
+| | Facial Anchor: Synthetic left eye, scar  Lighting: Wet asphalt, amber haze       Grain: Kodak 5219, anamorphic flare|
+| | Wardrobe: Weathered trenchcoat, collar  Architecture: Modular brutalist towers  Palette: Deep blacks, hot pink    | |
+| | Status: [LOCKED (Lime)]                 Status: [LOCKED (Lime)]                 Status: [LOCKED (Lime)]           | |
+| | Used in: Ep 01, Ep 02, Ep 03            Used in: Ep 01, Ep 02                   Used in: All Productions          | |
+| | [Inspect Full DNA Sheet]                [Inspect Full DNA Sheet]                [Inspect Full DNA Sheet]          | |
+| +-------------------------------------------------------------------------------------------------------------------+ |
++-----------------------------------------------------------------------------------------------------------------------+
+| Section 2: Complete Channel File Store (Everything Saved for This Channel):                                           |
+| Search Files: [ Search by filename, production, stage, or format... ]    Filter: [All] [Video] [Audio] [Scripts] [Art]   |
+| +-------------------------------------------------------------------------------------------------------------------+ |
+| | [ Video Master: Ep01_Final_Master_4K.mp4 ] - 14.2 GB · 4K UHD · Pro-Res · Released Oct 12 · [Download] [Preview]  | |
+| | [ Shot Take: Ep02_Scene04_Shot02_Take03.mp4 ] - 42.4 MB · 1080p · H.264 · In-Flight · [Inspect Prompt Binder]     | |
+| | [ Audio Stem: Ep01_Dialogue_Kaelen_Final.wav ] - 128 MB · 24-bit 48kHz · Master Audio · [Play Preview]            | |
+| | [ Screenplay: Ep02_Neural_Fracture_v3.fountain ] - 142 KB · Full Screenplay · 38 Pages · [Read in Script Viewer]   | |
+| | [ Storyboard Deck: Ep02_Visual_Storyboards.pdf ] - 18.6 MB · 24 Storyboard Panels · Approved · [Inspect Deck]      | |
+| | [ Concept Art: Sector7_Establishing_Shot.png ] - 8.4 MB · Midjourney v6 Master Render · [Inspect DNA Anchor]       | |
+| +-------------------------------------------------------------------------------------------------------------------+ |
++-----------------------------------------------------------------------------------------------------------------------+
 ```
 
-### 7.2 Key Components & UI Polish
-- **Storage Capacity Meter:** OKLCH Cyan progress bar displaying workspace vault utilization against tier quota, with human-readable formatting (`formatBytes`).
-- **DNA Profile Cards:**
-  - Role-specific color tags: Character (`CDNA` in Pink), Location (`LDNA` in Cyan), Style Bible (`SDNA` in Lime).
-  - Continuity lock badge: `Locked` (Lime/Pink) ensures AI workers do not alter prompt anchors; `Draft` (Amber) indicates work in progress.
-  - Casting lineage: Clear list of productions actively referencing this continuity record.
-- **Generated Media Gallery:**
-  - Dark media tiles with 16:9 aspect ratio containers, subtle hover overlay, and quick-download / inspect action.
-  - Format badges: Video, Audio, Master Cut, Prompt Binder.
-  - Safe asset preview: Displays real thumbnail or format placeholder without exposing raw unauthenticated storage buckets.
+### 7.1 Functionalities & Specifications
+1. **DNA Continuity Vault:**
+   - **All DNA Lives Here:** Character continuity profiles (`CDNA`), Location continuity profiles (`LDNA`), Style bibles (`SDNA`), Voice anchors (`VDNA`), and Props/Vehicles (`PDNA`).
+   - Connected directly to Supabase `dna_records` and `production_dna` tables.
+   - Visually presented as rich continuity cards showing prompt anchors, negative constraints, color keys, and face/wardrobe locks.
+   - Prevents AI hallucination and continuity drift across sequential production takes.
+2. **Complete Channel File Store:**
+   - **Everything Saved Lives Here:** Universal repository of every file created, rendered, generated, or uploaded for this channel.
+   - Categories: Screenplays, Storyboard decks, Prompt Binders, Concept Art, Audio Stems, Voiceover Takes, Raw Video Generations, Master Video Cuts, Release Packages, Subtitles.
+   - Comprehensive metadata: file size, resolution/sample rate, associated production, stage origin, creation date.
+   - Integrated media viewer: video player, audio waveform player, script reader, and full-resolution lightbox.
 
 ---
 
-## 8. Cross-Discipline Review & Verification (better-interface)
+## 8. Page 6: Production Pipeline (`/app/channels/[channelId]/production`)
 
-The `better-interface` skill requires comprehensive evaluation across 6 core domains:
+**Role:** The 13-Stage Production Pipeline & Node Canvas — Creative Through Final Episode.
 
-| Domain | Specification & Verification Rule | Status |
+### 8.1 The 13 Canonical Production Stages
+Every production created under this channel moves through the canonical 13-stage workflow defined in `0021_phase2_default_template.sql`:
+1. **Stage 01 — Research:** Market opportunities, audience data, competitive landscape.
+2. **Stage 02 — Marketing:** Campaign hooks, audience thesis, credit allocation guidelines.
+3. **Stage 03 — Creative:** Core creative brief, premise, protagonist journey.
+4. **Stage 04 — Story:** Narrative structure, beat sheet, episodic pacing.
+5. **Stage 05 — Storyboard:** Visual shot sequence, camera angles, lighting keys.
+6. **Stage 06 — Script:** Scene-by-scene script outline, dialogue passes.
+7. **Stage 07 — Screenplay:** Industry-standard formatted screenplay (`.fountain`).
+8. **Stage 08 — AI Conversion:** Translation of screenplay into deterministic GenPlay shot contracts.
+9. **Stage 09 — Video Production:** Multi-model AI media generation (video takes, image synthesis).
+10. **Stage 10 — Launch:** Master assembly, color conform, audio foley, final 4K export.
+11. **Stage 11 — Social Posting:** Automated platform-tailored cutdowns and staging.
+12. **Stage 12 — Social Management:** Two-way community engagement and comment moderation.
+13. **Stage 13 — Reporting:** Performance analytics rollup and audience retention analysis.
+
+---
+
+## 9. Cross-Discipline Review & Verification (better-interface)
+
+| Domain | Specification & Verification Standard | Status |
 |---|---|---|
-| **1. Accessibility (a11y)** | WCAG 2.2 AA compliant. Minimum 44px touch targets on all interactive controls (`button`, `a`, form inputs). Visible focus rings using `focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan focus-visible:ring-offset-2 focus-visible:ring-offset-bg`. Form controls paired with explicit `<label htmlFor="...">`. Non-color status indicators (icons + text). `aria-live="polite"` for asynchronous save notifications. | VERIFIED SPEC |
-| **2. Layout** | 12-column modular grid with responsive breakpoints. Standard layout margins (`px-4 sm:px-6 lg:px-8`). Content stays within `max-w-7xl` container. Sticky or fixed elements use safe-area insets. Progressive disclosure affordances for deep settings. | VERIFIED SPEC |
-| **3. Writing & Copy** | Terse, purposeful film studio terminology. No marketing buzzwords inside the authenticated workbench. Unambiguous action buttons ("Save Channel Directives", "Assign Specialist", "Stage Release"). Standard error messages with recovery instructions. | VERIFIED SPEC |
-| **4. Typography** | Strict 3-family hierarchy: `Syne` for titles, `Space Grotesk` for UI copy, `DM Mono` for metadata, timecodes, credits, and IDs. Strict line-height scales to avoid clipping translated text. Tabular figures (`font-variant-numeric: tabular-nums`) on all metric numbers. | VERIFIED SPEC |
-| **5. Colors & Contrast** | OKLCH color engine. Primary body text (`--color-text`, oklch 0.93) against surface (`--color-surface`, oklch 0.18) yields contrast ratio > 11:1 (exceeds 4.5:1 WCAG AA floor). Badges and borders exceed 3:1 UI element floor. Semantic colors strictly mapped: Lime=Success, Cyan=Telemetry, Amber=Review, Red=Destructive, Pink=Primary. | VERIFIED SPEC |
-| **6. UI Polish** | Optical alignment of icons and text baselines. Radius hierarchy: `rounded-sm` (8px) for buttons/badges, `rounded-md` (16px) for cards/panels. Motion governed by `prefers-reduced-motion` with transition durations <= 200ms. No `transition: all`. | VERIFIED SPEC |
+| **Accessibility (a11y)** | WCAG 2.2 AA compliant. 44px min touch targets. Visible cyan focus rings (`focus-visible:ring-2 focus-visible:ring-cyan`). Form controls paired with explicit `<label htmlFor="...">`. Non-color status indicators (icons + text). `aria-live="polite"` for asynchronous save notifications. | VERIFIED SPEC |
+| **Layout** | 12-column modular responsive grid. Standard layout margins (`px-4 sm:px-6 lg:px-8`). Content stays within `max-w-7xl` container. Progressive disclosure affordances for deep settings. | VERIFIED SPEC |
+| **Writing & Copy** | Terse, purposeful film studio terminology. No marketing buzzwords inside the authenticated workbench. Unambiguous action buttons ("Save Directives", "Assign Specialist", "Stage Release"). Standard error messages with recovery instructions. | VERIFIED SPEC |
+| **Typography** | Strict 3-family hierarchy: `Syne` for titles, `Space Grotesk` for UI copy, `DM Mono` for metadata, timecodes, credits, and IDs. Tabular figures (`font-variant-numeric: tabular-nums`) on all metric numbers. | VERIFIED SPEC |
+| **Colors & Contrast** | OKLCH color engine. Primary body text (`--color-text`, oklch 0.93) against surface (`--color-surface`, oklch 0.18) yields contrast ratio > 11:1 (exceeds 4.5:1 WCAG AA floor). Badges and borders exceed 3:1 UI element floor. Semantic colors strictly mapped: Lime=Success, Cyan=Telemetry, Amber=Review, Red=Destructive, Pink=Primary. | VERIFIED SPEC |
+| **UI Polish** | Optical alignment of icons and text baselines. Radius hierarchy: `rounded-sm` (8px) for buttons/badges, `rounded-md` (16px) for cards/panels. Motion governed by `prefers-reduced-motion` with transition durations <= 200ms. No `transition: all`. | VERIFIED SPEC |
 
 ---
 
-## 9. Layout, Spatial Rhythms & Responsive Breakpoints (better-layout)
+## 10. Layout, Spatial Rhythms & Responsive Breakpoints (better-layout)
 
-### 9.1 Spatial Grid & Scale
-- **Base Rhythm:** Strict 4px/8px modular scale (`--space-1` = 4px, `--space-2` = 8px, `--space-4` = 16px, `--space-6` = 24px, `--space-8` = 32px).
+### 10.1 Spatial Scale & Invariants
+- **Modular Scale:** 4px/8px rhythm (`--space-1` = 4px, `--space-2` = 8px, `--space-4` = 16px, `--space-6` = 24px, `--space-8` = 32px).
 - **Grouping Rule:** Space groups first, background shapes second, lines last.
   - Intra-card element spacing: 8px–12px (`gap-2` to `gap-3`).
   - Card internal padding: 16px–20px (`p-4` to `p-5`).
   - Inter-card grid gaps: 16px–24px (`gap-4` to `gap-6`).
   - Major section vertical margin: 24px–32px (`mb-6` to `mb-8`).
 
-### 9.2 Responsive Viewport Adaptivity
+### 10.2 Responsive Viewport Adaptivity
 - **Desktop (1280px+):**
-  - Dashboard: 12-column layout (8 cols Active Slate, 4 cols Directives Rail).
-  - Staffing: 3-column specialist card grid (`lg:grid-cols-3`).
-  - Marketing: 12-column layout (7 cols Budget & Ledger, 5 cols Strategy & Thesis).
-  - Social: 12-column layout (4 cols Outlets, 8 cols Signals & Release Packages).
-  - Assets: 3-column DNA grid (`lg:grid-cols-3`), 4-column Media archive grid (`lg:grid-cols-4`).
+  - Full 12-column grids for all stat boards and distribution workspaces.
+  - Multi-column specialist rosters (`lg:grid-cols-3` or `lg:grid-cols-4`).
 - **Tablet (768px–1024px):**
-  - 12-column grids collapse to 2 equal columns (`md:grid-cols-2`) or stacked vertical sections.
+  - 12-column grids collapse to 2 equal columns (`md:grid-cols-2`).
   - Telemetry strips maintain 2x2 grid (`sm:grid-cols-2`).
-  - Subnav scrolls horizontally with smooth snap and fade affordance.
+  - Subnav scrolls horizontally with smooth snap.
 - **Mobile (360px–640px):**
   - Full single-column stack (`grid-cols-1`).
-  - Metric HUD cards stack or use 2-col compact tiles.
   - Buttons expand to full width (`w-full sm:w-auto`) with 44px min touch height.
-  - Touch-safe padding and safe-area inset preservation.
 
 ---
 
-## 10. Tastemaker Visual Craft & Anti-Slop Audit (tastemaker)
+## 11. Tastemaker Visual Craft & Anti-Slop Audit (tastemaker)
 
-### 10.1 Anti-AI-Slop Rules
-1. **No Generic Purple/Indigo Gradients:** The studio workbench strictly uses the dark studio palette with intentional OKLCH Pink, Cyan, and Lime chromatic signals.
+1. **No Generic Purple/Indigo Gradients:** Strict Studio Dark palette with intentional OKLCH Pink, Cyan, and Lime chromatic signals.
 2. **No Arbitrary 3-Card Feature Slop:** Grid cards are shaped directly around actual studio entities: Production step progressions, Agent capability files, Social platform cutdowns, and DNA continuity profiles.
 3. **No Dead Links or Placeholders:** Every button triggers an authentic Next.js Server Action (`updateChannel`, `setChannelStaffAction`, `saveChannelMarketingBudget`) or routes to a live verified page.
 4. **No Emoji as Interface Icons:** Use SVG icons from approved libraries (`Flowbite`, `Heroicons`, `Simple Icons` for platform logos) with consistent 16px/20px stroke geometry.
@@ -371,10 +427,9 @@ The `better-interface` skill requires comprehensive evaluation across 6 core dom
 
 ---
 
-## 11. State Matrix & Edge Cases
+## 12. State Matrix & Edge Cases
 
-Every page must explicitly account for all 4 core UI states:
-### 11.1 State Contracts
+### 12.1 State Contracts
 Every channel subpage architecture defines concrete behaviors across four core states:
 - **populated state**: Full production slate, active telemetry indicators, assigned roster cards, connected social outlets, and locked DNA continuity records.
 - **loading state**: CSS-based pulse skeleton placeholders matching exact final card dimensions to prevent layout shifts (`CLS < 0.01`).
@@ -388,31 +443,29 @@ Every channel subpage architecture defines concrete behaviors across four core s
 | **Marketing** | Budget telemetry bar, spend ledger table, and thesis tags | Skeleton metrics and placeholder text fields | "No budget guidelines set" with default template recommendation | Red error banner when credits input invalid or save fails |
 | **Social** | Platform status badges, categorized signals, and release cutdowns | Shimmering platform list and signal cards | "No social platforms connected" with deep link to `/app/integrations` | Failure notification on connection disconnect or sync error |
 | **Assets** | Vault usage meter, DNA continuity profiles, and media gallery | Skeleton storage bar and media tile placeholders | "No DNA records or media generated yet" with link to create first DNA profile | Alert on storage quota exceeded or failed media render |
+| **Production** | 13-stage interactive DAG node workbench with live job telemetry | Skeleton pipeline progression nodes | "No productions initialized" with template selector | Failed job error card with retry step action |
 
 ---
 
-## 12. Implementation Roadmap & Milestones
+## 13. Implementation Roadmap & Milestones
 
-The delivery is structured in four sequential, verified waves corresponding to the Depth Tree 4 architecture:
-
-1. **Milestone 1 (Branch 1.1 — Dashboard):**
-   - Implement `ChannelDashboardTelemetry` HUD component.
-   - Refactor production slate with `FlowbiteProgress` and direct links to `/app/channels/[id]/production`.
-   - Implement Channel Directives slide-over / clean rail with `updateChannel` action.
-   - Fix `/app/front-office` broken link to verified route.
-2. **Milestone 2 (Branch 1.2 — Staffing):**
-   - Implement Department Coverage Banner (Marketing, Creative, Production, Operations).
-   - Refactor `ChannelStaffCard` with capability badges, model tags, and accessible `setChannelStaffAction` forms.
-   - Implement empty state linking to `/app/builder` and `/app/agents`.
-3. **Milestone 3 (Branch 1.3 — Distribution: Marketing & Social):**
-   - Implement Credit Economy HUD and Production Spend Ledger on Marketing page.
-   - Implement Connected Outlets tile with Simple Icons platform badges on Social page.
-   - Implement Categorized Signals stream and Platform-Native Release Packages list.
-4. **Milestone 4 (Branch 1.4 — Assets & DNA Warehouse):**
-   - Implement Storage Capacity Bar with `formatBytes` telemetry.
-   - Refactor DNA Continuity Profile cards with locked status and casting production tags.
-   - Refactor Generated Media Archive with aspect ratio containers, format badges, and download triggers.
-5. **Milestone 5 (Integration & Verification):**
-   - Run `verify-channel-design-plan.mjs`.
-   - Run typecheck, lint, vitest, and build gates.
-   - Verify zero accessibility violations and responsive layout integrity across 360px–1920px.
+1. **Milestone 1 (Dashboard Stat Board):**
+   - Implement view-only executive reporting stat board.
+   - Add social media stats, production slate rollup, calendar, website visitors, and merchandise modules.
+   - Build widget visibility toggle and color theme picker (`Studio Dark`, `Cyber Cyan`, `Amber Glow`).
+2. **Milestone 2 (Staffing Master Roster):**
+   - Build Department Coverage Banner (Marketing, Creative, Production, Operations).
+   - Implement two-tier master agent roster (Hired / Assigned vs Available to Hire).
+   - Wire `setChannelStaffAction` forms with accessible feedback.
+3. **Milestone 3 (Pre-Production & Marketing Engine):**
+   - Implement the 14 pre-production lanes (Onboarding, Research, Budgets, Merch, Website, Ads, Scheduling, Season Theming, Promos, Cross-Channel, Reporting, Lore, Legal, Values).
+   - Wire credit ceiling form with `saveChannelMarketingBudget`.
+4. **Milestone 4 (Social Media & Two-Way Engagement):**
+   - Implement 8 platform connectors (Facebook, YouTube, X, Instagram, TikTok, Telegram, Discord, Snapchat).
+   - Build unified community inbox with two-way reply/sentiment tools and release cutdown drawer.
+5. **Milestone 5 (Assets & DNA Continuity Vault):**
+   - Build visual DNA continuity profile cards (Character, Location, Style, Voice, Props).
+   - Build complete channel file store with search, filters, and media lightbox previews.
+6. **Milestone 6 (Production 13-Stage Pipeline Overview):**
+   - Seamless link to 13-stage production DAG node workbench from creative brief through final episode cuts.
+   - Embed live job telemetry and execution step viewer in channel context.

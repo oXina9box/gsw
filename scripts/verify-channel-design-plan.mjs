@@ -19,11 +19,12 @@ const REQUIRED_SECTIONS = [
   "## 5. Page 3: Marketing & Budget (`/app/channels/[channelId]/marketing`)",
   "## 6. Page 4: Social Media & Signals (`/app/channels/[channelId]/social`)",
   "## 7. Page 5: Assets & DNA Continuity (`/app/channels/[channelId]/assets`)",
-  "## 8. Cross-Discipline Review & Verification (better-interface)",
-  "## 9. Layout, Spatial Rhythms & Responsive Breakpoints (better-layout)",
-  "## 10. Tastemaker Visual Craft & Anti-Slop Audit (tastemaker)",
-  "## 11. State Matrix & Edge Cases",
-  "## 12. Implementation Roadmap & Milestones",
+  "## 8. Page 6: Production Pipeline (`/app/channels/[channelId]/production`)",
+  "## 9. Cross-Discipline Review & Verification (better-interface)",
+  "## 10. Layout, Spatial Rhythms & Responsive Breakpoints (better-layout)",
+  "## 11. Tastemaker Visual Craft & Anti-Slop Audit (tastemaker)",
+  "## 12. State Matrix & Edge Cases",
+  "## 13. Implementation Roadmap & Milestones",
 ];
 
 const missingSections = REQUIRED_SECTIONS.filter((s) => !content.includes(s));
