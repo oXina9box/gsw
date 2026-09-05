@@ -131,7 +131,9 @@ The user's instruction explicitly mandates: **"keeping the nav the same, working
      - `Amber Glow` (retro-cinema amber monochrome)
      - `Cyber Cyan` (high-contrast electric cyan highlights)
      - `Executive Monochrome` (clean high-contrast gray/white)
-
+6. **Zero Dashboard Mutations (View-Only Invariant):**
+   - Directives (Audience, Voice, Cadence, Pillars) are presented as read-only telemetry badges; editing is strictly housed in the Pre-Production & Marketing Engine (`/app/channels/[channelId]/marketing`).
+   - Production execution is observed in real-time, but node configuration and job dispatch are managed in the Production Node Workbench (`/app/channels/[channelId]/production`).
 ---
 
 ## 4. Page 2: Channel Staffing (`/app/channels/[channelId]/staffing`)
@@ -183,7 +185,8 @@ The user's instruction explicitly mandates: **"keeping the nav the same, working
 3. **Agent Assignment State Machine:**
    - One-click assign/unassign actions bound to `setChannelStaffAction` calling the Postgres RPC `set_channel_staff`.
    - Live workload indicator (Active Productions count, In-Flight generation job counts).
-
+4. **Talent Acquisition & Empty States:**
+   - Direct navigation triggers linking to `/app/builder` (Departmental Setup) and `/app/agents` (Agent Catalog) when staffing vacancies or custom lane builders are needed.
 ---
 
 ## 5. Page 3: Marketing & Budget (`/app/channels/[channelId]/marketing`)
@@ -288,7 +291,7 @@ The user's instruction explicitly mandates: **"keeping the nav the same, working
 
 ### 6.1 Functionalities & Specifications
 1. **8 Supported Social Platforms with Two-Way Connections:**
-   - Pre-configured connectors for **Facebook, YouTube, X (Twitter), Instagram, TikTok, Telegram, Discord, Snapchat**.
+   - Pre-configured Two-Way Interactive Connections for **Facebook, YouTube, X (Twitter), Instagram, TikTok, Telegram, Discord, Snapchat**.
    - **Outbound:** Direct publishing, automated post scheduling, platform-native video cutdowns and tags.
    - **Inbound:** Ingests comments, mentions, likes, shares, subscriber velocity, and DMs back into the channel dashboard.
 2. **Unified Interaction Management:**
