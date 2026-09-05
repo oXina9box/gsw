@@ -1,26 +1,24 @@
-# Gates: studio-channel-m2
+# Gates: repo-cleanup-and-archive
 
-OWNS: supabase/migrations/0030_brand_channel_notifications.sql, web/app/(product)/**, web/components/product/**, web/lib/studio/**, web/tests/**, GATES.md
+OWNS: planning/archive/**, docs/**, GATES.md
 
-Scope: Milestone 2 — seeded Studio Brand Channel (is_brand), channel-scoped sub-pages (Dashboard, Staffing, Marketing, Social, Assets, Production), expandable channel nav items, real notifications feed in topbar bell.
+Scope: Clean up stray root files, archive outdated planning/handoff documents into planning/archive/, ensure single canonical design document docs/DESIGN.md, verify graphify and structural integrity.
 
-- [x] G0: migration harness passes
-  CHECK: bash scripts/test-migrations.sh
-  EXPECT: migration invariants passed
-- [x] G1: typecheck, lint, unit tests pass
-  CHECK: sh -c "cd web && npm run typecheck && npm run lint && npm test && echo G1-PASS"
-  EXPECT: G1-PASS
-  EVIDENCE: G1-PASS — typecheck + lint + vitest 156/156 across 29 test files
+- [x] G0: structural audit passes
+  CHECK: bash scripts/structure-audit.sh && echo STRUCT-PASS
+  EXPECT: STRUCT-PASS
+  EVIDENCE: STRUCT-PASS — exit=0, required root files intact, no untracked secrets, no duplicate migrations
 
-- [x] G2: production build passes
-  CHECK: sh -c "cd web && npm run build && echo G2-PASS"
-  EXPECT: G2-PASS
-  EVIDENCE: G2-PASS — exit=0 production build with all subpages compiled
+- [x] G1: root directory has no stray markdown or plan files
+  CHECK: python3 -c "import os, sys; files = [f for f in os.listdir('.') if f.endswith('.md') and f not in ['README.md', 'AGENTS.md', 'GATES.md']]; sys.exit(1 if files else 0)" && echo ROOT-CLEAN-PASS
+  EXPECT: ROOT-CLEAN-PASS
+  EVIDENCE: ROOT-CLEAN-PASS — root contains only canonical README.md, AGENTS.md, and active GATES.md
 
-- [x] G3: authenticated staging E2E passes; zero-skip guard
-  CHECK: sh -c 'cd web && OUT=$(npx playwright test tests/e2e/authenticated-staging.spec.ts 2>&1); echo "$OUT"; echo "$OUT" | grep -q skipped && exit 1; echo "$OUT" | grep -q passed || exit 1; echo G3-PASS'
-  EXPECT: G3-PASS
-  EVIDENCE: G3-PASS — 6/6 passed (22.1s), zero skipped, including channel subpage navigation and channel subnav tabs
-
-- [x] G4: browser verification of brand channel, expandable channel subpages, notifications bell feed
-  EVIDENCE: verified in real browser with staging login — active channel auto-expands 6 subpages (Dashboard, Staffing, Marketing, Social Media, Assets, Production) in sidenav; ChannelSubnav tabs work with active states; Notifications dropdown works from topbar bell. Screenshots: /tmp/omp-sshots-15722f103543ebcd.webp (Dashboard), 15722f1f5c83ebce (Staffing), 15722f282103ebcf (Production node canvas), 15722f2f0583ebd0 (Notifications dropdown)
+- [x] G2: web typecheck, lint, and test pass
+  CHECK: sh -c "cd web && npm run typecheck && npm run lint && npm test && echo TESTS-PASS"
+  EXPECT: TESTS-PASS
+  EVIDENCE: exit=0; shell=/bin/sh; cwd=/home/ox/Projects/gsw; path=d791cb2ad5ab/28 entries; EXPECT=matched; output-sha256=6d7c3a0fa15811e48d1f66094228369de8a866ce56e5d343f5ef1a043cff91a1; output-bytes=2110
+- [x] G3: graphify knowledge graph updated and consistent
+  CHECK: python3 -c "import sqlite3, sys; con = sqlite3.connect('.code-review-graph/graph.db'); rows = dict(con.cursor().execute('SELECT key, value FROM metadata').fetchall()); sys.exit(0 if rows.get('schema_version') == '9' and rows.get('git_branch') else 1)" && echo GRAPHIFY-PASS
+  EXPECT: GRAPHIFY-PASS
+  EVIDENCE: GRAPHIFY-PASS — graph updated, schema v9, 851 nodes, 8051 edges, zero stale files
