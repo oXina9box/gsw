@@ -239,7 +239,17 @@ All routes must strictly select and implement one of the following canonical arc
 ### 5.1 CORE A: Logged Out / Public Pages (`.site-header`)
 
 #### Archetype A1: Marketing Flagship & Feature Showcase
-* **Routes**: `/`, `/studio`, `/system`, `/social-workshop`
+* **Routes**: `/`, `/studio`, `/system`, `/social-workshop`, `/gallery`, `/portfolio`, `/pricing`, `/core-values`, `/do-not-click`
+* **Block Composition Contracts**:
+  * `/` (Home): Inline Marquee Hero (Eyebrow + Syne H1 + Lede + Actions) → `KometaC2Section` → `KometaStepSection` → `PrelineVerticalMarquee` → `FlowbiteCtaSection`.
+  * `/studio`: `KometaC4Section` → `KometaF2Section` → `KometaC1Section`.
+  * `/system`: `KometaF1Section` → `KometaC5Section` → `FlowbiteCtaSection`.
+  * `/social-workshop`: `KometaF1Section` → `KometaC3Section`.
+  * `/gallery`: `KometaC1Section` → `KometaC4Section`.
+  * `/portfolio`: `KometaC1Section` → `KometaC4Section`.
+  * `/pricing`: `KometaC2Section` → `KometaC3Section` → `KometaStepSection`.
+  * `/core-values`: `KometaC2Section` → `KometaF2Section` (gated behind `SITE_CONTENT_APPROVED`).
+  * `/do-not-click`: Unlisted Easter Egg (`FlowbiteVideo` + YouTube iframe).
 * **Slot Contract**:
   * `Slot 1 (Hero)`: `.hero.shell` or `.detail-hero` (`.eyebrow` with `.pulse-dot` + `Syne` H1 with `.hero-emphasis` + `Space Grotesk` `.hero-lede` max `32-44rem` + `.hero-actions`).
   * `Slot 2 (Visual Stage / Rail)`: `.hero-stage` (layered canvas with `.orbit` rings, `.stage-frame`, `.signal-card` overlays) or `.department-rail` (13-stage milestone bar).
@@ -247,19 +257,20 @@ All routes must strictly select and implement one of the following canonical arc
   * `Slot 4 (Closing Banner)`: `.closing-layout` or `.detail-cta` (Large `Syne` sign-off on left, `.button-primary` on right).
 
 #### Archetype A2: Reading, Docs & Auth Gateways
-* **Variant A2-A (Docs Layout — `/docs`)**:
+* **Variant A2-A (Docs Portal — `/docs`)**:
+  * `KometaC3Section` (4 core manual spotlight cards) → `KometaC5Section` (system guide index).
   * `Slot 1`: Two-column `.docs-layout.shell` (`14rem` sidebar + `1fr` content).
   * `Slot 2`: Sticky `.docs-nav` sidebar with mono category headers and cyan hover links.
   * `Slot 3`: Stacked `.docs-section` stream with hairline dividers, `Syne` H2/H3, and DM Mono code blocks.
-* **Variant A2-B (Editorial & Legal — `/terms`, `/privacy`, `/core-values`)**:
+* **Variant A2-B (Contact Gateway — `/contact`)**:
+  * `KometaContact` (Support & Inquiries header + contact details + interactive message form).
+* **Variant A2-C (Split Auth Gateways — `/login`, `/forgot-password`, `/reset-password`, `/verify-email`, `/mfa`)**:
+  * `PrelineSplitAuth` (Left: 5 cols with tagline, Syne headline, honest `—` metric rows; Right: 7 cols with title, subtitle, auth form, and helper links).
+* **Variant A2-D (Editorial & Legal — `/terms`, `/privacy`, `/core-values`)**:
+  * `LegalDocument` viewer component (gated behind `SITE_CONTENT_APPROVED`).
   * `Slot 1`: Centered `.reading-page.shell` (`max-width: 58rem; margin-inline: auto`).
   * `Slot 2`: `Syne` H1 + `.kicker` (effective date) + `.lede` (max `36rem`).
   * `Slot 3`: Content stream with `.notice` callouts (`border-left: 2px solid var(--color-amber)`).
-* **Variant A2-C (Centered Form Gateway — `/login`, `/signup`, `/contact`, `/mfa`, `/forgot-password`)**:
-  * `Slot 1`: Centered canvas `.form-page` (`min-height: calc(100vh - 12rem); place-items: center`).
-  * `Slot 2`: Inset `.form-card` (`max-width: 28rem` to `36rem`, `.color-surface-70`).
-  * `Slot 3`: `Syne` H1 + `.stack-form` (DM Mono uppercase labels + dark inputs) + `.button-primary` + `.form-error`.
-
 ---
 
 ### 5.2 CORE B: Logged In / Product Pages (`.studio-header`)
