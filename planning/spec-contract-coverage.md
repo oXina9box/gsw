@@ -179,3 +179,10 @@ Public-hosting contract is complete only when every row has an assigned owner an
 | Self-hosting | Infrastructure adapter boundary | Domain/capability contracts run with local infrastructure |
 
 Every implementation PR/task must answer the eight integration questions in `commercial-service-architecture.md`. Missing answers block review.
+
+## Stage Floors contract (2026-09-05)
+- Marketing, Social and Production entry points render the same StageFloor component with explicit scope.
+- Functional checks create/rename a workflow, connect hired agents from different pools, reload saved graph, select/zoom nodes, start and complete/fail/cancel engine runs, and observe durable state.
+- Negative checks reject malformed/foreign scope, workflow, rule, execution and step ids; no mutation on failed ownership checks; running graphs cannot be changed; data-load errors disable mutation controls.
+- Server payload includes agent summaries only, no prompt files or credentials. Read and write queries carry workspace_id.
+- Browser checks cover empty/populated/error states, keyboard use, workflow URL state, actual edges, narrow viewport overflow and reduced motion. Existing tests, lint, typecheck and production build remain gates.

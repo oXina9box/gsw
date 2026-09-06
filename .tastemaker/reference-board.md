@@ -21,3 +21,10 @@ Sources: inferred, not viewed.
 - First viewport: clear step title, lane guide, focused form, one continue action.
 - System: existing CSS tokens, accessible forms, server-authoritative persistence.
 - Risk: onboarding becomes a questionnaire; keep each step narrow.
+
+## Stage Floors — 2026-09-05
+- Source: existing Gem Studio pages and locked tokens, inspected locally; no external mockup claim.
+- Surface: editor/canvas for solo creators, Operate mode; density 8, motion 2, variance 3, art direction 6.
+- First viewport: floor identity, workflow controls, roster and saved graph.
+- Risk: many controls compete with the graph; compact inspector headings and stack panels on narrow screens.
+- Anti-reference: ornamental hero content inside the working editor.

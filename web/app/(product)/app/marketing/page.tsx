@@ -1,3 +1,4 @@
+import { StageFloorSection } from "@/components/product/stage-floor-section";
 import { createChannel } from "@/app/(product)/actions";
 import { getWorkspaceContext } from "@/lib/studio/workspace";
 import { evaluateMarketingChecklist, MARKETING_AGENT_ROLES } from "@/lib/studio/marketing";
@@ -6,15 +7,16 @@ import { FlowbiteBadge } from "@/components/blocks/flowbite/flowbite-badge";
 
 export const metadata = { title: "Marketing Workbench" };
 
-export default async function MarketingPage() {
-  const { supabase } = await getWorkspaceContext();
+export default async function MarketingPage({ searchParams }: { searchParams: Promise<{ workflow?: string }> }) {
+  const { workflow } = await searchParams;
+  const { supabase, workspaceId } = await getWorkspaceContext();
   const { data: channels } = await supabase
     .from("channels")
-    .select("id, name, audience, voice, cadence, pillars")
+    .select("id, name, audience, voice, cadence, pillars").eq("workspace_id", workspaceId)
     .order("created_at");
   const { data: onboarding } = await supabase
     .from("onboarding_profiles")
-    .select("studio_identity, channel_setup, lane_handoffs, missing_data_notes")
+    .select("studio_identity, channel_setup, lane_handoffs, missing_data_notes").eq("workspace_id", workspaceId)
     .maybeSingle();
 
   const checklist = evaluateMarketingChecklist(onboarding ?? {});
@@ -29,6 +31,8 @@ export default async function MarketingPage() {
           Direct studio brand strategy, audience positioning, and channel continuity across all production slates.
         </p>
       </div>
+
+      <StageFloorSection kind="marketing" workflowId={workflow} />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
         {/* Left Column: Brand & Setup Checklist */}

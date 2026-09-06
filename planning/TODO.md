@@ -42,3 +42,6 @@
 
 Invited beta → paid managed cloud → agent marketplace → public signup → self-hosted → teams/RBAC → workflow marketplace → platform expansion.
 Full roadmap text archived at `planning/archive/post-launch.md`; stage-gate discipline: phase packet approved before each stage starts.
+
+## Stage Floors — 2026-09-05
+- [x] Shared Marketing, Social and Production node workshops: execute [stage-floors-plan.md](stage-floors-plan.md); persist scoped workflows, connect hired agents across pools, expose real handoff execution, and verify browser/security/regression gates.

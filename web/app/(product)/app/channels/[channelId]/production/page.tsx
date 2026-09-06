@@ -1,3 +1,4 @@
+import { StageFloorSection } from "@/components/product/stage-floor-section";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getWorkspaceContext } from "@/lib/studio/workspace";
@@ -11,17 +12,20 @@ export const metadata = { title: "Channel Production" };
 
 export default async function ChannelProductionPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ channelId: string }>;
+  searchParams: Promise<{ workflow?: string }>;
 }) {
   const { channelId } = await params;
-  const { supabase } = await getWorkspaceContext();
+  const { workflow } = await searchParams;
+  const { supabase, workspaceId } = await getWorkspaceContext();
 
   const [{ data: channel }, { data: productions }] = await Promise.all([
-    supabase.from("channels").select("id, name, status").eq("id", channelId).maybeSingle(),
+    supabase.from("channels").select("id, name, status").eq("workspace_id", workspaceId).eq("id", channelId).maybeSingle(),
     supabase
       .from("productions")
-      .select("id, title, status, current_step, step_count, run_mode, scheduled_at, updated_at, workflows(id, name)")
+      .select("id, title, status, current_step, step_count, run_mode, scheduled_at, updated_at, workflows(id, name)").eq("workspace_id", workspaceId)
       .eq("channel_id", channelId)
       .order("updated_at", { ascending: false }),
   ]);
@@ -60,12 +64,7 @@ export default async function ChannelProductionPage({
 
       <ChannelSubnav channelId={channel.id} activeTab="production" />
 
-      <div className="rounded-md border border-border bg-surface p-5 mb-8 space-y-2">
-        <h2 className="font-display text-lg font-semibold text-text">Node-Based Production Canvas</h2>
-        <p className="font-body text-xs text-text-muted">
-          Each production on {channel.name} executes through the 13-stage agent node canvas — routing briefs through Research, Story, Storyboard, Script, Screenplay, AI Conversion, Video Production, and Assemble. Open any active slate below to inspect the live node graph.
-        </p>
-      </div>
+      <StageFloorSection kind="production" channelId={channel.id} workflowId={workflow} />
 
       <div className="space-y-4 mb-8">
         <div className="flex items-center justify-between">
@@ -82,9 +81,9 @@ export default async function ChannelProductionPage({
         ) : (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {productionList.map((prod) => {
-              const current = prod.current_step ?? 1;
-              const total = prod.step_count ?? 13;
-              const progress = Math.round((current / total) * 100);
+              const current = prod.current_step ?? 0;
+              const total = Math.max(prod.step_count ?? 13, 1);
+              const progress = Math.min(100, Math.max(0, Math.round((current / total) * 100)));
               const workflow = prod.workflows as { name?: string } | null;
 
               return (
@@ -97,7 +96,7 @@ export default async function ChannelProductionPage({
                       {prod.status}
                     </FlowbiteBadge>
                   }
-                  subtitle={`Mode: ${prod.run_mode || "guided"} · Stage ${current} of ${total}`}
+                  subtitle={`Mode: ${prod.run_mode || "guided"} · Stage ${Math.min(current + 1, total)} of ${total}`}
                   footer={
                     <div className="flex w-full items-center justify-between">
                       <span className="font-mono text-[10px] text-text-faint">

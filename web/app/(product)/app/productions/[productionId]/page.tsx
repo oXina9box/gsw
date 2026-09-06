@@ -1,5 +1,6 @@
+import { StageFloorSection } from "@/components/product/stage-floor-section";
 import { notFound } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { getWorkspaceContext } from "@/lib/studio/workspace";
 import { ProductionProgress } from "@/components/product/production-progress";
 import { ShotUploader } from "@/components/product/shot-uploader";
 import { ProviderExportButtons } from "@/components/product/provider-export-buttons";
@@ -41,15 +42,15 @@ export default async function ProductionPage({
   searchParams,
 }: {
   params: Promise<{ productionId: string }>;
-  searchParams: Promise<{ error?: string }>;
+  searchParams: Promise<{ error?: string; workflow?: string }>;
 }) {
   const { productionId } = await params;
   const search = await searchParams;
-  const supabase = await createClient();
+  const { supabase, workspaceId } = await getWorkspaceContext();
 
   const { data: production, error: productionError } = await supabase
     .from("productions")
-    .select("id, workspace_id, title, brief, status, current_step, step_count, run_mode, data, channel_id")
+    .select("id, workspace_id, title, brief, status, current_step, step_count, run_mode, data, channel_id").eq("workspace_id", workspaceId)
     .eq("id", productionId)
     .single();
 
@@ -67,39 +68,39 @@ export default async function ProductionPage({
   ] = await Promise.all([
     supabase
       .from("production_artifacts")
-      .select("id, department_step, kind, version, status, content, storage_path, created_at")
+      .select("id, department_step, kind, version, status, content, storage_path, created_at").eq("workspace_id", workspaceId)
       .eq("production_id", productionId)
       .order("version", { ascending: true }),
     supabase
       .from("production_approvals")
-      .select("id, department_step, status, note, created_at")
+      .select("id, department_step, status, note, created_at").eq("workspace_id", workspaceId)
       .eq("production_id", productionId)
       .eq("status", "pending")
       .order("created_at", { ascending: false }),
     supabase
       .from("job_queue")
-      .select("id, kind, status, error_message, credit_reservation, attempts, created_at")
+      .select("id, kind, status, error_message, credit_reservation, attempts, created_at").eq("workspace_id", workspaceId)
       .eq("production_id", productionId)
       .order("created_at", { ascending: false })
       .limit(10),
     supabase
       .from("genplay_shots")
-      .select("id, shot_number, prompt, duration_ms, status, shot_clips(id, version, storage_path, mime_type, byte_size, selected)")
+      .select("id, shot_number, prompt, duration_ms, status, shot_clips(id, version, storage_path, mime_type, byte_size, selected)").eq("workspace_id", workspaceId)
       .eq("production_id", productionId)
       .order("shot_number", { ascending: true }),
     supabase
       .from("agents")
-      .select("id, name, capabilities, protected_config")
+      .select("id, name, capabilities, protected_config").eq("workspace_id", workspaceId)
       .eq("workspace_id", production.workspace_id)
       .order("name"),
     supabase
       .from("provider_connections")
-      .select("id, label, provider, default_model, capabilities")
+      .select("id, label, provider, default_model, capabilities").eq("workspace_id", workspaceId)
       .eq("workspace_id", production.workspace_id)
       .eq("status", "active")
       .order("label"),
-    supabase.from("assembly_decisions").select("shot_id, position, keep, trim_start_ms, trim_end_ms, audio_choice").eq("production_id", productionId).order("position"),
-    supabase.from("dna_records").select("id, dna_id, dna_type, tier, record").order("updated_at", { ascending: false }),
+    supabase.from("assembly_decisions").select("shot_id, position, keep, trim_start_ms, trim_end_ms, audio_choice").eq("workspace_id", workspaceId).eq("production_id", productionId).order("position"),
+    supabase.from("dna_records").select("id, dna_id, dna_type, tier, record").eq("workspace_id", workspaceId).order("updated_at", { ascending: false }),
   ]);
 
   const currentStep = production.current_step ?? 0;
@@ -134,6 +135,8 @@ export default async function ProductionPage({
       {search.error === "job" && <p className="form-error" role="alert">Unable to enqueue generation job.</p>}
       {search.error === "approval" && <p className="form-error" role="alert">Unable to record approval decision.</p>}
       {search.error === "clip" && <p className="form-error" role="alert">Unable to select clip.</p>}
+
+      <StageFloorSection kind="production" channelId={production.channel_id} productionId={production.id} workflowId={search.workflow} />
 
       {/* Production workflow panel */}
       <div className="mb-8">

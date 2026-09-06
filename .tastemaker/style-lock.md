@@ -33,3 +33,11 @@ Updated: 2026-08-28
 ## Agent System & IP Protection Invariant
 - 6-File Contract for custom agents: `role.md`, `soul.md`, `jobdescription.md`, `skills.md`, `memory.md`, `user_content.md`.
 - CRITICAL: AT NO POINT DO WE TIP THE IP AGENT DETAILS. Protected catalog agents are sealed server-side and never reveal system prompts to the client.
+
+## Stage Floors — 2026-09-05
+- Existing color and font tokens retained; shared canvas editor inside current app routes.
+- Compact controls and inspector around a scrollable saved-handoff graph; vertical layout below desktop.
+- Motion: short CSS state feedback, reduced-motion override; no animation dependency.
+- Assets: functional SVG graph and existing UI primitives. Local unDraw library unavailable; no illustration generated.
+- Verification: desktop 1440px and mobile 390px browser fixtures, keyboard/reduced-motion checks, anti-slop and motion scans. Live database acceptance remains separate.
+- Memory: proposed composition recorded as pending-review in decisions.log; no personal profile promotion.

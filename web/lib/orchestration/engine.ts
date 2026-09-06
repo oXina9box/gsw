@@ -1,3 +1,4 @@
+import { withWorkflowLock } from "./workflow-lock";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { evaluateConditions, mapPayload, mergeDocumentSet, nextRoundTablePass, validateConditions } from "./helpers";
 
@@ -62,7 +63,7 @@ async function failExecution(supabase: SupabaseClient, execution: Execution, rea
   await supabase
     .from("executions")
     .update({ status: "failed", completed_at: new Date().toISOString(), updated_at: new Date().toISOString() })
-    .eq("id", execution.id);
+    .eq("id", execution.id).eq("workspace_id", execution.workspace_id);
   await logEvent(supabase, execution.workspace_id, execution.id, "execution_failed", null, { reason });
 }
 
@@ -165,7 +166,7 @@ async function runRule(supabase: SupabaseClient, execution: Execution, rule: Han
       context: nextContext,
       updated_at: new Date().toISOString(),
     })
-    .eq("id", execution.id);
+    .eq("id", execution.id).eq("workspace_id", execution.workspace_id);
   await logEvent(supabase, execution.workspace_id, execution.id, "handoff_triggered", actorId, { rule_id: rule.id });
   return { ok: true };
 }
@@ -181,6 +182,21 @@ async function loadRules(supabase: SupabaseClient, workflowId: string): Promise<
 }
 
 export async function startExecution(
+  supabase: SupabaseClient,
+  workspaceId: string,
+  workflowId: string,
+  brief: Record<string, unknown>,
+  actorId: string | null,
+): Promise<EngineResult & { executionId?: string }> {
+  return withWorkflowLock(supabase, workspaceId, workflowId, async () => {
+    const { data: active, error } = await supabase.from("executions").select("id")
+      .eq("workspace_id", workspaceId).eq("workflow_id", workflowId).in("status", ["pending", "running"]).limit(1).maybeSingle();
+    if (error || active) return { ok: false, error: "workflow_already_running_or_unavailable" };
+    return startUnlockedExecution(supabase, workspaceId, workflowId, brief, actorId);
+  });
+}
+
+async function startUnlockedExecution(
   supabase: SupabaseClient,
   workspaceId: string,
   workflowId: string,
@@ -213,14 +229,14 @@ export async function startExecution(
   await logEvent(supabase, workspaceId, created.id, "execution_started", actorId, { workflow_id: workflowId });
 
   if (rules.length === 0) {
-    await supabase.from("executions").update({ status: "completed", completed_at: now, updated_at: now }).eq("id", created.id);
+    await supabase.from("executions").update({ status: "completed", completed_at: now, updated_at: now }).eq("id", created.id).eq("workspace_id", created.workspace_id);
     await logEvent(supabase, workspaceId, created.id, "execution_completed", null, { reason: "no_rules" });
     return { ok: true, executionId: created.id };
   }
 
   const firstRule = rules.find((rule) => evaluateConditions(created.context, rule.conditions));
   if (!firstRule) {
-    await supabase.from("executions").update({ status: "completed", completed_at: now, updated_at: now }).eq("id", created.id);
+    await supabase.from("executions").update({ status: "completed", completed_at: now, updated_at: now }).eq("id", created.id).eq("workspace_id", created.workspace_id);
     await logEvent(supabase, workspaceId, created.id, "execution_completed", null, { reason: "no_matching_rule" });
     return { ok: true, executionId: created.id };
   }
@@ -229,7 +245,7 @@ export async function startExecution(
   return { ok: true, executionId: created.id };
 }
 
-export async function advanceExecution(
+async function advanceUnlockedExecution(
   supabase: SupabaseClient,
   executionId: string,
   trigger: TriggerEvent,
@@ -257,7 +273,7 @@ export async function advanceExecution(
 
   if (sourceRules.length === 0) {
     const now = new Date().toISOString();
-    await supabase.from("executions").update({ status: "completed", completed_at: now, updated_at: now }).eq("id", current.id);
+    await supabase.from("executions").update({ status: "completed", completed_at: now, updated_at: now }).eq("id", current.id).eq("workspace_id", current.workspace_id);
     await logEvent(supabase, current.workspace_id, current.id, "execution_completed", actorId, { reason: "no_further_rules" });
     return { ok: true };
   }
@@ -275,7 +291,7 @@ export async function advanceExecution(
   return runRule(supabase, current, next, actorId);
 }
 
-export async function completeStep(
+async function completeUnlockedStep(
   supabase: SupabaseClient,
   stepId: string,
   output: Record<string, unknown> | null,
@@ -290,16 +306,17 @@ export async function completeStep(
   const current = step as Step;
   if (current.status !== "running") return { ok: false, error: "step_not_running" };
 
-  const { error } = await supabase
+  const { data: transitioned, error } = await supabase
     .from("execution_steps")
     .update({ status: "completed", completed_at: new Date().toISOString(), ...(output ? { output_payload: output } : {}) })
-    .eq("id", stepId);
+    .eq("id", stepId).eq("workspace_id", current.workspace_id).eq("status", "running").select("id").maybeSingle();
   if (error) return { ok: false, error: error.message };
+  if (!transitioned) return { ok: false, error: "step_not_running" };
 
   const { data: execution } = await supabase
     .from("executions")
     .select("id, workspace_id, workflow_id, status, current_lane_id, current_agent_id, context")
-    .eq("id", current.execution_id)
+    .eq("id", current.execution_id).eq("workspace_id", current.workspace_id)
     .maybeSingle();
   if (!execution) return { ok: false, error: "execution_not_found" };
   const live = execution as Execution;
@@ -311,7 +328,7 @@ export async function completeStep(
     await supabase
       .from("executions")
       .update({ context: nextContext, updated_at: new Date().toISOString() })
-      .eq("id", live.id);
+      .eq("id", live.id).eq("workspace_id", live.workspace_id);
   }
   await logEvent(supabase, live.workspace_id, live.id, "step_completed", actorId, { step_id: stepId });
   const collaboration = (nextContext.collaboration ?? null) as { mode?: string; lane_id?: string; pass_order?: number[]; pass_cycles?: number; cycle?: number; pass?: number } | null;
@@ -322,16 +339,16 @@ export async function completeStep(
       const nextAgent = agents?.[next.agentPosition]?.id;
       if (!nextAgent) return { ok: false, error: "round_table_agent_missing" };
       const updatedContext = { ...nextContext, collaboration: { ...collaboration, ...next } };
-      await supabase.from("executions").update({ current_lane_id: collaboration.lane_id, current_agent_id: nextAgent, context: updatedContext, updated_at: new Date().toISOString() }).eq("id", live.id);
+      await supabase.from("executions").update({ current_lane_id: collaboration.lane_id, current_agent_id: nextAgent, context: updatedContext, updated_at: new Date().toISOString() }).eq("id", live.id).eq("workspace_id", live.workspace_id);
       await logEvent(supabase, live.workspace_id, live.id, "round_table_pass_started", actorId, { cycle: next.cycle, pass: next.pass, agent_id: nextAgent });
       return { ok: true };
     }
     await logEvent(supabase, live.workspace_id, live.id, "round_table_completed", actorId, { cycles: collaboration.pass_cycles });
   }
-  return advanceExecution(supabase, live.id, "completion", actorId);
+  return advanceUnlockedExecution(supabase, live.id, "completion", actorId);
 }
 
-export async function failStep(
+async function failUnlockedStep(
   supabase: SupabaseClient,
   stepId: string,
   errorMessage: string,
@@ -346,16 +363,17 @@ export async function failStep(
   const current = step as Step;
   if (current.status !== "running") return { ok: false, error: "step_not_running" };
 
-  const { error } = await supabase
+  const { data: transitioned, error } = await supabase
     .from("execution_steps")
     .update({ status: "failed", error_message: errorMessage, completed_at: new Date().toISOString() })
-    .eq("id", stepId);
+    .eq("id", stepId).eq("workspace_id", current.workspace_id).eq("status", "running").select("id").maybeSingle();
   if (error) return { ok: false, error: error.message };
+  if (!transitioned) return { ok: false, error: "step_not_running" };
 
   const { data: execution } = await supabase
     .from("executions")
     .select("id, workspace_id, workflow_id, status, current_lane_id, current_agent_id, context")
-    .eq("id", current.execution_id)
+    .eq("id", current.execution_id).eq("workspace_id", current.workspace_id)
     .maybeSingle();
   if (!execution) return { ok: false, error: "execution_not_found" };
   await logEvent(supabase, current.workspace_id, current.execution_id, "step_failed", actorId, { step_id: stepId });
@@ -363,7 +381,7 @@ export async function failStep(
   return { ok: true };
 }
 
-export async function cancelExecution(supabase: SupabaseClient, executionId: string, actorId: string | null): Promise<EngineResult> {
+async function cancelUnlockedExecution(supabase: SupabaseClient, executionId: string, actorId: string | null): Promise<EngineResult> {
   const { data: execution } = await supabase
     .from("executions")
     .select("id, workspace_id, workflow_id, status, current_lane_id, current_agent_id, context")
@@ -373,8 +391,42 @@ export async function cancelExecution(supabase: SupabaseClient, executionId: str
   const current = execution as Execution;
   if (current.status !== "running" && current.status !== "pending") return { ok: false, error: "execution_not_active" };
   const now = new Date().toISOString();
-  await supabase.from("executions").update({ status: "cancelled", completed_at: now, updated_at: now }).eq("id", current.id);
-  await supabase.from("execution_steps").update({ status: "skipped", completed_at: now }).eq("execution_id", current.id).eq("status", "running");
+  await supabase.from("executions").update({ status: "cancelled", completed_at: now, updated_at: now }).eq("id", current.id).eq("workspace_id", current.workspace_id);
+  await supabase.from("execution_steps").update({ status: "skipped", completed_at: now }).eq("execution_id", current.id).eq("workspace_id", current.workspace_id).eq("status", "running");
   await logEvent(supabase, current.workspace_id, current.id, "execution_cancelled", actorId, {});
   return { ok: true };
+}
+
+
+async function withExecutionLock(supabase: SupabaseClient, executionId: string, operation: (workspaceId: string) => Promise<EngineResult>): Promise<EngineResult> {
+  const { data, error } = await supabase.from("executions").select("workspace_id, workflow_id").eq("id", executionId).maybeSingle();
+  if (error || !data) return { ok: false, error: "execution_not_found" };
+  return withWorkflowLock(supabase, data.workspace_id, data.workflow_id, () => operation(data.workspace_id));
+}
+
+export async function advanceExecution(supabase: SupabaseClient, executionId: string, trigger: TriggerEvent, actorId: string | null): Promise<EngineResult> {
+  return withExecutionLock(supabase, executionId, async (workspaceId) => {
+    const { data: active, error } = await supabase.from("execution_steps").select("id").eq("workspace_id", workspaceId)
+      .eq("execution_id", executionId).eq("status", "running").limit(1).maybeSingle();
+    if (error || active) return { ok: false, error: "step_still_running_or_unavailable" };
+    return advanceUnlockedExecution(supabase, executionId, trigger, actorId);
+  });
+}
+
+async function withStepLock(supabase: SupabaseClient, stepId: string, operation: () => Promise<EngineResult>): Promise<EngineResult> {
+  const { data, error } = await supabase.from("execution_steps").select("execution_id").eq("id", stepId).maybeSingle();
+  if (error || !data) return { ok: false, error: "step_not_found" };
+  return withExecutionLock(supabase, data.execution_id, operation);
+}
+
+export async function completeStep(supabase: SupabaseClient, stepId: string, output: Record<string, unknown> | null, actorId: string | null): Promise<EngineResult> {
+  return withStepLock(supabase, stepId, () => completeUnlockedStep(supabase, stepId, output, actorId));
+}
+
+export async function failStep(supabase: SupabaseClient, stepId: string, errorMessage: string, actorId: string | null): Promise<EngineResult> {
+  return withStepLock(supabase, stepId, () => failUnlockedStep(supabase, stepId, errorMessage, actorId));
+}
+
+export async function cancelExecution(supabase: SupabaseClient, executionId: string, actorId: string | null): Promise<EngineResult> {
+  return withExecutionLock(supabase, executionId, () => cancelUnlockedExecution(supabase, executionId, actorId));
 }

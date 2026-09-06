@@ -1,0 +1,11 @@
+export type StageKind = "marketing" | "social" | "production";
+export type StageScope = Readonly<{ kind: StageKind; channelId: string | null; productionId: string | null }>;
+export type StageAgent = Readonly<{ id: string; name: string; lane_id: string | null; agent_type: string; capabilities: string[] | null; protected_config: boolean; recommended_tier: string | null; model_tier_override: string | null }>;
+export type StageLane = Readonly<{ id: string; name: string }>;
+export type StageWorkflow = Readonly<{ id: string; name: string; description: string; definition: Record<string, unknown>; updated_at: string }>;
+export type StageRule = Readonly<{ id: string; workflow_id: string; position: number; source_kind: "agent" | "lane"; source_agent_id: string | null; source_lane_id: string | null; target_kind: "agent" | "lane"; target_agent_id: string | null; target_lane_id: string | null; trigger_event: "completion" | "approval" | "manual" | "timeout" }>;
+export type StageExecution = Readonly<{ id: string; workflow_id: string; status: string; current_agent_id: string | null; current_lane_id: string | null; created_at: string }>;
+export type StageStep = Readonly<{ id: string; execution_id: string; handoff_rule_id: string | null; status: string; target_agent_id: string | null; target_lane_id: string | null; error_message: string | null; created_at: string; output_payload: Record<string, unknown> }>;
+export type StageFloorData = Readonly<{ workflows: StageWorkflow[]; agents: StageAgent[]; lanes: StageLane[]; rules: StageRule[]; executions: StageExecution[]; steps: StageStep[]; error: string | null }>;
+export type StageActionState = Readonly<{ ok: boolean; message: string; workflowId?: string }>;
+export type StageFloorProps = Readonly<{ scope: StageScope; data: StageFloorData; title?: string; initialWorkflowId?: string; staffingHref: string }>;

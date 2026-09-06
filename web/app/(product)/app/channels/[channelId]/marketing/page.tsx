@@ -1,3 +1,4 @@
+import { StageFloorSection } from "@/components/product/stage-floor-section";
 import { notFound } from "next/navigation";
 import { getWorkspaceContext } from "@/lib/studio/workspace";
 import { FlowbiteBreadcrumb } from "@/components/blocks/flowbite/flowbite-breadcrumb";
@@ -12,26 +13,26 @@ export default async function ChannelMarketingPage({
   searchParams,
 }: {
   params: Promise<{ channelId: string }>;
-  searchParams: Promise<{ error?: string; saved?: string }>;
+  searchParams: Promise<{ error?: string; saved?: string; workflow?: string }>;
 }) {
   const { channelId } = await params;
-  const { error: queryError, saved } = await searchParams;
-  const { supabase } = await getWorkspaceContext();
+  const { error: queryError, saved, workflow } = await searchParams;
+  const { supabase, workspaceId } = await getWorkspaceContext();
 
   const [{ data: channel }, { data: budgetData }, { data: productions }] = await Promise.all([
     supabase
       .from("channels")
-      .select("id, name, status, audience, voice, cadence, pillars")
+      .select("id, name, status, audience, voice, cadence, pillars").eq("workspace_id", workspaceId)
       .eq("id", channelId)
       .maybeSingle(),
     supabase
       .from("channel_marketing_budgets")
-      .select("guideline_credits, notes, updated_at")
+      .select("guideline_credits, notes, updated_at").eq("workspace_id", workspaceId)
       .eq("channel_id", channelId)
       .maybeSingle(),
     supabase
       .from("productions")
-      .select("id, title, status, production_budget_guidelines(guideline_credits, notes)")
+      .select("id, title, status, production_budget_guidelines(guideline_credits, notes)").eq("workspace_id", workspaceId)
       .eq("channel_id", channelId),
   ]);
 
@@ -69,6 +70,8 @@ export default async function ChannelMarketingPage({
       </div>
 
       <ChannelSubnav channelId={channel.id} activeTab="marketing" />
+
+      <StageFloorSection kind="marketing" channelId={channel.id} workflowId={workflow} />
 
       {queryError ? (
         <p className="form-error mb-4" role="alert">

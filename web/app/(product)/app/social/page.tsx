@@ -1,3 +1,4 @@
+import { StageFloorSection } from "@/components/product/stage-floor-section";
 import {
   approveReleasePackage,
   captureSocialReport,
@@ -12,16 +13,16 @@ import { FlowbiteBadge } from "@/components/blocks/flowbite/flowbite-badge";
 
 export const metadata = { title: "Social Workshop" };
 
-export default async function SocialPage({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
-  const { supabase } = await getWorkspaceContext();
+export default async function SocialPage({ searchParams }: { searchParams: Promise<{ error?: string; workflow?: string }> }) {
+  const { supabase, workspaceId } = await getWorkspaceContext();
   const [{ data: signals }, { data: connections }, { data: packages }, { data: productions }, { data: reports }] = await Promise.all([
-    supabase.from("signals").select("id, signal_type, title, body, status, created_at").order("created_at", { ascending: false }).limit(30),
-    supabase.from("social_connections").select("id, platform, account_label, status").order("platform"),
-    supabase.from("release_packages").select("id, production_id, platform, caption, status, productions(title)").order("created_at", { ascending: false }).limit(30),
-    supabase.from("productions").select("id, title").order("updated_at", { ascending: false }).limit(30),
-    supabase.from("social_reports").select("id, release_package_id, report_type, notes, metrics, captured_at").order("captured_at", { ascending: false }).limit(30),
+    supabase.from("signals").select("id, signal_type, title, body, status, created_at").eq("workspace_id", workspaceId).order("created_at", { ascending: false }).limit(30),
+    supabase.from("social_connections").select("id, platform, account_label, status").eq("workspace_id", workspaceId).order("platform"),
+    supabase.from("release_packages").select("id, production_id, platform, caption, status, productions(title)").eq("workspace_id", workspaceId).order("created_at", { ascending: false }).limit(30),
+    supabase.from("productions").select("id, title").eq("workspace_id", workspaceId).order("updated_at", { ascending: false }).limit(30),
+    supabase.from("social_reports").select("id, release_package_id, report_type, notes, metrics, captured_at").eq("workspace_id", workspaceId).order("captured_at", { ascending: false }).limit(30),
   ]);
-  const { error } = await searchParams;
+  const { error, workflow } = await searchParams;
 
   return (
     <section className="product-page shell" data-archetype="B2-C">
@@ -35,6 +36,8 @@ export default async function SocialPage({ searchParams }: { searchParams: Promi
       </div>
 
       {error ? <p className="form-error mb-6" role="alert">Social operation failed.</p> : null}
+
+      <StageFloorSection kind="social" workflowId={workflow} />
 
       <div className="platform-strip mb-8">
         {["youtube", "instagram", "facebook", "tiktok", "x"].map((platform) => {

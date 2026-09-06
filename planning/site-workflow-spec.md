@@ -470,3 +470,12 @@ Dry launch must verify:
 - Self-hosted packaging and supported limits.
 - Data retention, deletion, and model-training policy.
 - Legal/clearance desk design (owner ruling 2026-08-23: deferred — no legal advisors engaged; do not build until counsel input exists).
+
+## Stage Floors (owner direction, 2026-09-05)
+A Stage Floor is the shared node-based workshop for building and running a department pipeline. Stage M lives on Marketing; Stage S on Social Media; Production spans creative development through the final episode. Existing studio/channel Marketing and Social pages, channel Production, and production detail designate the same workbench as their pipeline editor, above their existing department tools. No new routes or fifth module.
+
+All floors share workflow creation/rename, hired-agent search across every workspace pool, explicit persisted handoff connections, selectable agent details, graph zoom, execution history and real run controls. Agent records already hired into the workspace are eligible regardless of department; catalog items must first be hired using existing staffing policy. Workflow definition.stage_floor records kind, channelId and productionId (null means workspace/channel scope). Queries and mutations explicitly scope workspace and validate channel/production membership. Existing workflows remain accessible in Orchestration; only explicitly tagged workflows appear on a floor.
+
+Edges represent saved handoff rules, never mere visual adjacency. Initial brief and completed output are plain text mapped into existing execution context; engine records actual handoff steps. Media generation remains on the existing production job controls; a started workflow does not pretend to generate media. No new commercial/provider policy, automatic social posting, schema or dependencies. Human-directed completion/failure/cancellation retains existing engine semantics. Running workflow graphs cannot be edited.
+
+Selection is URL-reflected; refreshing retains chosen workflow. Pending, saved, error, empty and loading states are explicit. Keyboard controls provide equivalent graph selection and connection forms; the workbench fits narrow screens and respects reduced motion. Protected agent prompt files and provider secrets never enter the workbench payload.

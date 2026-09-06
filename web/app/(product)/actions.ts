@@ -369,10 +369,17 @@ export async function updateLane(formData: FormData) {
   revalidatePath("/app/builder"); redirect("/app/builder");
 }
 
+// Tagged Stage Floors have their own locked editor; legacy forms must not bypass it.
+async function isLegacyWorkflow(supabase: WorkspaceContext["supabase"], workspaceId: string, workflowId: string) {
+  const { data, error } = await supabase.from("workflows").select("id, definition").eq("id", workflowId).eq("workspace_id", workspaceId).maybeSingle();
+  return !error && Boolean(data) && !data?.definition?.stage_floor && !data?.definition?._operation_lock;
+}
+
 export async function deleteWorkflow(formData: FormData) {
   const workflowId = textField(formData, "workflow_id");
   if (!workflowId || formData.get("confirm_delete") !== "on") redirect("/app/orchestration?error=workflow");
   const { supabase, id: workspaceId } = await workspace();
+  if (!(await isLegacyWorkflow(supabase, workspaceId, workflowId))) redirect("/app/orchestration?error=workflow");
   const { error } = await supabase.from("workflows").delete().eq("id", workflowId).eq("workspace_id", workspaceId);
   if (error) redirect("/app/orchestration?error=workflow");
   revalidatePath("/app/orchestration"); redirect("/app/orchestration");
@@ -382,6 +389,7 @@ export async function updateWorkflow(formData: FormData) {
   const workflowId = textField(formData, "workflow_id"); const name = text(formData, "name");
   if (!workflowId || !valid(name)) redirect("/app/orchestration?error=workflow");
   const { supabase, id } = await workspace();
+  if (!(await isLegacyWorkflow(supabase, id, workflowId))) redirect("/app/orchestration?error=workflow");
   const { error } = await supabase.from("workflows").update({ name, updated_at: new Date().toISOString() }).eq("id", workflowId).eq("workspace_id", id);
   if (error) redirect("/app/orchestration?error=workflow");
   revalidatePath("/app/orchestration"); redirect("/app/orchestration");
@@ -397,7 +405,7 @@ export async function createHandoffRule(formData: FormData) {
   const payloadMapping = jsonObject(formData.get("payload_mapping"));
   const { supabase, id } = await workspace();
   const [{ data: workflow }, { data: max }] = await Promise.all([supabase.from("workflows").select("id").eq("id", workflowId).eq("workspace_id", id).maybeSingle(), supabase.from("handoff_rules").select("position").eq("workflow_id", workflowId).order("position", { ascending: false }).limit(1).maybeSingle()]);
-  if (!workflow) redirect("/app/orchestration?error=handoff");
+  if (!workflow || !(await isLegacyWorkflow(supabase, id, workflowId))) redirect("/app/orchestration?error=handoff");
   const nodeTable = (kind: string) => kind === "lane" ? "lanes" : "agents";
   const [{ data: sourceNode }, { data: targetNode }] = await Promise.all([
     supabase.from(nodeTable(source[0])).select("id").eq("id", source[1]).eq("workspace_id", id).maybeSingle(),
@@ -730,7 +738,10 @@ async function installDefaultWorkflow(supabase: WorkspaceContext["supabase"], wo
 
 export async function deleteHandoffRule(formData: FormData) {
   const ruleId = text(formData, "rule_id"); if (!ruleId) redirect("/app/orchestration?error=handoff");
-  const { supabase, id: workspaceId } = await workspace(); const { error } = await supabase.from("handoff_rules").delete().eq("id", ruleId).eq("workspace_id", workspaceId);
+  const { supabase, id: workspaceId } = await workspace();
+  const { data: rule } = await supabase.from("handoff_rules").select("workflow_id").eq("id", ruleId).eq("workspace_id", workspaceId).maybeSingle();
+  if (!rule || !(await isLegacyWorkflow(supabase, workspaceId, rule.workflow_id))) redirect("/app/orchestration?error=handoff");
+  const { error } = await supabase.from("handoff_rules").delete().eq("id", ruleId).eq("workspace_id", workspaceId);
   if (error) redirect("/app/orchestration?error=handoff"); revalidatePath("/app/orchestration"); redirect("/app/orchestration");
 }
 
