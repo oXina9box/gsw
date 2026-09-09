@@ -501,7 +501,7 @@ export interface KometaC5Props {
   badge?: string;
   title: ReactNode;
   lede?: ReactNode;
-  cards: [KometaC5Item, KometaC5Item, KometaC5Item, KometaC5Item];
+  cards: KometaC5Item[];
   ctaHref?: string;
   ctaLabel?: string;
   className?: string;

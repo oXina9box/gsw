@@ -18,16 +18,18 @@
 # Usage:
 #   bash scripts/security-gate.sh          # fail on high-or-worse (default)
 #   bash scripts/security-gate.sh medium   # fail on medium-or-worse
-set -uo pipefail
+set -euo pipefail
 
 cd "$(dirname "$0")/.."
 
 THRESH="${1:-high}"
 
-# 1. Run the vendored scanner (its own --fail-on is ignored; this gate decides).
+# 1. Remove stale report so a failed scanner cannot fall through to previous clean results
+rm -rf security-audit-report
+
+# 2. Run the vendored scanner
 python3 scripts/vendor/security_redteam_audit.py . --mode local \
   --out security-audit-report --fail-on critical
-
 # 2. Filter the machine-readable report to in-scope (tracked, non-excluded)
 #    findings at/above the threshold.
 python3 - "$THRESH" <<'PY'

@@ -1,7 +1,6 @@
 "use server";
 
 import { headers } from "next/headers";
-import { createAuditEvent } from "@/lib/studio/foundations";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { checkRateLimit } from "@/lib/db-rate-limit";
 
@@ -36,11 +35,12 @@ export async function sendContactMessage(prevState: ContactState | null, formDat
     const admin = createAdminClient();
     const { error } = await admin.from("contact_messages").insert({ email, message });
     if (error) {
-      console.log(JSON.stringify(createAuditEvent({ action: "contact_message", target: "inbox", outcome: "allowed", metadata: { status: "logged_fallback" } })));
+      console.error("Failed to persist contact message:", error);
+      return { success: false, error: "Unable to deliver message right now. Please try again." };
     }
     return { success: true, message: "Message received" };
-  } catch {
-    console.log(JSON.stringify(createAuditEvent({ action: "contact_message", target: "inbox", outcome: "allowed", metadata: { status: "logged_fallback" } })));
-    return { success: true, message: "Message received" };
+  } catch (err) {
+    console.error("Contact message submission error:", err);
+    return { success: false, error: "Unable to deliver message right now. Please try again." };
   }
 }
