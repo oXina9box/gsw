@@ -34,31 +34,5 @@ export async function POST(request: Request) {
       .maybeSingle();
     if (!invite) return NextResponse.json({ error: "invite_required" }, { status: 403 });
   }
-  if (body?.userId || (body?.email && body?.password)) {
-    try {
-      const admin = createAdminClient();
-      if (body.userId) {
-        await admin.auth.admin.updateUserById(body.userId, { email_confirm: true });
-      } else if (body.email && body.password) {
-        const { error } = await admin.auth.admin.createUser({
-          email: body.email,
-          password: body.password,
-          email_confirm: true,
-        });
-        if (error && error.message.toLowerCase().includes("already registered")) {
-          const { data: usersData } = await admin.auth.admin.listUsers();
-          const target = usersData?.users.find((u) => u.email === body.email);
-          if (target) {
-            await admin.auth.admin.updateUserById(target.id, {
-              email_confirm: true,
-              password: body.password,
-            });
-          }
-        }
-      }
-    } catch (err) {
-      console.error("Auto-confirm error:", err);
-    }
-  }
   return NextResponse.json({ allowed: true });
 }

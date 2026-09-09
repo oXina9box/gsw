@@ -232,12 +232,38 @@ export async function selectShotClip(formData: FormData) {
 }
 
 export async function saveAssemblyDecision(formData: FormData) {
-  const productionId = textField(formData, "production_id"); const shotId = textField(formData, "shot_id");
-  const position = Number.parseInt(text(formData, "position"), 10); const start = Number.parseInt(text(formData, "trim_start_ms") || "0", 10); const endRaw = text(formData, "trim_end_ms"); const end = endRaw ? Number.parseInt(endRaw, 10) : null;
-  if (!productionId || !shotId || !Number.isSafeInteger(position) || position < 0) redirect(`/app/productions/${productionId ?? ""}?error=assembly`);
-  try { validateAssemblyTrim(start, end); } catch { redirect(`/app/productions/${productionId ?? ""}?error=assembly`); }
+  const productionId = textField(formData, "production_id");
+  if (!productionId) redirect("/app?error=assembly");
+  const shotIds = formData.getAll("shot_id").map((v) => String(v).trim()).filter(Boolean);
+  const positions = formData.getAll("position").map((v) => Number.parseInt(String(v), 10));
+  if (shotIds.length === 0) redirect(`/app/productions/${productionId}?error=assembly`);
+
   const { supabase, id } = await workspace();
-  const { error } = await supabase.from("assembly_decisions").upsert({ workspace_id: id, production_id: productionId, shot_id: shotId, position, keep: formData.get("keep") === "on", trim_start_ms: start, trim_end_ms: end, audio_choice: text(formData, "audio_choice") || null, notes: textField(formData, "notes", 2_000) ?? "" });
+  const decisions = shotIds.map((shotId, idx) => {
+    const pos = positions[idx] ?? (idx + 1);
+    const keepVal = formData.get(`keep_${shotId}`) ?? (idx === 0 ? formData.get("keep") : null);
+    const keep = keepVal === "on" || keepVal === "true";
+    const start = Number.parseInt(text(formData, `trim_start_ms_${shotId}`) || text(formData, "trim_start_ms") || "0", 10);
+    const endRaw = text(formData, `trim_end_ms_${shotId}`) || text(formData, "trim_end_ms");
+    const end = endRaw ? Number.parseInt(endRaw, 10) : null;
+    return {
+      workspace_id: id,
+      production_id: productionId,
+      shot_id: shotId,
+      position: Number.isSafeInteger(pos) && pos >= 0 ? pos : idx + 1,
+      keep,
+      trim_start_ms: Number.isSafeInteger(start) ? start : 0,
+      trim_end_ms: end !== null && Number.isSafeInteger(end) ? end : null,
+      audio_choice: text(formData, `audio_choice_${shotId}`) || text(formData, "audio_choice") || null,
+      notes: textField(formData, `notes_${shotId}`, 2_000) ?? textField(formData, "notes", 2_000) ?? "",
+    };
+  });
+
+  for (const decision of decisions) {
+    try { validateAssemblyTrim(decision.trim_start_ms, decision.trim_end_ms); } catch { redirect(`/app/productions/${productionId}?error=assembly`); }
+  }
+
+  const { error } = await supabase.from("assembly_decisions").upsert(decisions.length === 1 ? decisions[0] : decisions);
   if (error) redirect(`/app/productions/${productionId}?error=assembly`);
   revalidatePath(`/app/productions/${productionId}`); redirect(`/app/productions/${productionId}`);
 }
@@ -330,9 +356,10 @@ export async function attachProductionDna(formData: FormData) {
 
 export async function spawnCastingDna(formData: FormData) {
   const productionId = textField(formData, "production_id");
-  const recordType = text(formData, "dna_type");
-  const name = textField(formData, "name");
-  const summary = textField(formData, "summary", 5_000);
+  const dnaId = textField(formData, "dna_id");
+  const recordType = text(formData, "dna_type") || (dnaId?.startsWith("LOC-") ? "LDNA" : dnaId?.startsWith("PROP-") ? "PDNA" : "CDNA");
+  const name = textField(formData, "name") || dnaId || "Lead Character";
+  const summary = textField(formData, "summary", 5_000) || `Production casting continuity profile for ${name}`;
   if (!productionId || !name || !summary || !["CDNA", "LDNA", "PDNA"].includes(recordType)) redirect(`/app/productions/${productionId ?? ""}?error=casting`);
   const { supabase, id } = await workspace();
   const { data: recordId, error: createError } = await supabase.rpc("create_dna_record", { target_workspace: id, record_type: recordType, record_name: name, record_summary: summary });
@@ -341,7 +368,6 @@ export async function spawnCastingDna(formData: FormData) {
   if (attachError) redirect(`/app/productions/${productionId}?error=casting`);
   revalidatePath(`/app/productions/${productionId}`); revalidatePath("/app/universe"); redirect(`/app/productions/${productionId}`);
 }
-
 export async function deleteAgent(formData: FormData) {
   const agentId = textField(formData, "agent_id"); const laneId = textField(formData, "lane_id");
   if (!agentId || !laneId || formData.get("confirm_delete") !== "on") redirect("/app/builder?error=builder");
