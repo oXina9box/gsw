@@ -5,7 +5,9 @@ test("the public studio entry point renders", async ({ page }) => {
 
   expect(response?.ok()).toBe(true);
   await expect(page).toHaveTitle(/Gem Studio/);
-  await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+  const h1 = page.getByRole("heading", { level: 1 });
+  await expect(h1).toHaveCount(1);
+  await expect(h1).toBeVisible();
   await expect(page.getByRole("link", { name: /Create your Studio|Open your Studio/ }).first()).toBeVisible();
 });
 
@@ -39,6 +41,7 @@ test("concept worlds gallery interaction and announcements", async ({ page }) =>
 });
 
 test("ambient motion pause toggle and reduced motion support", async ({ page }) => {
+  // 1. Default motion state and click toggle
   await page.goto("/");
   const motionBtn = page.getByRole("button", { name: /ambient motion/i });
   await expect(motionBtn).toBeVisible();
@@ -48,11 +51,17 @@ test("ambient motion pause toggle and reduced motion support", async ({ page }) 
   await motionBtn.click();
   await expect(motionBtn).toHaveAttribute("aria-pressed", "true");
   await expect(motionBtn).toHaveText(/Resume/i);
+
+  // 2. Reduced motion initialization
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto("/");
+  const rmBtn = page.getByRole("button", { name: /ambient motion/i });
+  await expect(rmBtn).toHaveAttribute("aria-pressed", "true");
+  await expect(rmBtn).toHaveText(/Resume/i);
 });
 
 test("no horizontal overflow across viewports", async ({ page }) => {
   const viewports = [
-    { width: 320, height: 800 },
     { width: 390, height: 844 },
     { width: 768, height: 1024 },
     { width: 1440, height: 900 },

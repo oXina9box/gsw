@@ -1,24 +1,9 @@
 "use client";
 
-import { useState, useSyncExternalStore, useCallback } from "react";
+import { useState } from "react";
 import Image from "next/image";
+import { MotionController } from "./motion-controller";
 import styles from "./landing-page.module.css";
-
-function subscribeReducedMotion(callback: () => void) {
-  if (typeof window === "undefined") return () => {};
-  const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
-  mediaQuery.addEventListener("change", callback);
-  return () => mediaQuery.removeEventListener("change", callback);
-}
-
-function getReducedMotionSnapshot() {
-  if (typeof window === "undefined") return false;
-  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-}
-
-function getReducedMotionServerSnapshot() {
-  return false;
-}
 
 interface Scene {
   id: string;
@@ -36,7 +21,7 @@ const scenes: Scene[] = [
     title: "Beyond the signal",
     description: "At the edge of everything we know.",
     image: "/assets/landing/orbit.webp",
-    alt: "Deep orbital space station against an atmospheric planet horizon",
+    alt: "An astronaut exploring a derelict space station",
   },
   {
     id: "ember",
@@ -44,7 +29,7 @@ const scenes: Scene[] = [
     title: "Where embers wake",
     description: "Some worlds refuse to stay imaginary.",
     image: "/assets/landing/ember.webp",
-    alt: "Glowing embers and mystical spires rising through ancient mist",
+    alt: "A torch-bearing rider facing an enormous ember dragon",
   },
   {
     id: "stage",
@@ -52,47 +37,18 @@ const scenes: Scene[] = [
     title: "The world is a stage",
     description: "Every great universe starts with a point of view.",
     image: "/assets/landing/stage.webp",
-    alt: "Futuristic virtual production stage with volumetric lighting",
+    alt: "A lone figure on an illuminated virtual production stage",
   },
 ];
 
-interface WorldsGalleryProps {
-  onMotionChange?: (paused: boolean) => void;
-}
-
-export function WorldsGallery({ onMotionChange }: WorldsGalleryProps) {
+export function WorldsGallery() {
   const [activeIndex, setActiveIndex] = useState(0);
-  const prefersReduced = useSyncExternalStore(
-    subscribeReducedMotion,
-    getReducedMotionSnapshot,
-    getReducedMotionServerSnapshot,
-  );
-  const [manualPaused, setManualPaused] = useState<boolean | null>(null);
-
-  const paused = manualPaused !== null ? manualPaused : prefersReduced;
-
-  const togglePause = useCallback(() => {
-    const next = !paused;
-    setManualPaused(next);
-    onMotionChange?.(next);
-  }, [paused, onMotionChange]);
   const activeScene = scenes[activeIndex];
 
   return (
-    <div className={`${styles.galleryContainer} ${paused ? styles.galleryPaused : ""}`}>
+    <div className={styles.galleryContainer}>
       <div className={styles.galleryControlsBar}>
-        <div className={styles.motionToggleWrapper}>
-          <button
-            type="button"
-            className={styles.motionButton}
-            onClick={togglePause}
-            aria-pressed={paused}
-            aria-label={paused ? "Resume ambient motion" : "Pause ambient motion"}
-          >
-            <span className={styles.motionIndicator} aria-hidden="true" />
-            <span>{paused ? "Resume ambient motion" : "Pause ambient motion"}</span>
-          </button>
-        </div>
+        <MotionController />
       </div>
 
       <div className={styles.stageFrame}>

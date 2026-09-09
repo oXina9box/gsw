@@ -7,60 +7,76 @@ import styles from "./landing-page.module.css";
 const departments = [
   {
     number: "01",
-    name: "Marketing",
-    role: "Direction & Campaign Strategy",
+    tag: "01 / DEVELOP",
+    name: "DEVELOP",
+    title: "Find the story.",
+    symbol: "✳",
+    accentVar: "var(--color-pink)",
     summary:
-      "Turn loose intentions into concrete creative briefs, audience signals, and release plans that keep productions focused.",
+      "Turn a spark into a narrative. Shape the beats, write the scene, and find the voice that makes it yours.",
+    tags: "STORY / SCRIPT / STORYBOARD",
     link: "/studio",
     linkText: "Explore Studio",
   },
   {
     number: "02",
-    name: "Creative",
-    role: "Worlds & Style Systems",
+    tag: "02 / BUILD",
+    name: "BUILD",
+    title: "Make a world.",
+    symbol: "◇",
+    accentVar: "var(--color-cyan)",
     summary:
-      "Establish coherent visual lore, aesthetic DNA continuity, character definitions, and design constraints across all scenes.",
+      "Create characters with depth and places with a past. Give every detail a reason to be there.",
+    tags: "CHARACTER / LOCATION / DESIGN",
     link: "/studio",
     linkText: "Explore Creative",
   },
   {
     number: "03",
-    name: "Production",
-    role: "Pipeline & Media Assembly",
+    tag: "03 / DIRECT",
+    name: "DIRECT",
+    title: "Chase the feeling.",
+    symbol: "⌖",
+    accentVar: "var(--color-lime)",
     summary:
-      "Execute multi-stage generation, shot-level GenPlay contracts, approvals, and unified media stitching with human oversight.",
+      "Frame the moment. Explore light, movement, and performance until the picture matches your vision.",
+    tags: "COMPOSITION / MOTION / SCENE",
     link: "/system",
     linkText: "Explore System",
   },
   {
     number: "04",
-    name: "Social Workshop",
-    role: "Variants & Audience Feedback",
+    tag: "04 / FINISH",
+    name: "FINISH",
+    title: "Bring it together.",
+    symbol: "≋",
+    accentVar: "var(--color-amber)",
     summary:
-      "Generate platform-native cuts, measure genuine audience engagement, and feed organic signals directly back into pre-production.",
+      "Find the rhythm in the edit. Add sound, color, and the finishing touches that make a story land.",
+    tags: "EDIT / SOUND / COLOR",
     link: "/social-workshop",
     linkText: "Explore Workshop",
   },
 ];
 
 const tickerItems = [
-  "WORLD ENGINE",
-  "PERSISTENT DNA",
-  "CONNECTED DEPARTMENTS",
-  "GENPLAY CONTRACTS",
-  "CONTINUITY LEDGER",
-  "PLATFORM-NATIVE CUTS",
+  "STORY",
+  "CHARACTER",
+  "WORLD",
+  "MOTION",
+  "SOUND",
+  "IMAGINATION",
 ];
 
 export function LandingExperience() {
   return (
-    <div className={styles.landingRoot}>
+    <div data-landing-root className={styles.landingRoot}>
       {/* 1. HERO SECTION */}
       <section className={styles.heroSection} aria-label="Introduction">
         <div className={styles.heroBackdrop}>
           <Image
             src="/assets/landing/stage.webp"
-            alt="Cinematic production stage"
+            alt="A lone figure facing an illuminated virtual production stage"
             fill
             priority
             sizes="100vw"
@@ -70,20 +86,26 @@ export function LandingExperience() {
         </div>
 
         <div className={styles.heroContent}>
-          <span className={styles.heroEyebrow}>AI FILM STUDIO FOR SOLO CREATORS</span>
+          <div className={styles.heroEyebrow}>
+            <span aria-hidden="true">◇</span> INDEPENDENT IMAGINATION. AMPLIFIED.
+          </div>
           <h1 className={styles.heroTitle}>
-            MAKE THE <span className={styles.heroTitleOutline}>UNREAL.</span>
+            MAKE THE<br />
+            <span className={styles.heroTitleHighlight}>UNREAL.</span>
+            <span className={styles.titleStar} aria-hidden="true">✳</span>
           </h1>
-          <p className={styles.heroSubtitle}>
-            A connected studio for impossible stories. Ideate, worldbuild, generate, and distribute
-            cinematic visions from a single creative floor.
-          </p>
-
-          <div className={styles.heroActionsGroup}>
-            <EntryActions />
-            <Link href="#worlds" className={styles.secondaryExploreLink}>
-              Explore worlds &darr;
-            </Link>
+          <div className={styles.heroBottom}>
+            <p className={styles.heroSubtitle}>
+              Your story. Your universe. Your rules.<br />
+              A new creative frontier, powered by AI.<br />
+              <strong>Welcome to Gem Studio.</strong>
+            </p>
+            <div className={styles.heroActionsGroup}>
+              <EntryActions />
+              <Link href="#worlds" className={styles.secondaryExploreLink}>
+                Enter the imagination &rarr;
+              </Link>
+            </div>
           </div>
         </div>
       </section>
@@ -91,9 +113,9 @@ export function LandingExperience() {
       {/* 2. TICKER RIBBON */}
       <div className={styles.tickerTrack} aria-hidden="true">
         <div className={styles.tickerContent}>
-          {[...tickerItems, ...tickerItems, ...tickerItems].map((item, i) => (
+          {[...tickerItems, ...tickerItems, ...tickerItems, ...tickerItems].map((item, i) => (
             <span key={i} className={styles.tickerItem}>
-              {item} <span className={styles.tickerBullet} aria-hidden="true">&bull;</span>
+              {item} <span className={styles.tickerBullet} aria-hidden="true">✳</span>
             </span>
           ))}
         </div>
@@ -102,25 +124,55 @@ export function LandingExperience() {
       {/* 3. VISION SECTION */}
       <section id="vision" className={styles.visionSection}>
         <div className={styles.sectionInner}>
-          <span className={styles.sectionEyebrow}>VISION</span>
-          <h2 className={styles.sectionTitle}>BIG IDEAS. NO SMALL THINKING.</h2>
-          <p className={styles.visionBody}>
-            Great cinema has never been about tool count—it is about vision, consistency, and point
-            of view. Gem Studio replaces disconnected prompts and fragmented workflows with an
-            integrated studio pipeline. Every character, prop, and location retains its continuous
-            identity across every frame.
-          </p>
+          <div className={styles.sectionLabel}>
+            <span>01 / THE VISION</span>
+            <span className={styles.labelAccent}>HUMAN VISION. EXPANDED.</span>
+          </div>
+          <div className={styles.visionGrid}>
+            <h2 className={styles.visionHeading}>
+              BIG IDEAS.<br />
+              NO SMALL<br />
+              <span className={styles.textOutline}>THINKING.</span>
+            </h2>
+            <div className={styles.visionCopy}>
+              <span className={styles.asterisk} aria-hidden="true">✳</span>
+              <p className={styles.visionLarge}>
+                That scene in your head?<br />
+                Give it somewhere to exist.
+              </p>
+              <p>
+                Gem Studio is being built for the stories that won&apos;t leave you alone. The characters
+                you haven&apos;t met yet. The worlds that don&apos;t exist. Until you make them.
+              </p>
+              <p>
+                A connected creative space for turning raw imagination into something you can see,
+                feel, and share.
+              </p>
+              <Link href="#studio" className={styles.visionTextLink}>
+                Meet your creative playground &rarr;
+              </Link>
+            </div>
+          </div>
         </div>
       </section>
 
       {/* 4. WORLDS GALLERY SECTION */}
       <section id="worlds" className={styles.worldsSection}>
         <div className={styles.sectionInner}>
-          <span className={styles.sectionEyebrow}>CONCEPT VAULT</span>
-          <h2 className={styles.sectionTitle}>WORLDS IN MOTION</h2>
-          <p className={styles.sectionSubtitle}>
-            Sample the aesthetic breadth made possible through unified DNA contracts and shot choreography.
-          </p>
+          <div className={styles.sectionLabel}>
+            <span>02 / WORLDS WITHOUT LIMITS</span>
+            <span>CONCEPT GALLERY</span>
+          </div>
+          <div className={styles.sectionHeading}>
+            <h2 className={styles.sectionTitle}>
+              WHAT IF<br />
+              <span className={styles.labelAccent}>BECAME REAL?</span>
+            </h2>
+            <p className={styles.sectionSubtitle}>
+              A glimpse of the possibilities.<br />
+              Concept frames. Open-ended imagination.
+            </p>
+          </div>
           <WorldsGallery />
         </div>
       </section>
@@ -128,25 +180,39 @@ export function LandingExperience() {
       {/* 5. CONNECTED STUDIO / DEPARTMENTS */}
       <section id="studio" className={styles.studioSection}>
         <div className={styles.sectionInner}>
-          <span className={styles.sectionEyebrow}>CONNECTED CREATIVE FLOOR</span>
-          <h2 className={styles.sectionTitle}>FOUR DEPARTMENTS. ONE TIMELINE.</h2>
-          <p className={styles.sectionSubtitle}>
-            Everything from initial market signals to the final platform cut runs through synchronized departments.
-          </p>
+          <div className={styles.sectionLabel}>
+            <span>03 / THE CREATIVE SPACE</span>
+            <span className={styles.labelAccentGreen}>FROM FIRST SPARK TO FINAL FRAME</span>
+          </div>
+          <div className={styles.sectionHeading}>
+            <h2 className={styles.sectionTitle}>
+              ONE VISION.<br />
+              <span className={styles.textOutline}>EVERY DIMENSION.</span>
+            </h2>
+            <p className={styles.sectionSubtitle}>
+              The creative journey we&apos;re bringing together.<br />
+              You stay in the director&apos;s chair.
+            </p>
+          </div>
 
           <div className={styles.departmentGrid}>
             {departments.map((dept) => (
-              <div key={dept.number} className={styles.departmentCard}>
+              <article
+                key={dept.number}
+                className={styles.departmentCard}
+                style={{ "--dept-accent": dept.accentVar } as React.CSSProperties}
+              >
                 <div className={styles.deptCardHeader}>
-                  <span className={styles.deptNumber}>{dept.number}</span>
-                  <h3 className={styles.deptName}>{dept.name}</h3>
+                  <span className={styles.deptTag}>{dept.tag}</span>
+                  <span className={styles.deptSymbol} aria-hidden="true">{dept.symbol}</span>
                 </div>
-                <div className={styles.deptRole}>{dept.role}</div>
+                <h3 className={styles.deptCardTitle}>{dept.title}</h3>
                 <p className={styles.deptSummary}>{dept.summary}</p>
+                <div className={styles.deptTagsList}>{dept.tags}</div>
                 <Link href={dept.link} className={styles.deptLink}>
                   {dept.linkText} &rarr;
                 </Link>
-              </div>
+              </article>
             ))}
           </div>
         </div>
@@ -155,13 +221,23 @@ export function LandingExperience() {
       {/* 6. FINALE SECTION */}
       <section id="next" className={styles.finaleSection}>
         <div className={styles.finaleInner}>
-          <span className={styles.finaleEyebrow}>START CREATING</span>
-          <h2 className={styles.finaleTitle}>YOUR NEXT OBSESSION.</h2>
-          <p className={styles.finaleSubtitle}>
-            Step onto the floor. Build your studio, define your lore, and direct films that refuse to stay imaginary.
-          </p>
-          <div className={styles.finaleActions}>
-            <EntryActions />
+          <div className={styles.finaleTop}>
+            <span>GEM STUDIO / COMING INTO FOCUS</span>
+            <span>THE STORY IS JUST BEGINNING.</span>
+          </div>
+          <p className={styles.finaleLead}>For the beautifully impossible.</p>
+          <h2 className={styles.finaleTitle}>
+            YOUR NEXT<br />
+            <span>OBSESSION.</span>
+          </h2>
+          <div className={styles.finaleBottom}>
+            <p className={styles.finaleSubtitle}>
+              We&apos;re building the space.<br />
+              You bring the imagination.
+            </p>
+            <div className={styles.finaleActions}>
+              <EntryActions />
+            </div>
           </div>
         </div>
       </section>
