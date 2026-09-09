@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { AuthForm } from "./auth-form";
 
@@ -15,11 +15,28 @@ export function AuthModal() {
   const [overrideMode, setOverrideMode] = useState<"login" | "signup" | "forgot" | null>(null);
   const mode = overrideMode ?? paramMode;
 
+  const close = useCallback(() => {
+    dialogRef.current?.close();
+    setOverrideMode(null);
+    if (searchParams.has("auth")) {
+      const nextParams = new URLSearchParams(searchParams.toString());
+      nextParams.delete("auth");
+      const nextQuery = nextParams.toString();
+      router.replace(nextQuery ? `${pathname}?${nextQuery}` : pathname, { scroll: false });
+    }
+  }, [pathname, router, searchParams]);
+
   useEffect(() => {
     if (authParam === "signup" || authParam === "login" || authParam === "forgot") {
-      dialogRef.current?.showModal();
+      if (!dialogRef.current?.open) {
+        dialogRef.current?.showModal();
+      }
+    } else {
+      if (dialogRef.current?.open && !overrideMode) {
+        dialogRef.current?.close();
+      }
     }
-  }, [authParam]);
+  }, [authParam, overrideMode]);
 
   useEffect(() => {
     const handleOpen = (event: Event) => {
@@ -31,17 +48,16 @@ export function AuthModal() {
     return () => window.removeEventListener("open-auth-modal", handleOpen);
   }, []);
 
-  const close = () => {
-    dialogRef.current?.close();
-    setOverrideMode(null);
-    if (searchParams.has("auth")) {
-      const nextParams = new URLSearchParams(searchParams.toString());
-      nextParams.delete("auth");
-      const nextQuery = nextParams.toString();
-      router.replace(nextQuery ? `${pathname}?${nextQuery}` : pathname, { scroll: false });
-    }
-  };
-
+  useEffect(() => {
+    const dialog = dialogRef.current;
+    if (!dialog) return;
+    const onCancel = (e: Event) => {
+      e.preventDefault();
+      close();
+    };
+    dialog.addEventListener("cancel", onCancel);
+    return () => dialog.removeEventListener("cancel", onCancel);
+  }, [close]);
   return (
     <dialog
       ref={dialogRef}

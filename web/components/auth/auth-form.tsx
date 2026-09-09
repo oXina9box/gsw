@@ -38,90 +38,94 @@ export function AuthForm({
     setBusy(true);
     setError("");
     setMessage("");
-    const supabase = createClient();
-    const callback = `${window.location.origin}/auth/callback?next=${encodeURIComponent(
-      isForgot ? "/reset-password" : safeRedirectPath(params.get("next"))
-    )}`;
 
-    if (signupsDisabled) {
-      setBusy(false);
-      setMessage("Gem Studio is invite-only. Ask the studio owner for access.");
-      return;
-    }
+    try {
+      const supabase = createClient();
+      const callback = `${window.location.origin}/auth/callback?next=${encodeURIComponent(
+        isForgot ? "/reset-password" : safeRedirectPath(params.get("next"))
+      )}`;
 
-    const result = isForgot
-      ? await supabase.auth.resetPasswordForEmail(email, { redirectTo: callback })
-      : isSignup
-        ? await supabase.auth.signUp({
-            email,
-            password,
-            options: {
-              emailRedirectTo: callback,
-              data: { full_name: fullName.trim() },
-            },
-          })
-        : await supabase.auth.signInWithPassword({ email, password });
-
-    setBusy(false);
-
-    if (result.error) {
-      if (
-        isSignup &&
-        (result.error.message.toLowerCase().includes("rate limit") ||
-          result.error.message.toLowerCase().includes("over_email_send_rate_limit") ||
-          result.error.message.toLowerCase().includes("too many requests") ||
-          result.error.message.toLowerCase().includes("security purposes") ||
-          (result.error as { status?: number }).status === 429)
-      ) {
-        try {
-          const res = await fetch("/api/auth/signup", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email, password, fullName: fullName.trim() }),
-          });
-          if (res.ok) {
-            const signInResult = await supabase.auth.signInWithPassword({ email, password });
-            if (!signInResult.error && signInResult.data?.session) {
-              onSuccess?.();
-              router.replace("/app");
-              router.refresh();
-              return;
-            }
-          }
-        } catch {
-          // fall through
-        }
-      }
-      setError(result.error.message);
-      return;
-    }
-
-    if (isForgot) {
-      setMessage("If an account exists for that email, a reset link is on its way.");
-      return;
-    }
-
-    if (isSignup) {
-      if ("session" in result.data && result.data.session) {
-        onSuccess?.();
-        router.replace("/app");
-        router.refresh();
+      if (signupsDisabled) {
+        setMessage("Gem Studio is invite-only. Ask the studio owner for access.");
         return;
       }
 
+      const result = isForgot
+        ? await supabase.auth.resetPasswordForEmail(email, { redirectTo: callback })
+        : isSignup
+          ? await supabase.auth.signUp({
+              email,
+              password,
+              options: {
+                emailRedirectTo: callback,
+                data: { full_name: fullName.trim() },
+              },
+            })
+          : await supabase.auth.signInWithPassword({ email, password });
 
-      setMessage("Confirm your email: Check your inbox and click the verification link to activate your studio, or sign in below.");
-      return;
-    }
+      if (result.error) {
+        if (
+          isSignup &&
+          (result.error.message.toLowerCase().includes("rate limit") ||
+            result.error.message.toLowerCase().includes("over_email_send_rate_limit") ||
+            result.error.message.toLowerCase().includes("too many requests") ||
+            result.error.message.toLowerCase().includes("security purposes") ||
+            (result.error as { status?: number }).status === 429)
+        ) {
+          try {
+            const res = await fetch("/api/auth/signup", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ email, password, fullName: fullName.trim() }),
+            });
+            if (res.ok) {
+              const signInResult = await supabase.auth.signInWithPassword({ email, password });
+              if (!signInResult.error && signInResult.data?.session) {
+                onSuccess?.();
+                router.replace("/app");
+                router.refresh();
+                return;
+              }
+            }
+          } catch {
+            // fall through
+          }
+        }
+        setError(result.error.message);
+        return;
+      }
 
-    const { data: assurance } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
-    if (assurance?.nextLevel === "aal2" && assurance.currentLevel !== "aal2") {
-      router.replace(`/mfa?next=${encodeURIComponent(safeRedirectPath(params.get("next")))}`);
-      return;
+      if (isForgot) {
+        setMessage("If an account exists for that email, a reset link is on its way.");
+        return;
+      }
+
+      if (isSignup) {
+        if ("session" in result.data && result.data.session) {
+          onSuccess?.();
+          router.replace("/app");
+          router.refresh();
+          return;
+        }
+
+        setMessage("Confirm your email: Check your inbox and click the verification link to activate your studio, or sign in below.");
+        return;
+      }
+
+      const { data: assurance } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+      if (assurance?.nextLevel === "aal2" && assurance.currentLevel !== "aal2") {
+        router.replace(`/mfa?next=${encodeURIComponent(safeRedirectPath(params.get("next")))}`);
+        return;
+      }
+      onSuccess?.();
+      router.replace(safeRedirectPath(params.get("next")));
+      router.refresh();
+    } catch (err) {
+      console.error("Auth form submission error:", err);
+      setError("An unexpected network error occurred. Please try again.");
+    } finally {
+      setBusy(false);
     }
-    onSuccess?.();
-    router.replace(safeRedirectPath(params.get("next")));
-    router.refresh();
   }
 
   const title = isSignup ? "Create your Studio account" : isForgot ? "Reset your password" : "Welcome back";
