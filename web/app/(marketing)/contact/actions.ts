@@ -19,16 +19,16 @@ export async function sendContactMessage(prevState: ContactState | null, formDat
 
   const reqHeaders = await headers();
   const ip = reqHeaders.get("x-forwarded-for")?.split(",")[0]?.trim() || reqHeaders.get("x-real-ip") || "unknown";
-  let allowed = true;
+  let allowed = false;
   try {
     const rl = await checkRateLimit(`contact:${ip}`, 10, 3600_000);
     allowed = rl.allowed;
-  } catch {
-    // DB rate limiter unavailable — fail open, audit event records the fallback
-    allowed = true;
+  } catch (err) {
+    console.error("Rate limiter failure for contact submission:", err);
+    allowed = false;
   }
   if (!allowed) {
-    return { success: false, error: "Too many messages sent. Please try again later.", retryAfterSeconds: 3600 };
+    return { success: false, error: "Service temporarily busy or rate limit exceeded. Please try again later.", retryAfterSeconds: 3600 };
   }
 
   try {

@@ -35,8 +35,27 @@ unit-tests:
   script:
     - cd web
     - npm ci
-    - npm test
+    - npm run test:coverage
+  coverage: '/All files[^|]*\|[^|]*\s+([\d\.]+)/'
+  artifacts:
+    when: always
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: web/coverage/cobertura-coverage.xml
 
+e2e-tests:
+  stage: test
+  image: mcr.microsoft.com/playwright:v1.50.0-noble
+  script:
+    - cd web
+    - npm ci
+    - npx playwright test
+  artifacts:
+    when: on_failure
+    paths:
+      - web/playwright-report/
+      - web/test-results/
 migration-tests:
   stage: test
   image: postgres:16-alpine
@@ -71,6 +90,12 @@ security-gate:
     - bash scripts/security-gate.sh
     - bash scripts/structure-audit.sh
 
+dependency-audit:
+  stage: security
+  script:
+    - cd web
+    - npm ci
+    - npm audit --omit=dev --audit-level=high
 production-build:
   stage: build
   script:
