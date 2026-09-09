@@ -1,40 +1,43 @@
-import { StageFloorSection } from "@/components/product/stage-floor-section";
 import { notFound } from "next/navigation";
 import { getWorkspaceContext } from "@/lib/studio/workspace";
 import { FlowbiteBreadcrumb } from "@/components/blocks/flowbite/flowbite-breadcrumb";
 import { FlowbiteBadge } from "@/components/blocks/flowbite/flowbite-badge";
-import { ChannelSubnav } from "@/components/product/channel-subnav";
 import { ChannelSocialClient } from "@/components/product/channel-social-client";
 
 export const metadata = { title: "Channel Social Media & Two-Way Engagement" };
 
 export default async function ChannelSocialPage({
   params,
-  searchParams,
 }: {
   params: Promise<{ channelId: string }>;
-  searchParams: Promise<{ workflow?: string }>;
 }) {
   const { channelId } = await params;
-  const { workflow } = await searchParams;
   const { supabase, workspaceId } = await getWorkspaceContext();
 
   const [{ data: channel }, { data: connections }, { data: signals }, { data: productions }] =
     await Promise.all([
-      supabase.from("channels").select("id, name, status").eq("workspace_id", workspaceId).eq("id", channelId).maybeSingle(),
+      supabase
+        .from("channels")
+        .select("id, name, status")
+        .eq("workspace_id", workspaceId)
+        .eq("id", channelId)
+        .maybeSingle(),
       supabase
         .from("social_connections")
-        .select("id, platform, account_label, status").eq("workspace_id", workspaceId)
+        .select("id, platform, account_label, status")
+        .eq("workspace_id", workspaceId)
         .order("platform"),
       supabase
         .from("signals")
-        .select("id, signal_type, title, body, status, created_at").eq("workspace_id", workspaceId)
+        .select("id, signal_type, title, body, status, created_at")
+        .eq("workspace_id", workspaceId)
         .eq("channel_id", channelId)
         .order("created_at", { ascending: false })
         .limit(20),
       supabase
         .from("productions")
-        .select("id, title, release_packages(id, platform, caption, status, created_at)").eq("workspace_id", workspaceId)
+        .select("id, title, release_packages(id, platform, caption, status, created_at)")
+        .eq("workspace_id", workspaceId)
         .eq("channel_id", channelId),
     ]);
 
@@ -78,10 +81,6 @@ export default async function ChannelSocialPage({
           </FlowbiteBadge>
         </div>
       </div>
-
-      <ChannelSubnav channelId={channel.id} activeTab="social" />
-
-      <StageFloorSection kind="social" channelId={channel.id} workflowId={workflow} />
 
       <ChannelSocialClient
         channelId={channel.id}

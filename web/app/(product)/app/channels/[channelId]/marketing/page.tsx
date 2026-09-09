@@ -3,7 +3,6 @@ import { notFound } from "next/navigation";
 import { getWorkspaceContext } from "@/lib/studio/workspace";
 import { FlowbiteBreadcrumb } from "@/components/blocks/flowbite/flowbite-breadcrumb";
 import { FlowbiteBadge } from "@/components/blocks/flowbite/flowbite-badge";
-import { ChannelSubnav } from "@/components/product/channel-subnav";
 import { ChannelMarketingClient } from "@/components/product/channel-marketing-client";
 
 export const metadata = { title: "Channel Marketing & Pre-Production" };
@@ -68,11 +67,6 @@ export default async function ChannelMarketingPage({
           </FlowbiteBadge>
         </div>
       </div>
-
-      <ChannelSubnav channelId={channel.id} activeTab="marketing" />
-
-      <StageFloorSection kind="marketing" channelId={channel.id} workflowId={workflow} />
-
       {queryError ? (
         <p className="form-error mb-4" role="alert">
           Unable to save channel directives or budget.
@@ -83,7 +77,6 @@ export default async function ChannelMarketingPage({
           Channel configuration saved.
         </p>
       ) : null}
-
       <ChannelMarketingClient
         channel={channel}
         budgetData={budgetData}
@@ -91,6 +84,14 @@ export default async function ChannelMarketingPage({
           productionList as unknown as Parameters<typeof ChannelMarketingClient>[0]["productions"]
         }
         totalProductionCredits={totalProductionCredits}
+        stageFloorSlot={
+          <StageFloorSection
+            kind="marketing"
+            channelId={channel.id}
+            workflowId={workflow}
+            title="Marketing Stage Floor"
+          />
+        }
       />
     </section>
   );

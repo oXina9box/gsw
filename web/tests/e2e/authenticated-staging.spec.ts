@@ -120,7 +120,7 @@ test.describe("Authenticated Staging Verification", () => {
     await expect.poll(async () => (await aside.boundingBox())?.x).toBeLessThan(0);
   });
 
-  test("channel navigation exposes subpages and channel subnav tabs", async ({ page }) => {
+  test("channel navigation exposes subpages and third-tier view dropdowns", async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 720 });
     await authenticatePage(page, { destination: "/app" });
     const sidenav = page.getByRole("navigation", { name: "Studio modules" });
@@ -133,19 +133,58 @@ test.describe("Authenticated Staging Verification", () => {
     await expect(sidenav.getByRole("link", { name: "Assets" })).toBeVisible();
     await expect(sidenav.getByRole("link", { name: "Production" })).toBeVisible();
 
+    // Dashboard does not have a third-tier view dropdown
+    await expect(page.getByRole("combobox", { name: "Page view" })).toHaveCount(0);
+
     // Navigate to Staffing subpage from sidenav
     await sidenav.getByRole("link", { name: "Channel Staffing" }).click();
     await expect(page).toHaveURL(/\/staffing$/);
     await expect(page.getByRole("heading", { level: 1 })).toContainText(/Staffing/i);
 
-    // Channel subnav is also present with all 6 tabs
-    const subnav = page.getByRole("navigation", { name: "Channel sections" });
-    await expect(subnav).toBeVisible();
-    await expect(subnav.getByRole("link", { name: "Dashboard" })).toBeVisible();
-    await expect(subnav.getByRole("link", { name: "Staffing" })).toBeVisible();
-    await expect(subnav.getByRole("link", { name: "Marketing" })).toBeVisible();
-    await expect(subnav.getByRole("link", { name: "Social Media" })).toBeVisible();
-    await expect(subnav.getByRole("link", { name: "Assets" })).toBeVisible();
-    await expect(subnav.getByRole("link", { name: "Production" })).toBeVisible();
+    // Staffing third-tier dropdown exists with requested options
+    const staffingSelect = page.getByRole("combobox", { name: "Page view" });
+    await expect(staffingSelect).toBeVisible();
+    await expect(staffingSelect.locator("option")).toHaveText([
+      "Hired agents - Channel",
+      "Agents for hire",
+      "Custom Agents",
+    ]);
+
+    // Navigate to Marketing subpage from sidenav
+    await sidenav.getByRole("link", { name: "Marketing" }).click();
+    await expect(page).toHaveURL(/\/marketing$/);
+    const marketingSelect = page.getByRole("combobox", { name: "Page view" });
+    await expect(marketingSelect).toBeVisible();
+    await expect(marketingSelect.locator("optgroup[label='Pre-Film']")).toBeVisible();
+    await expect(marketingSelect.locator("optgroup[label='Content']")).toBeVisible();
+    await expect(marketingSelect.locator("optgroup[label='Post file']")).toBeVisible();
+    await expect(marketingSelect.locator("option", { hasText: "Marketing Stage Floor" })).toBeVisible();
+
+    // Navigate to Social Media subpage from sidenav
+    await sidenav.getByRole("link", { name: "Social Media" }).click();
+    await expect(page).toHaveURL(/\/social$/);
+    const socialSelect = page.getByRole("combobox", { name: "Page view" });
+    await expect(socialSelect).toBeVisible();
+    await expect(socialSelect.locator("option", { hasText: "YouTube" })).toBeVisible();
+    await expect(socialSelect.locator("option", { hasText: "Tik-Tok" })).toBeVisible();
+    await expect(socialSelect.locator("option", { hasText: "Social Settings" })).toBeVisible();
+
+    // Navigate to Assets subpage from sidenav
+    await sidenav.getByRole("link", { name: "Assets" }).click();
+    await expect(page).toHaveURL(/\/assets$/);
+    const assetsSelect = page.getByRole("combobox", { name: "Page view" });
+    await expect(assetsSelect).toBeVisible();
+    await expect(assetsSelect.locator("option")).toHaveText([
+      "DNA DataBase",
+      "Staffing Files",
+      "Content",
+    ]);
+
+    // Navigate to Production subpage from sidenav
+    await sidenav.getByRole("link", { name: "Production" }).click();
+    await expect(page).toHaveURL(/\/production$/);
+    const prodSelect = page.getByRole("combobox", { name: "Page view" });
+    await expect(prodSelect).toBeVisible();
+    await expect(prodSelect.locator("option")).toHaveText(["Production Stage Floor"]);
   });
 });

@@ -19,9 +19,16 @@ vi.mock("@/components/product/stage-floor-section", () => ({ StageFloorSection: 
 
 function floors(node: ReactNode): Record<string, unknown>[] {
   if (Array.isArray(node)) return node.flatMap(floors);
-  if (!isValidElement<{ children?: ReactNode }>(node)) return [];
+  if (!isValidElement<{ children?: ReactNode; stageFloorSlot?: ReactNode }>(node)) return [];
   if (node.type === StageFloorSection) return [node.props];
-  return floors(node.props.children);
+  const list: Record<string, unknown>[] = [];
+  if (node.props.stageFloorSlot) {
+    list.push(...floors(node.props.stageFloorSlot));
+  }
+  if (node.props.children) {
+    list.push(...floors(node.props.children));
+  }
+  return list;
 }
 
 beforeEach(() => {
@@ -45,12 +52,44 @@ describe("designated Stage Floor pages", () => {
     expect(floors(await MarketingPage({ searchParams }))).toEqual([expect.objectContaining({ kind: "marketing", workflowId: "chosen" })]);
     expect(floors(await SocialPage({ searchParams }))).toEqual([expect.objectContaining({ kind: "social", workflowId: "chosen" })]);
   });
-  it.each([
-    ["marketing", ChannelMarketingPage], ["social", ChannelSocialPage], ["production", ChannelProductionPage],
-  ] as const)("mounts channel %s workshop scoped to this channel", async (kind, Page) => {
-    const result = await Page({ params: Promise.resolve({ channelId }), searchParams: Promise.resolve({ workflow: "chosen" }) });
-    expect(floors(result)).toEqual([expect.objectContaining({ kind, channelId, workflowId: "chosen" })]);
+
+  it("mounts channel marketing workshop scoped to this channel via Marketing Stage Floor slot", async () => {
+    const result = await ChannelMarketingPage({
+      params: Promise.resolve({ channelId }),
+      searchParams: Promise.resolve({ workflow: "chosen" }),
+    });
+    expect(floors(result)).toEqual([
+      expect.objectContaining({
+        kind: "marketing",
+        channelId,
+        workflowId: "chosen",
+        title: "Marketing Stage Floor",
+      }),
+    ]);
   });
+
+  it("does not mount stage floor on channel social page", async () => {
+    const result = await ChannelSocialPage({
+      params: Promise.resolve({ channelId }),
+    });
+    expect(floors(result)).toEqual([]);
+  });
+
+  it("mounts channel production workshop with Production Stage Floor title", async () => {
+    const result = await ChannelProductionPage({
+      params: Promise.resolve({ channelId }),
+      searchParams: Promise.resolve({ workflow: "chosen" }),
+    });
+    expect(floors(result)).toEqual([
+      expect.objectContaining({
+        kind: "production",
+        channelId,
+        workflowId: "chosen",
+        title: "Production Stage Floor",
+      }),
+    ]);
+  });
+
   it("mounts production workshop scoped to both episode and channel", async () => {
     const result = await ProductionPage({ params: Promise.resolve({ productionId }), searchParams: Promise.resolve({ workflow: "chosen" }) });
     expect(floors(result)).toEqual([expect.objectContaining({ kind: "production", channelId, productionId, workflowId: "chosen" })]);

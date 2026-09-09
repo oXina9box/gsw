@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
+import { ChannelSubnav } from "@/components/product/channel-subnav";
 import { FlowbiteBadge } from "@/components/blocks/flowbite/flowbite-badge";
 import { updateChannel, saveChannelMarketingBudget } from "@/app/(product)/actions";
 
@@ -35,34 +36,68 @@ type ChannelMarketingClientProps = Readonly<{
   budgetData: BudgetData;
   productions: ProductionItem[];
   totalProductionCredits: number;
+  stageFloorSlot?: ReactNode;
 }>;
+type LaneId =
+  | "onboarding"
+  | "research"
+  | "budgets"
+  | "merchandise"
+  | "website"
+  | "advertising"
+  | "scheduling"
+  | "theming"
+  | "promos"
+  | "crosschannel"
+  | "reporting"
+  | "lore"
+  | "legal"
+  | "values";
 
-const LANES = [
-  { id: "onboarding", num: "01", title: "Directives & Onboarding" },
-  { id: "research", num: "02", title: "Research Hub" },
-  { id: "budgets", num: "03", title: "Budgets & Credits" },
-  { id: "merchandise", num: "04", title: "Merchandise Desk" },
-  { id: "website", num: "05", title: "Website & Funnels" },
-  { id: "advertising", num: "06", title: "Advertising & Campaigns" },
-  { id: "scheduling", num: "07", title: "Master Scheduling" },
-  { id: "theming", num: "08", title: "Season Theming & Arcs" },
-  { id: "promos", num: "09", title: "Promos & Teasers" },
-  { id: "crosschannel", num: "10", title: "Cross-Channel Synergy" },
-  { id: "reporting", num: "11", title: "Reporting Rollup" },
-  { id: "lore", num: "12", title: "Lore & World Bible" },
-  { id: "legal", num: "13", title: "Legal & Rights" },
-  { id: "values", num: "14", title: "Core Values & Guardrails" },
+type MarketingView = LaneId | "stage-floor";
+
+const MARKETING_NAV_GROUPS = [
+  {
+    label: "Pre-Film",
+    items: [
+      { id: "onboarding", label: "01 Directives & Onboarding" },
+      { id: "research", label: "02 Research Hub" },
+      { id: "budgets", label: "03 Budgets & Credits" },
+      { id: "website", label: "05 Website & Funnels" },
+      { id: "advertising", label: "06 Advertising & Campaigns" },
+      { id: "promos", label: "09 Promos & Teasers" },
+      { id: "legal", label: "13 Legal & Rights" },
+      { id: "values", label: "14 Core Values & Guardrails" },
+    ],
+  },
+  {
+    label: "Content",
+    items: [
+      { id: "scheduling", label: "07 Master Scheduling" },
+      { id: "theming", label: "08 Season Theming & Arcs" },
+      { id: "crosschannel", label: "10 Cross-Channel Synergy" },
+      { id: "lore", label: "12 Lore & World Bible" },
+    ],
+  },
+  {
+    label: "Post file",
+    items: [
+      { id: "merchandise", label: "04 Merchandise Desk" },
+      { id: "reporting", label: "11 Reporting Rollup" },
+    ],
+  },
+  {
+    items: [{ id: "stage-floor", label: "Marketing Stage Floor" }],
+  },
 ] as const;
-
-type LaneId = (typeof LANES)[number]["id"];
-
 export function ChannelMarketingClient({
   channel,
   budgetData,
   productions,
   totalProductionCredits,
+  stageFloorSlot,
 }: ChannelMarketingClientProps) {
-  const [activeLane, setActiveLane] = useState<LaneId>("onboarding");
+  const [activeView, setActiveView] = useState<MarketingView>("onboarding");
   const [creditInput, setCreditInput] = useState<number>(budgetData?.guideline_credits ?? 0);
 
   const addCredits = (amount: number) => {
@@ -71,41 +106,21 @@ export function ChannelMarketingClient({
 
   return (
     <div className="space-y-6">
-      {/* 14-Lane Pre-Production Navigation Rail */}
-      <div className="rounded-md border border-border bg-surface p-3 space-y-2">
-        <div className="flex items-center justify-between border-b border-border pb-2">
-          <span className="font-display text-xs uppercase tracking-wider text-text-faint font-semibold">
-            Pre-Production Engine · 14 Operational Lanes
-          </span>
-          <span className="font-mono text-[11px] text-pink">
-            Active Lane: {LANES.find((l) => l.id === activeLane)?.title}
-          </span>
-        </div>
+      <ChannelSubnav
+        activeTab="marketing"
+        activeView={activeView}
+        groups={MARKETING_NAV_GROUPS}
+        onViewChange={(id) => setActiveView(id as MarketingView)}
+      />
 
-        <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-thin">
-          {LANES.map((lane) => {
-            const isActive = lane.id === activeLane;
-            return (
-              <button
-                key={lane.id}
-                type="button"
-                onClick={() => setActiveLane(lane.id)}
-                className={`whitespace-nowrap px-3 py-1.5 rounded-sm font-mono text-xs transition-colors flex items-center gap-1.5 shrink-0 ${
-                  isActive
-                    ? "bg-pink text-white font-semibold"
-                    : "bg-surface-2 text-text-muted hover:text-text hover:bg-surface-3 border border-border"
-                }`}
-              >
-                <span className={isActive ? "text-white/80" : "text-cyan"}>{lane.num}</span>
-                <span>{lane.title}</span>
-              </button>
-            );
-          })}
+      {/* Marketing Stage Floor view */}
+      {activeView === "stage-floor" && (
+        <div className="space-y-4">
+          {stageFloorSlot}
         </div>
-      </div>
-
+      )}
       {/* Lane 01: Directives & Channel Onboarding Alignment */}
-      {activeLane === "onboarding" && (
+      {activeView === "onboarding" && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           <div className="lg:col-span-7 rounded-md border border-border bg-surface p-5 space-y-4">
             <h3 className="font-display text-lg font-semibold text-text">Channel Strategic Directives</h3>
@@ -225,7 +240,7 @@ export function ChannelMarketingClient({
       )}
 
       {/* Lane 02: Research Hub */}
-      {activeLane === "research" && (
+      {activeView === "research" && (
         <div className="rounded-md border border-border bg-surface p-5 space-y-4">
           <div className="flex items-center justify-between border-b border-border pb-3">
             <div>
@@ -266,7 +281,7 @@ export function ChannelMarketingClient({
       )}
 
       {/* Lane 03: Budgets & Credit Economics */}
-      {activeLane === "budgets" && (
+      {activeView === "budgets" && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           <div className="lg:col-span-7 rounded-md border border-border bg-surface p-5 space-y-4">
             <div className="flex items-center justify-between border-b border-border pb-3">
@@ -374,7 +389,7 @@ export function ChannelMarketingClient({
       )}
 
       {/* Lane 04: Merchandise Desk */}
-      {activeLane === "merchandise" && (
+      {activeView === "merchandise" && (
         <div className="rounded-md border border-border bg-surface p-5 space-y-4">
           <h3 className="font-display text-lg font-semibold text-text">Merchandise &amp; Physical Goods Desk</h3>
           <p className="font-body text-xs text-text-muted">
@@ -407,7 +422,7 @@ export function ChannelMarketingClient({
       )}
 
       {/* Lane 05: Official Website Operations */}
-      {activeLane === "website" && (
+      {activeView === "website" && (
         <div className="rounded-md border border-border bg-surface p-5 space-y-4">
           <h3 className="font-display text-lg font-semibold text-text">Official Website &amp; Fan Destination</h3>
           <p className="font-body text-xs text-text-muted">
@@ -431,7 +446,7 @@ export function ChannelMarketingClient({
       )}
 
       {/* Lane 06: Advertising Operations */}
-      {activeLane === "advertising" && (
+      {activeView === "advertising" && (
         <div className="rounded-md border border-border bg-surface p-5 space-y-4">
           <h3 className="font-display text-lg font-semibold text-text">Advertising &amp; Paid Acquisition Desk</h3>
           <p className="font-body text-xs text-text-muted">
@@ -463,7 +478,7 @@ export function ChannelMarketingClient({
       )}
 
       {/* Lane 07: Master Release Scheduling */}
-      {activeLane === "scheduling" && (
+      {activeView === "scheduling" && (
         <div className="rounded-md border border-border bg-surface p-5 space-y-4">
           <h3 className="font-display text-lg font-semibold text-text">Master Release Scheduling</h3>
           <p className="font-body text-xs text-text-muted">
@@ -489,7 +504,7 @@ export function ChannelMarketingClient({
       )}
 
       {/* Lane 08: Season Theming & Story Arcs */}
-      {activeLane === "theming" && (
+      {activeView === "theming" && (
         <div className="rounded-md border border-border bg-surface p-5 space-y-4">
           <h3 className="font-display text-lg font-semibold text-text">Season Theming &amp; Narrative Arcs</h3>
           <p className="font-body text-xs text-text-muted">
@@ -513,7 +528,7 @@ export function ChannelMarketingClient({
       )}
 
       {/* Lane 09: Promos & Teaser Strategies */}
-      {activeLane === "promos" && (
+      {activeView === "promos" && (
         <div className="rounded-md border border-border bg-surface p-5 space-y-4">
           <h3 className="font-display text-lg font-semibold text-text">Promos &amp; Teaser Packaging</h3>
           <p className="font-body text-xs text-text-muted">
@@ -539,7 +554,7 @@ export function ChannelMarketingClient({
       )}
 
       {/* Lane 10: Cross-Channel Synergy */}
-      {activeLane === "crosschannel" && (
+      {activeView === "crosschannel" && (
         <div className="rounded-md border border-border bg-surface p-5 space-y-4">
           <h3 className="font-display text-lg font-semibold text-text">Cross-Channel IP Synergy &amp; Crossovers</h3>
           <p className="font-body text-xs text-text-muted">
@@ -561,7 +576,7 @@ export function ChannelMarketingClient({
       )}
 
       {/* Lane 11: Reporting Rollup */}
-      {activeLane === "reporting" && (
+      {activeView === "reporting" && (
         <div className="rounded-md border border-border bg-surface p-5 space-y-4">
           <h3 className="font-display text-lg font-semibold text-text">Reporting &amp; Analytics Rollup</h3>
           <p className="font-body text-xs text-text-muted">
@@ -589,7 +604,7 @@ export function ChannelMarketingClient({
       )}
 
       {/* Lane 12: Lore & World Bible */}
-      {activeLane === "lore" && (
+      {activeView === "lore" && (
         <div className="rounded-md border border-border bg-surface p-5 space-y-4">
           <h3 className="font-display text-lg font-semibold text-text">Lore &amp; Canon Continuity Engine</h3>
           <p className="font-body text-xs text-text-muted">
@@ -613,7 +628,7 @@ export function ChannelMarketingClient({
       )}
 
       {/* Lane 13: Legal & Rights */}
-      {activeLane === "legal" && (
+      {activeView === "legal" && (
         <div className="rounded-md border border-border bg-surface p-5 space-y-4">
           <h3 className="font-display text-lg font-semibold text-text">Legal Clearance &amp; Rights Attestation</h3>
           <p className="font-body text-xs text-text-muted">
@@ -639,7 +654,7 @@ export function ChannelMarketingClient({
       )}
 
       {/* Lane 14: Core Values & Guardrails */}
-      {activeLane === "values" && (
+      {activeView === "values" && (
         <div className="rounded-md border border-border bg-surface p-5 space-y-4">
           <h3 className="font-display text-lg font-semibold text-text">Core Values &amp; Creative Guardrails</h3>
           <p className="font-body text-xs text-text-muted">

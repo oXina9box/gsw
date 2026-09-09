@@ -1,12 +1,12 @@
-import { StageFloorSection } from "@/components/product/stage-floor-section";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getWorkspaceContext } from "@/lib/studio/workspace";
 import { FlowbiteBreadcrumb } from "@/components/blocks/flowbite/flowbite-breadcrumb";
 import { FlowbiteBadge } from "@/components/blocks/flowbite/flowbite-badge";
 import { FlowbiteProgress } from "@/components/blocks/flowbite/flowbite-progress";
-import { ChannelSubnav } from "@/components/product/channel-subnav";
 import { PrelineCard } from "@/components/blocks/preline/preline-card";
+import { StageFloorSection } from "@/components/product/stage-floor-section";
+import { ChannelProductionClient } from "@/components/product/channel-production-client";
 
 export const metadata = { title: "Channel Production" };
 
@@ -22,10 +22,18 @@ export default async function ChannelProductionPage({
   const { supabase, workspaceId } = await getWorkspaceContext();
 
   const [{ data: channel }, { data: productions }] = await Promise.all([
-    supabase.from("channels").select("id, name, status").eq("workspace_id", workspaceId).eq("id", channelId).maybeSingle(),
+    supabase
+      .from("channels")
+      .select("id, name, status")
+      .eq("workspace_id", workspaceId)
+      .eq("id", channelId)
+      .maybeSingle(),
     supabase
       .from("productions")
-      .select("id, title, status, current_step, step_count, run_mode, scheduled_at, updated_at, workflows(id, name)").eq("workspace_id", workspaceId)
+      .select(
+        "id, title, status, run_mode, current_step, step_count, updated_at, workflows(name)"
+      )
+      .eq("workspace_id", workspaceId)
       .eq("channel_id", channelId)
       .order("updated_at", { ascending: false }),
   ]);
@@ -62,68 +70,94 @@ export default async function ChannelProductionPage({
         </Link>
       </div>
 
-      <ChannelSubnav channelId={channel.id} activeTab="production" />
+      <ChannelProductionClient
+        stageFloorSlot={
+          <StageFloorSection
+            kind="production"
+            channelId={channel.id}
+            workflowId={workflow}
+            title="Production Stage Floor"
+          />
+        }
+        slatesSlot={
+          <div className="space-y-4 mb-8">
+            <div className="flex items-center justify-between">
+              <h3 className="font-display text-base font-semibold text-text">
+                Active Production Slates
+              </h3>
+              <span className="font-mono text-xs text-text-faint">
+                {productionList.length} total
+              </span>
+            </div>
 
-      <StageFloorSection kind="production" channelId={channel.id} workflowId={workflow} />
+            {productionList.length === 0 ? (
+              <div className="panel empty-state">
+                <h3>No productions on this channel yet.</h3>
+                <p>Launch your first episode or film through the Front Office brief builder.</p>
+                <Link className="button button-primary" href="/app/front-office">
+                  Create first production
+                </Link>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {productionList.map((prod) => {
+                  const current = prod.current_step ?? 0;
+                  const total = Math.max(prod.step_count ?? 13, 1);
+                  const progress = Math.min(100, Math.max(0, Math.round((current / total) * 100)));
+                  const wf = prod.workflows as { name?: string } | null;
 
-      <div className="space-y-4 mb-8">
-        <div className="flex items-center justify-between">
-          <h3 className="font-display text-base font-semibold text-text">Active Production Slates</h3>
-          <span className="font-mono text-xs text-text-faint">{productionList.length} total</span>
-        </div>
-
-        {productionList.length === 0 ? (
-          <div className="panel empty-state">
-            <h3>No productions on this channel yet.</h3>
-            <p>Launch your first episode or film through the Front Office brief builder.</p>
-            <Link className="button button-primary" href="/app/front-office">Create first production</Link>
+                  return (
+                    <PrelineCard
+                      key={prod.id}
+                      kicker={wf?.name ?? "13-Stage Pipeline"}
+                      title={prod.title}
+                      badge={
+                        <FlowbiteBadge
+                          color={
+                            prod.status === "active"
+                              ? "lime"
+                              : prod.status === "draft"
+                              ? "amber"
+                              : "cyan"
+                          }
+                          size="sm"
+                        >
+                          {prod.status}
+                        </FlowbiteBadge>
+                      }
+                      subtitle={`Mode: ${prod.run_mode || "guided"} · Stage ${Math.min(
+                        current + 1,
+                        total
+                      )} of ${total}`}
+                      footer={
+                        <div className="flex w-full items-center justify-between">
+                          <span className="font-mono text-[10px] text-text-faint">
+                            Updated {new Date(prod.updated_at).toLocaleDateString()}
+                          </span>
+                          <Link
+                            href={`/app/productions/${prod.id}`}
+                            className="font-mono text-xs text-cyan hover:underline font-semibold"
+                          >
+                            Open node canvas →
+                          </Link>
+                        </div>
+                      }
+                    >
+                      <div className="space-y-1.5 py-1">
+                        <div className="flex justify-between font-mono text-[11px] text-text-muted">
+                          <span>Pipeline progress</span>
+                          <span>{progress}%</span>
+                        </div>
+                        <FlowbiteProgress progress={progress} color="pink" />
+                      </div>
+                    </PrelineCard>
+                  );
+                })}
+              </div>
+            )}
           </div>
-        ) : (
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {productionList.map((prod) => {
-              const current = prod.current_step ?? 0;
-              const total = Math.max(prod.step_count ?? 13, 1);
-              const progress = Math.min(100, Math.max(0, Math.round((current / total) * 100)));
-              const workflow = prod.workflows as { name?: string } | null;
-
-              return (
-                <PrelineCard
-                  key={prod.id}
-                  kicker={workflow?.name ?? "13-Stage Pipeline"}
-                  title={prod.title}
-                  badge={
-                    <FlowbiteBadge color={prod.status === "active" ? "lime" : prod.status === "draft" ? "amber" : "cyan"} size="sm">
-                      {prod.status}
-                    </FlowbiteBadge>
-                  }
-                  subtitle={`Mode: ${prod.run_mode || "guided"} · Stage ${Math.min(current + 1, total)} of ${total}`}
-                  footer={
-                    <div className="flex w-full items-center justify-between">
-                      <span className="font-mono text-[10px] text-text-faint">
-                        Updated {new Date(prod.updated_at).toLocaleDateString()}
-                      </span>
-                      <Link
-                        href={`/app/productions/${prod.id}`}
-                        className="font-mono text-xs text-cyan hover:underline font-semibold"
-                      >
-                        Open node canvas →
-                      </Link>
-                    </div>
-                  }
-                >
-                  <div className="space-y-1.5 py-1">
-                    <div className="flex justify-between font-mono text-[11px] text-text-muted">
-                      <span>Pipeline progress</span>
-                      <span>{progress}%</span>
-                    </div>
-                    <FlowbiteProgress progress={progress} color="pink" />
-                  </div>
-                </PrelineCard>
-              );
-            })}
-          </div>
-        )}
-      </div>
+        }
+      />
     </section>
   );
 }

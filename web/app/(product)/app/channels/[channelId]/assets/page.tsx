@@ -2,7 +2,6 @@ import { notFound } from "next/navigation";
 import { getWorkspaceContext } from "@/lib/studio/workspace";
 import { FlowbiteBreadcrumb } from "@/components/blocks/flowbite/flowbite-breadcrumb";
 import { FlowbiteBadge } from "@/components/blocks/flowbite/flowbite-badge";
-import { ChannelSubnav } from "@/components/product/channel-subnav";
 import { ChannelAssetsClient } from "@/components/product/channel-assets-client";
 
 export const metadata = { title: "Channel Assets & DNA Continuity" };
@@ -70,7 +69,6 @@ export default async function ChannelAssetsPage({
         </div>
       </div>
 
-      <ChannelSubnav channelId={channel.id} activeTab="assets" />
 
       <ChannelAssetsClient
         channelId={channel.id}

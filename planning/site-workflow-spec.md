@@ -122,6 +122,7 @@ Unknown User header contains:
 
 Authenticated pages use a dashboard shell instead of the public header: a fixed topbar (brand, search, notifications bell, module indicator, studio identity, account dropdown) and a fixed left sidenav. One Studio module governs the authenticated app: the sidenav lists Collective, workspace channels, Integrations, Secrets, and Studio setup, with fixed utility links (Docs, Help, Contact) at the bottom. Account access (profile, settings, billing, subscription, credits) exists only through the top-right account dropdown. Every workspace has an implicit Studio Brand Channel seeded first; user channels follow in creation order, and each channel carries its own dashboard, staffing, marketing, social media, assets, and production surfaces.
 
+Entering any module lands on its Dashboard. Sidenav owns module subpage navigation. Channel Dashboard has no third-tier control. Each non-dashboard channel subpage renders one full-width third-tier view dropdown directly below the breadcrumb and page title block, switching in-page views without mutating routes or URLs.
 Footer appears on every public page and contains:
 
 - Home
@@ -306,6 +307,11 @@ Routes: `/signup`, `/login`, `/forgot-password`, `/reset-password`, `/verify-ema
 ### `/app/channels` and `/app/channels/[channelId]` — Channels
 
 **Need:** Create, edit, inspect, and operate channel identity without deleting it from the channel surface.
+
+**Navigation hierarchy:**
+1. Topbar: global studio module and account navigation.
+2. Left sidenav: channel subpages (Dashboard, Channel Staffing, Marketing, Social Media, Assets, Production).
+3. Third-tier view dropdown: rendered immediately below breadcrumbs and page title on non-dashboard channel subpages only (Staffing, Marketing, Social Media, Assets, Production). Channel Dashboard is second-tier only and has no third-tier dropdown. Third-tier selections switch in-page views without mutating routes.
 
 **Create/edit data:** Name, logo, theme, color tokens, audience, voice, cadence, pillars, rating, season, topics, budget, destinations, and rights status.
 

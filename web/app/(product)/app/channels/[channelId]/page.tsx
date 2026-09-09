@@ -3,7 +3,6 @@ import { notFound } from "next/navigation";
 import { getWorkspaceContext } from "@/lib/studio/workspace";
 import { FlowbiteBreadcrumb } from "@/components/blocks/flowbite/flowbite-breadcrumb";
 import { FlowbiteBadge } from "@/components/blocks/flowbite/flowbite-badge";
-import { ChannelSubnav } from "@/components/product/channel-subnav";
 import { ChannelDashboardClient } from "@/components/product/channel-dashboard-client";
 
 export default async function ChannelPage({
@@ -59,8 +58,6 @@ export default async function ChannelPage({
           Open production
         </Link>
       </div>
-
-      <ChannelSubnav channelId={channel.id} activeTab="dashboard" />
 
       {error === "channel" ? (
         <p className="form-error mb-6" role="alert">

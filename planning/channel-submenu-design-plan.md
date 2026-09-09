@@ -58,12 +58,15 @@ The user's instruction explicitly mandates: **"keeping the nav the same, working
    - Sidenav displays the 6 subpages for the active channel: Dashboard, Channel Staffing, Marketing, Social Media, Assets, Production.
    - Bottom utility links: Docs, Help, Contact.
    - Sidenav remains completely unchanged.
-3. **Channel Subnav (`web/components/product/channel-subnav.tsx`):**
-   - Sits below the breadcrumb and section header.
-   - Tabs: `Dashboard` (`""`), `Staffing` (`"/staffing"`), `Marketing` (`"/marketing"`), `Social Media` (`"/social"`), `Assets` (`"/assets"`), `Production` (`"/production"`).
-   - Active tab indicator: `border-pink text-text font-semibold` with `aria-current="page"`.
-   - Invariant: tab order, subpaths, and layout positioning are preserved 100%. All new design specifications apply strictly to the page content rendered below `<ChannelSubnav />`.
-
+3. **Channel Third-Tier View Dropdown (`web/components/product/channel-subnav.tsx`):**
+   - Duplicate horizontal route tab bar is removed in favor of a single third-tier dropdown control rendered directly below breadcrumbs and page title on subpages.
+   - Channel Dashboard (`/app/channels/[channelId]`) is strictly second-tier and renders no third-tier dropdown.
+   - Non-dashboard channel subpages (Staffing, Marketing, Social Media, Assets, Production) render one full-width `<select aria-label="Page view">` inside `ChannelSubnav` switching client in-page views without mutating routes:
+     - Staffing: `Hired agents - Channel`, `Agents for hire`, `Custom Agents`.
+     - Marketing: grouped options (`Pre-Film`, `Content`, `Post file`, plus ungrouped `Marketing Stage Floor`).
+     - Social Media: `YouTube`, `Tik-Tok`, `X`, `Instagram`, `Facebook`, `Telegram`, `Discord`, `Snapchat`, `Social Settings`.
+     - Assets: `DNA DataBase`, `Staffing Files`, `Content`.
+     - Production: `Production Stage Floor`.
 ---
 
 ## 3. Page 1: Channel Dashboard (`/app/channels/[channelId]`)

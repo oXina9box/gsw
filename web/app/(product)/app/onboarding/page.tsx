@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { FlowbiteBadge } from "@/components/blocks/flowbite/flowbite-badge";
 import { OnboardingSections } from "@/components/onboarding/onboarding-sections";
 import { getWorkspaceContext } from "@/lib/studio/workspace";
 
@@ -35,7 +36,7 @@ export default async function OnboardingPage({
     <section className="product-page shell onboarding-page" data-archetype="B3-B">
       <header className="grid gap-4 border-b border-border pb-6 md:grid-cols-[minmax(0,1fr)_auto] md:items-end">
         <div className="max-w-3xl">
-          <p className="kicker">Studio onboarding</p>
+          <FlowbiteBadge color="cyan" size="sm" dot className="mb-2">Studio onboarding</FlowbiteBadge>
           <h1 className="font-display text-3xl font-bold text-text sm:text-4xl">Studio setup for {studioName}, at your pace.</h1>
           <p className="lede mt-2">Explore the studio anytime. These six sections save separately, stay editable, and never block the rest of the product.</p>
         </div>

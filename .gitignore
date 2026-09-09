@@ -26,3 +26,8 @@ supabase/.branches/
 
 # Agent harness metadata
 .unlazy/
+.aionrs/
+.claude/
+.codex/
+.omp/
+.opencode/

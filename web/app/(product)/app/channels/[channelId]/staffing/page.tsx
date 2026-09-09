@@ -2,7 +2,6 @@ import { notFound } from "next/navigation";
 import { getWorkspaceContext } from "@/lib/studio/workspace";
 import { FlowbiteBreadcrumb } from "@/components/blocks/flowbite/flowbite-breadcrumb";
 import { FlowbiteBadge } from "@/components/blocks/flowbite/flowbite-badge";
-import { ChannelSubnav } from "@/components/product/channel-subnav";
 import { ChannelStaffingClient } from "@/components/product/channel-staffing-client";
 
 export const metadata = { title: "Channel Staffing" };
@@ -56,7 +55,6 @@ export default async function ChannelStaffingPage({
         </div>
       </div>
 
-      <ChannelSubnav channelId={channel.id} activeTab="staffing" />
 
       {queryError ? (
         <p className="form-error mb-4" role="alert">
