@@ -41,3 +41,11 @@ Updated: 2026-08-28
 - Assets: functional SVG graph and existing UI primitives. Local unDraw library unavailable; no illustration generated.
 - Verification: desktop 1440px and mobile 390px browser fixtures, keyboard/reduced-motion checks, anti-slop and motion scans. Live database acceptance remains separate.
 - Memory: proposed composition recorded as pending-review in decisions.log; no personal profile promotion.
+
+## Cinematic Landing — 2026-09-09
+- Preserved OKLCH color tokens and font variables; full-bleed cinematic hero with flat overlays and oversized display typography.
+- Three rights-cleared 1024×1024 WebP visual concept frames (orbit, ember, stage) explicitly disclosed as visual explorations.
+- Interactive scene switcher with accessible keyboard controls (`role="group"`, `aria-pressed`, `aria-live="polite"`).
+- User ambient motion pause toggle with automatic reduced-motion initialization (`prefers-reduced-motion: reduce`).
+- 4-department creative floor grid responsive from 4 to 2 to 1 columns without horizontal overflow.
+- Clean cutover removing obsolete landing-only prototypes while preserving shell integrity and AuthModal entry actions.

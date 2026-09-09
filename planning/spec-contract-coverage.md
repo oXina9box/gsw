@@ -116,7 +116,7 @@ Profile, Studio identity, sessions/MFA, export, deletion lifecycle, billing/usag
 | Spec area | Contract evidence | Test artifact |
 |---|---|---|
 | Four modules and sitemap | Route/module table; navigation contract | Route inventory test |
-| Public pages | Public content/result requirements | Playwright public smoke + link/metadata test |
+| Public pages | Public content/result requirements; root landing interaction proof (direct load, preserved shell landmarks, auth-aware CTA, scene-switch announcement, reduced motion, 320/390/768/1440 no-overflow checks) | Playwright public smoke (`web/tests/e2e/public-smoke.spec.ts`) + link/metadata test |
 | Auth | Auth/session contract | Auth integration + E2E flows |
 | Overview | Studio-wide dashboard contract | Query/empty/filter component tests |
 | Channels | Channel contract | CRUD/RLS/channel-scope tests |

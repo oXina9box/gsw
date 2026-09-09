@@ -185,14 +185,13 @@ All Unknown User pages are public and refreshable by direct URL.
 
 **Need:** Let a new visitor understand Gem Studio quickly and choose a next step.
 
-**Flow:** Visitor lands, scans hero and studio summary, explores Studio/System/Social Workshop sections, opens Gallery/Docs/Pricing, then signs up or logs in.
+**Flow:** Visitor lands on full-bleed cinematic hero, scans imagination hook (`MAKE THE UNREAL.`), reviews ribbon ticker, explores vision beat (`#vision`, `BIG IDEAS. NO SMALL THINKING.`), engages interactive concept gallery (`#worlds`, 3 concept worlds with keyboard-operable scene choice and polite announcements, labeled explicitly as visual explorations, not released Gem Studio productions), navigates connected studio departments (`#studio`, four creative-space cards with deep links), reaches finale close (`#next`, `YOUR NEXT OBSESSION.`), toggles ambient motion (initialized paused when `prefers-reduced-motion: reduce`), and executes auth-aware primary CTA (`Create your Studio` / `Open your Studio`).
 
-**Content:** Product promise, four-department overview, brief-to-release flow, Social Workshop explanation, proof CTA, public navigation, legal links.
+**Content:** Cinematic hero with flat dark overlays, oversized display typography, `#vision` narrative, `#worlds` interactive concept gallery with 3 1024×1024 WebP frames (orbit, ember, stage) and concept disclaimer, `#studio` 4-department story, `#next` finale CTA, preserved `SiteHeader`, `SiteFooter`, and `AuthModal`.
 
-**Result:** Visitor understands what the product does and reaches an intentional destination; no protected data renders while logged out.
+**Result:** Visitor understands what the product does, explores concept worlds without confusing them for released productions, and reaches an intentional destination; no protected data renders while logged out.
 
-**Acceptance:** Direct load works; section anchors work; each major section links to its detail page; auth-aware CTA sends an authenticated user to `/app` and a logged-out user to `/signup`.
-
+**Acceptance:** Direct load works; section anchors (`#vision`, `#worlds`, `#studio`, `#next`) work; keyboard scene selection updates active state and polite caption announcement; user ambient motion toggle starts paused under `prefers-reduced-motion`; auth-aware CTA routes authenticated user to `/app` and logged-out visitor to `/?auth=signup` opening `AuthModal`; preserved site header and footer remain intact; no horizontal overflow across 320/390/768/1440 viewports.
 ### `/studio` — The Studio
 
 **Need:** Explain channels, brand context, 13 departments, lanes, agents, continuity, and deliverables.

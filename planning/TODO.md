@@ -44,4 +44,5 @@ Invited beta → paid managed cloud → agent marketplace → public signup → 
 Full roadmap text archived at `planning/archive/post-launch.md`; stage-gate discipline: phase packet approved before each stage starts.
 
 ## Stage Floors — 2026-09-05
+- [x] **Cinematic Landing Page integration:** execute landing-page-zip-integration-plan.md; integrate reference from `/home/ox/Downloads/Gem-Studio-Landing-Page.zip` into public `/` with 3 WebP frames (orbit, ember, stage), accessible concept worlds gallery, ambient motion pause with reduced-motion support, 4-department story, and verified Playwright e2e/browser gates.
 - [x] Shared Marketing, Social and Production node workshops: execute [stage-floors-plan.md](stage-floors-plan.md); persist scoped workflows, connect hired agents across pools, expose real handoff execution, and verify browser/security/regression gates.

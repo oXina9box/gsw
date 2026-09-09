@@ -28,3 +28,18 @@ Sources: inferred, not viewed.
 - First viewport: floor identity, workflow controls, roster and saved graph.
 - Risk: many controls compete with the graph; compact inspector headings and stack panels on narrow screens.
 - Anti-reference: ornamental hero content inside the working editor.
+
+## Cinematic Landing Reference — 2026-09-09
+- Source: `/home/ox/Downloads/Gem-Studio-Landing-Page.zip`, inspected locally.
+- Surface: public marketing root `/`, Discover mode; density 4, motion 4, variance 5, art direction 8.
+- Borrow:
+  - Dramatic hero composition with flat dark overlays and oversized display typography.
+  - Ticker ribbon pacing the transition into creative manifesto.
+  - Concept worlds interactive showcase with 3 distinct thematic frames.
+  - 4-department breakdown connecting the studio story.
+  - Solid pink finale close anchoring the primary CTA.
+- Avoid:
+  - Standalone header/footer duplicating standard shell.
+  - External Google Fonts dependencies.
+  - Uncontrolled infinite animations without pause controls or reduced motion support.
+  - Unsubstantiated product claims or metrics.

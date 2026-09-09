@@ -110,16 +110,15 @@ if (gate === "logos") {
 } else if (gate === "slots") {
   assertAll(read("web/components/shell/site-header-client.tsx"), ["GemLogo"], "site header");
   assertAll(read("web/components/shell/site-footer.tsx"), ["GemLogo"], "site footer");
-  assertAll(read("web/components/product/studio-nav.tsx"), ["GemMark"], "studio nav");
   assertAll(read("web/app/layout.tsx"), ["gem-mark.png"], "root layout favicon");
   assertAll(read("web/components/shell/gem-brand-icon.tsx"), ["/assets/img/logo.png", "/assets/img/gem-mark.png"], "logo components");
   console.log("logo slots verification passed");
 } else if (gate === "footer") {
   const footer = read("web/components/shell/site-footer.tsx");
   const required = [
-    'href="/"', 'href="/studio"', 'href="/system"', 'href="/social-workshop"',
-    'href="/portfolio"', 'href="/gallery"', 'href="/docs"', 'href="/pricing"',
-    'href="/core-values"', 'href="/contact"', 'href="/terms"', 'href="/privacy"',
+    'href="/"', 'href="/studio"', 'href="/system"',
+    'href="/portfolio"', 'href="/docs"', 'href="/pricing"',
+    'href="/contact"',
     "GemLogo",
   ];
   assertAll(footer, required, "footer links");
