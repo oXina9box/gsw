@@ -10,11 +10,12 @@ export default async function IntegrationsPage({
 }: {
   searchParams: Promise<{ error?: string }>;
 }) {
-  const { supabase } = await getWorkspaceContext();
-  const { data: connections } = await supabase
+  const { supabase, workspaceId } = await getWorkspaceContext();
+  const { data: connections, error: connectionsError } = await supabase
     .from("provider_connections")
     .select("id, provider, label, base_url, default_model, capabilities, masked_secret, status, last_validated_at")
-    .order("created_at");
+    .eq("workspace_id", workspaceId).order("created_at");
+  if (connectionsError) return <section className="product-page shell"><p className="form-error" role="alert">Provider connections could not load. Refresh to try again.</p></section>;
   const { error } = await searchParams;
 
   return (

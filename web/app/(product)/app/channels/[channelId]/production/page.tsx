@@ -21,7 +21,7 @@ export default async function ChannelProductionPage({
   const { workflow } = await searchParams;
   const { supabase, workspaceId } = await getWorkspaceContext();
 
-  const [{ data: channel }, { data: productions }] = await Promise.all([
+  const [{ data: channel, error: channelError }, { data: productions, error: productionsError }] = await Promise.all([
     supabase
       .from("channels")
       .select("id, name, status")
@@ -38,6 +38,7 @@ export default async function ChannelProductionPage({
       .order("updated_at", { ascending: false }),
   ]);
 
+  if (channelError || productionsError) throw new Error("Channel productions could not load. Please try again.");
   if (!channel) notFound();
 
   const productionList = productions ?? [];

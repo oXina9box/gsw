@@ -1,4 +1,3 @@
-import { createAdminClient } from "@/lib/supabase/admin";
 import { DATA_EXPORT_TABLES } from "@/lib/studio/export-data";
 import { listStorageFiles } from "@/lib/studio/storage";
 import { getWorkspaceContext } from "@/lib/studio/workspace";
@@ -12,7 +11,7 @@ export async function GET() {
     const records: unknown[] = [];
     for (let from = 0; ; from += 1000) {
       const pageEnd = from + 999;
-      const { data: page, error } = await supabase.from(table).select("*").range(from, pageEnd);
+      const { data: page, error } = await supabase.from(table).select("*").eq("workspace_id", workspaceId).range(from, pageEnd);
       if (error) return Response.json({ error: `Export failed at ${table}` }, { status: 500 });
       records.push(...(page ?? []));
       if (!page || page.length < 1000) break;
@@ -24,13 +23,13 @@ export async function GET() {
     supabase.from("workspaces").select("id, name, slug, created_at, updated_at").eq("id", workspaceId).single(),
   ]);
   if (profileError || workspaceError) return Response.json({ error: "Export identity manifest failed" }, { status: 500 });
-  const admin = createAdminClient();
-  const paths = await listStorageFiles(admin, "creative-assets", `workspace/${workspaceId}`);
+  // Keep the user's RLS context: service-role signing would bypass quarantine.
+  const paths = await listStorageFiles(supabase, "creative-assets", `workspace/${workspaceId}`);
   const media: { path: string; download_url: string | null }[] = [];
   // ponytail: path/audience binding via workspace prefix, per-object audience token if needed after rehearsal
   for (let index = 0; index < paths.length; index += 100) {
     const batch = paths.slice(index, index + 100);
-    const { data: links, error } = await admin.storage.from("creative-assets").createSignedUrls(batch, 300);
+    const { data: links, error } = await supabase.storage.from("creative-assets").createSignedUrls(batch, 300);
     if (error) return Response.json({ error: "Export media manifest failed" }, { status: 500 });
     media.push(...batch.map((path, offset) => ({ path, download_url: links?.[offset]?.signedUrl ?? null })));
   }

@@ -4,7 +4,7 @@ import { defineConfig } from "vitest/config";
 export default defineConfig({
   resolve: { alias: { "@": path.resolve(__dirname, ".") } },
   test: {
-    include: ["tests/unit/**/*.test.ts", "lib/**/*.test.ts"],
+    include: ["tests/unit/**/*.test.{ts,tsx}", "lib/**/*.test.ts"],
     coverage: {
       provider: "v8",
       reporter: ["text", "json-summary"],
@@ -22,6 +22,12 @@ export default defineConfig({
         "lib/studio/genplay.ts",
         "lib/studio/langfuse.ts",
         "lib/studio/navigation.ts",
+        "lib/studio/channel-views.ts",
+        "lib/studio/moderation.ts",
+        "lib/studio/operator-access.ts",
+        "lib/site/content.ts",
+        "lib/site/content-server.ts",
+        "lib/site/social-links.ts",
         "lib/studio/secrets.ts",
         "lib/studio/worker.ts",
         "lib/studio/worker-auth.ts",

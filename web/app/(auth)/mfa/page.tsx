@@ -11,8 +11,8 @@ export default function MfaPage() {
       <PrelineSplitAuth
         title="Two-step verification"
         subtitle="Enter the 6-digit verification code from your authenticator app to access your production floor."
-        sidebarTagline="Lorem ipsum"
-        sidebarHeadline="Lorem ipsum dolor sit amet consectetur"
+        sidebarTagline="KEEP IT YOURS"
+        sidebarHeadline="Secure every creative decision"
         footer={
           <p className="text-text-muted">
             Lost access to your device?{" "}

@@ -13,25 +13,28 @@ export default async function ChannelPage({
   searchParams: Promise<{ error?: string }>;
 }) {
   const { channelId } = await params;
-  const { supabase } = await getWorkspaceContext();
-  const [{ data: channel }, { data: productions }] = await Promise.all([
+  const { supabase, workspaceId } = await getWorkspaceContext();
+  const [{ data: channel, error: channelError }, { data: productions, error: productionsError }] = await Promise.all([
     supabase
       .from("channels")
       .select("id, name, status, audience, voice, cadence, pillars")
+      .eq("workspace_id", workspaceId)
       .eq("id", channelId)
       .maybeSingle(),
     supabase
       .from("productions")
       .select("id, title, status, current_step, step_count, run_mode, scheduled_at, updated_at")
+      .eq("workspace_id", workspaceId)
       .eq("channel_id", channelId)
       .order("updated_at", { ascending: false }),
   ]);
   const { error } = await searchParams;
+  if (channelError || productionsError) throw new Error("Channel data could not load. Please try again.");
   if (!channel) notFound();
 
   return (
     <section className="product-page shell" data-archetype="B1-B">
-      <div className="mb-6">
+      <div className="mb-3">
         <FlowbiteBreadcrumb
           homeHref="/app"
           homeLabel="Studio"
@@ -44,11 +47,11 @@ export default async function ChannelPage({
 
       <div className="section-head mb-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <h1 className="font-display text-3xl sm:text-4xl font-bold text-text">
+          <h1 className="font-display font-bold text-text">
             {channel.name} · Dashboard
           </h1>
           <FlowbiteBadge color={channel.status === "active" ? "lime" : "amber"}>
-            {channel.status ?? "active"}
+            {channel.status ?? "Status unavailable"}
           </FlowbiteBadge>
         </div>
         <Link

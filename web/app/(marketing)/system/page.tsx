@@ -12,15 +12,15 @@ export default function SystemPage() {
     <article className="marketing-detail space-y-12 sm:space-y-16" data-archetype="A1">
       {/* Section 1: [F1] 6-node system architecture grid */}
       <KometaF1Section
-        title="Lorem ipsum dolor sit amet"
-        lede="Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur."
+        title="A connected system for making films"
+        lede="Keep the creative process clear from idea through release."
         items={[
-          { label: "Lorem ipsum" },
-          { label: "Dolor sit" },
-          { label: "Consectetur" },
-          { label: "Adipiscing" },
-          { label: "Sed eiusmod" },
-          { label: "Tempor inc" },
+          { label: "Develop" },
+          { label: "Build" },
+          { label: "Direct" },
+          { label: "Finish" },
+          { label: "Continuity" },
+          { label: "Release" },
         ]}
         ctaHref="/docs"
         ctaLabel="Read System Architecture Specs"
@@ -29,24 +29,24 @@ export default function SystemPage() {
 
       {/* Section 2: [C5] 4-card system breakdown */}
       <KometaC5Section
-        badge="Lorem ipsum"
-        title="Lorem ipsum dolor sit amet"
-        lede="Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur."
+        badge="THE PIPELINE"
+        title="Every stage, in one creative space"
+        lede="Keep the creative process clear from idea through release."
         cards={[
           {
-            title: "Lorem ipsum dolor",
-            description: "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo."
+            title: "Keep the work moving",
+            description: "Move from an early idea to a focused next step."
           },
           {
-            title: "Consectetur adipiscing",
-            description: "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla."
+            title: "Keep continuity",
+            description: "Keep the creative process clear from idea through release. eu fugiat nulla."
           },
           {
-            title: "Sed do eiusmod",
-            description: "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit."
+            title: "Coordinate the work",
+            description: "Make deliberate choices and keep the work connected."
           },
           {
-            title: "Tempor incididunt",
+            title: "Release with intent",
             description: "Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur."
           }
         ]}
@@ -56,8 +56,8 @@ export default function SystemPage() {
 
       {/* Section 3: [CTA1] Split statement CTA */}
       <FlowbiteCtaSection
-        title="Lorem ipsum dolor sit amet consectetur"
-        description="Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur."
+        title="Your process, clearly connected"
+        description="Keep the creative process clear from idea through release."
         ctaHref="/?auth=signup"
         ctaLabel="Launch Your System"
       />

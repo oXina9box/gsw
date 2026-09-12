@@ -8,10 +8,10 @@ export default function NotFound() {
           404
         </span>
         <h1 className="font-display font-extrabold text-3xl sm:text-5xl text-text tracking-tight mb-4">
-          Lorem ipsum dolor sit amet.
+          This frame went missing.
         </h1>
         <p className="text-base text-text-muted font-body leading-relaxed mb-8">
-          Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+          The page you wanted is not part of this cut.
         </p>
         <Link
           className="inline-flex items-center justify-center px-8 py-3.5 rounded-full bg-pink font-mono text-sm font-semibold text-ink transition-colors hover:bg-pink-hover shadow-md"

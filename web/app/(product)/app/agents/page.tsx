@@ -11,13 +11,14 @@ export default async function AgentsPage({
 }: {
   searchParams: Promise<{ error?: string }>;
 }) {
-  const { supabase } = await getWorkspaceContext();
-  const [{ data: catalog }, { data: lanes }, { data: entitlements }, { data: hires }] = await Promise.all([
+  const { supabase, workspaceId } = await getWorkspaceContext();
+  const [{ data: catalog, error: catalogError }, { data: lanes, error: lanesError }, { data: entitlements, error: entitlementsError }, { data: hires, error: hiresError }] = await Promise.all([
     supabase.from("agent_catalog").select("id, slug, name, department_name, summary, version, visibility, price_key, capabilities").eq("active", true).order("department_name"),
-    supabase.from("lanes").select("id, name, departments(name)").order("name"),
-    supabase.from("agent_entitlements").select("catalog_agent_id"),
-    supabase.from("agents").select("catalog_agent_id").not("catalog_agent_id", "is", null),
+    supabase.from("lanes").select("id, name, departments(name)").eq("workspace_id", workspaceId).order("name"),
+    supabase.from("agent_entitlements").select("catalog_agent_id").eq("workspace_id", workspaceId),
+    supabase.from("agents").select("catalog_agent_id").eq("workspace_id", workspaceId).not("catalog_agent_id", "is", null),
   ]);
+  if (catalogError || lanesError || entitlementsError || hiresError) throw new Error("Agent catalog could not load. Please try again.");
   const { error } = await searchParams;
   const entitled = new Set((entitlements ?? []).map((row) => row.catalog_agent_id));
   const installed = new Set((hires ?? []).map((row) => row.catalog_agent_id));

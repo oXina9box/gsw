@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { STUDIO_MODULE, navGroupForPath, navItemIsActive, pathMatches } from "./navigation";
+import { STUDIO_MODULE, channelForPath, navGroupForPath, navItemIsActive, pathMatches } from "./navigation";
 
 describe("product navigation", () => {
   it("has one Studio module", () => {
@@ -37,5 +37,11 @@ describe("product navigation", () => {
     const setup = STUDIO_MODULE.items[3];
     expect(navItemIsActive("/app/onboarding", setup)).toBe(true);
     expect(navItemIsActive("/app", setup)).toBe(false);
+  });
+
+  it("finds a channel by its full path segment without a fallback", () => {
+    const channels = [{ id: "cinema" }, { id: "cinema-2" }];
+    expect(channelForPath(channels, "/app/channels/cinema-2/marketing")?.id).toBe("cinema-2");
+    expect(channelForPath(channels, "/account")).toBeUndefined();
   });
 });

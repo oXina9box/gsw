@@ -15,13 +15,14 @@ export const metadata = { title: "Social Workshop" };
 
 export default async function SocialPage({ searchParams }: { searchParams: Promise<{ error?: string; workflow?: string }> }) {
   const { supabase, workspaceId } = await getWorkspaceContext();
-  const [{ data: signals }, { data: connections }, { data: packages }, { data: productions }, { data: reports }] = await Promise.all([
+  const [{ data: signals, error: signalsError }, { data: connections, error: connectionsError }, { data: packages, error: packagesError }, { data: productions, error: productionsError }, { data: reports, error: reportsError }] = await Promise.all([
     supabase.from("signals").select("id, signal_type, title, body, status, created_at").eq("workspace_id", workspaceId).order("created_at", { ascending: false }).limit(30),
     supabase.from("social_connections").select("id, platform, account_label, status").eq("workspace_id", workspaceId).order("platform"),
     supabase.from("release_packages").select("id, production_id, platform, caption, status, productions(title)").eq("workspace_id", workspaceId).order("created_at", { ascending: false }).limit(30),
     supabase.from("productions").select("id, title").eq("workspace_id", workspaceId).order("updated_at", { ascending: false }).limit(30),
     supabase.from("social_reports").select("id, release_package_id, report_type, notes, metrics, captured_at").eq("workspace_id", workspaceId).order("captured_at", { ascending: false }).limit(30),
   ]);
+  if (signalsError || connectionsError || packagesError || productionsError || reportsError) return <section className="product-page shell"><p className="form-error" role="alert">Social data could not load. Refresh to try again.</p></section>;
   const { error, workflow } = await searchParams;
 
   return (

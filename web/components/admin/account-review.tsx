@@ -1,0 +1,5 @@
+"use client";
+import { useActionState } from "react";
+import { searchSiteAccounts } from "@/app/(product)/operator-actions";
+const initial = { ok: true as const, accounts: [] as Record<string, unknown>[] };
+export function AccountReview() { const [state, action] = useActionState(searchSiteAccounts, initial); return <div className="space-y-3"><form action={action} className="flex gap-2"><input name="search" minLength={3} maxLength={120} placeholder="Account email" required/><button className="button button-outline" type="submit">Search</button></form>{!state.ok && <p className="form-error" role="alert">Account lookup unavailable.</p>}{state.ok && state.accounts.length > 0 && <ul className="space-y-2">{state.accounts.map((account: Record<string, unknown>) => <li key={String(account.user_id)} className="border border-border p-2 text-sm"><div>{String(account.email)}</div><div className="text-text-muted">{String(account.workspace_name ?? "No workspace")} · {String(account.user_id)}</div></li>)}</ul>}</div>; }

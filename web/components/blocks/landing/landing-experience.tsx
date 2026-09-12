@@ -221,18 +221,17 @@ export function LandingExperience() {
       {/* 6. FINALE SECTION */}
       <section id="next" className={styles.finaleSection}>
         <div className={styles.finaleInner}>
-          <div className={styles.finaleTop}>
-            <span>GEM STUDIO / COMING INTO FOCUS</span>
-            <span>THE STORY IS JUST BEGINNING.</span>
-          </div>
-          <p className={styles.finaleLead}>For the beautifully impossible.</p>
+          <p className={styles.finaleLead}>
+            <span className={styles.storyStep}><span aria-hidden="true" className={styles.finaleIdea}>✳</span> IDEA</span>
+            <span className={styles.storyStep}><span aria-hidden="true" className={styles.finaleBuild}>◆</span> BUILD</span>
+            <span className={styles.storyStep}><span aria-hidden="true" className={styles.finaleRelease}>▶</span> RELEASE</span>
+          </p>
           <h2 className={styles.finaleTitle}>
             YOUR NEXT<br />
-            <span>OBSESSION.</span>
+            <span>FILM.</span>
           </h2>
           <div className={styles.finaleBottom}>
             <p className={styles.finaleSubtitle}>
-              We&apos;re building the space.<br />
               You bring the imagination.
             </p>
             <div className={styles.finaleActions}>

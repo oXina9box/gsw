@@ -89,3 +89,12 @@ export function navGroupForPath(pathname: string) {
 export function navItemIsActive(pathname: string, item: NavItem) {
   return (item.paths ?? [item.href]).some((path) => pathMatches(pathname, path));
 }
+
+export function channelIdForPath(pathname: string) {
+  return pathname.match(/^\/app\/channels\/([^/]+)(?:\/|$)/)?.[1];
+}
+
+export function channelForPath<T extends Readonly<{ id: string }>>(channels: readonly T[], pathname: string) {
+  const channelId = channelIdForPath(pathname);
+  return channelId ? channels.find(({ id }) => id === channelId) : undefined;
+}

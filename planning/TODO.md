@@ -7,6 +7,8 @@
 
 ## 1. Now — pre-launch gaps
 
+- [ ] **Approved UI/data/admin cleanup:** implemented substantial local changes; not complete or deployed. Finish the prioritized [remaining-work handoff](ui-admin-remaining.md), including final combined verification, full route/admin visual checks, missing social URLs/button reference, and operator provisioning.
+
 - [x] **Onboarding-to-first-Studio completion:** execute six-level chunk plan in [`onboarding-completion-plan.md`](onboarding-completion-plan.md): popup identity, Cloud/BYOK choice, secure OpenAI/Anthropic connection, first Marketing lane, real assets, and full verification. Resolved owner decisions and verified across 7 waves.
 
 - [ ] **Legal copy sign-off:** counsel-approved Terms / Privacy / Core Values. All three are live-gated on `SITE_CONTENT_APPROVED=false` (`web/app/(marketing)/terms|privacy|core-values`, `site-footer.tsx`). Flip only after owner + counsel sign-off.

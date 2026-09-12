@@ -38,6 +38,9 @@ No implementation may silently invent behavior where one of these contracts is m
 - Authenticated header: public-site access plus Front Office, Studio, Account.
 - Footer on every page: all public information/legal/contact links plus all four module entries and session-appropriate account actions.
 - Active route is visible and keyboard-readable.
+- Channel Dashboard matches exactly; only the selected subpage exposes nested third-tier choices, with the selected view cyan. Allowlisted `?view=` survives navigation history and refresh; invalid values fall back without leaking sibling state.
+- Authenticated utility controls are content-sized; main sections use available width. Operational records and metrics have persisted workspace/channel sources; unavailable and failed sources never become fabricated zero/success states.
+- The Account administration section requires a separately granted operator with current MFA assurance on every server operation. Editorial drafts remain private, published content is audience/placement scoped, and reversible review decisions carry reasons and audit history.
 - Protected destination uses a safe `next` value; successful auth returns there.
 - Unknown/private route behavior never reveals record existence.
 

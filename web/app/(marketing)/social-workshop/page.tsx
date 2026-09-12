@@ -10,15 +10,15 @@ export default function SocialWorkshopPage() {
     <article className="marketing-detail space-y-12 sm:space-y-16" data-archetype="A1">
       {/* Section 1: [F1] 6-channel distribution targets */}
       <KometaF1Section
-        title="Lorem ipsum dolor sit amet"
-        lede="Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur."
+        title="Turn finished work into a conversation"
+        lede="Keep the creative process clear from idea through release."
         items={[
-          { label: "Lorem ipsum" },
-          { label: "Dolor sit" },
-          { label: "Consectetur" },
-          { label: "Adipiscing" },
-          { label: "Sed eiusmod" },
-          { label: "Tempor inc" },
+          { label: "Package" },
+          { label: "Caption" },
+          { label: "Schedule" },
+          { label: "Share" },
+          { label: "Learn" },
+          { label: "Repeat" },
         ]}
         ctaHref="/docs"
         ctaLabel="Learn About Channel Distribution"
@@ -29,13 +29,13 @@ export default function SocialWorkshopPage() {
       <KometaC3Section
         items={[
           {
-            title: "Lorem ipsum dolor sit",
-            description: "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+            title: "A workshop for the next release",
+            description: "Move from an early idea to a focused next step.",
             href: "/docs",
           },
           {
-            title: "Consectetur adipiscing elit",
-            description: "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.",
+            title: "Keep continuity",
+            description: "Keep the creative process clear from idea through release.",
             href: "/docs",
           },
         ]}

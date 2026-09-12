@@ -10,15 +10,16 @@ export const metadata = { title: "Marketing Workbench" };
 export default async function MarketingPage({ searchParams }: { searchParams: Promise<{ workflow?: string }> }) {
   const { workflow } = await searchParams;
   const { supabase, workspaceId } = await getWorkspaceContext();
-  const { data: channels } = await supabase
+  const { data: channels, error: channelsError } = await supabase
     .from("channels")
     .select("id, name, audience, voice, cadence, pillars").eq("workspace_id", workspaceId)
     .order("created_at");
-  const { data: onboarding } = await supabase
+  const { data: onboarding, error: onboardingError } = await supabase
     .from("onboarding_profiles")
     .select("studio_identity, channel_setup, lane_handoffs, missing_data_notes").eq("workspace_id", workspaceId)
     .maybeSingle();
 
+  if (channelsError || onboardingError) throw new Error("Marketing could not load. Please try again.");
   const checklist = evaluateMarketingChecklist(onboarding ?? {});
 
   return (

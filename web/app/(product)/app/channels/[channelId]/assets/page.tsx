@@ -12,19 +12,20 @@ export default async function ChannelAssetsPage({
   params: Promise<{ channelId: string }>;
 }) {
   const { channelId } = await params;
-  const { supabase } = await getWorkspaceContext();
+  const { supabase, workspaceId } = await getWorkspaceContext();
 
-  const [{ data: channel }, { data: storage }, { data: productions }] = await Promise.all([
-    supabase.from("channels").select("id, name, status").eq("id", channelId).maybeSingle(),
-    supabase.from("workspace_storage_usage").select("bytes_used").maybeSingle(),
+  const [{ data: channel, error: channelError }, { data: storage, error: storageError }, { data: productions, error: productionsError }] = await Promise.all([
+    supabase.from("channels").select("id, name, status").eq("workspace_id", workspaceId).eq("id", channelId).maybeSingle(),
+    supabase.from("workspace_storage_usage").select("bytes_used").eq("workspace_id", workspaceId).maybeSingle(),
     supabase
       .from("productions")
       .select(
-        "id, title, production_dna(id, role, dna_records(id, dna_id, dna_type, record, locked)), generated_assets(id, kind, uri, metadata, created_at)"
+        "id, title, production_dna(dna_record_id, role, dna_records(id, dna_id, dna_type, record, locked)), generated_assets(id, kind, uri:storage_path, metadata, created_at)"
       )
-      .eq("channel_id", channelId),
+      .eq("workspace_id", workspaceId).eq("channel_id", channelId),
   ]);
 
+  if (channelError || storageError || productionsError) throw new Error("Channel assets could not load. Please try again.");
   if (!channel) notFound();
 
   const prodList = productions ?? [];
@@ -32,15 +33,21 @@ export default async function ChannelAssetsPage({
     const dnaList = Array.isArray(p.production_dna) ? p.production_dna : [];
     return dnaList.map((d) => ({
       ...d,
+      id: d.dna_record_id,
       productionTitle: p.title,
       dna_records: Array.isArray(d.dna_records) ? d.dna_records[0] : d.dna_records,
     }));
   });
 
-  const assetItems = prodList.flatMap((p) => {
+  const savedAssets = prodList.flatMap((p) => {
     const assets = Array.isArray(p.generated_assets) ? p.generated_assets : [];
     return assets.map((a) => ({ ...a, productionTitle: p.title }));
   });
+  const assetItems = await Promise.all(savedAssets.map(async (asset) => {
+    if (!asset.uri) return { ...asset, downloadUrl: null };
+    const { data, error } = await supabase.storage.from("creative-assets").createSignedUrl(asset.uri, 300);
+    return { ...asset, downloadUrl: error ? null : data?.signedUrl ?? null };
+  }));
 
   const bytesUsed = storage?.bytes_used ?? 0;
 

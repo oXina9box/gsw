@@ -14,7 +14,7 @@ export default async function ChannelSocialPage({
   const { channelId } = await params;
   const { supabase, workspaceId } = await getWorkspaceContext();
 
-  const [{ data: channel }, { data: connections }, { data: signals }, { data: productions }] =
+  const [{ data: channel, error: channelError }, { data: connections, error: connectionsError }, { data: signals, error: signalsError }, { data: productions, error: productionsError }] =
     await Promise.all([
       supabase
         .from("channels")
@@ -41,6 +41,7 @@ export default async function ChannelSocialPage({
         .eq("channel_id", channelId),
     ]);
 
+  if (channelError || connectionsError || signalsError || productionsError) throw new Error("Channel social data could not load. Please try again.");
   if (!channel) notFound();
 
   const socialList = connections ?? [];

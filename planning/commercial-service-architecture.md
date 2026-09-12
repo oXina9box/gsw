@@ -236,6 +236,14 @@ Implement server-only operator functions before customer launch; owner launch at
 
 Operator actions require separate authorization, strong MFA, audit, reason, and no unrestricted impersonation. Service-role credentials never enter a public page.
 
+### Approved UI/admin implementation — 2026-09-10
+
+The existing Account route hosts one Administration entry for a separately provisioned operator. Reuse existing sign-in and require current MFA assurance, live grant checks and audit on privileged operations. Do not derive site authority from workspace ownership or user-editable metadata. Initial operator provisioning is an explicit server-side grant; no user is automatically promoted.
+
+Global editorial items support banners, tips, promotions, training/help, documents and revisioned image replacement through draft, preview, publish, unpublish and recovery. They do not borrow a tenant workspace identifier. Public reads are limited to effective published audience/placement content. One compact studio slot rotates published tips/promotions every eight seconds with pause/manual controls and reduced-motion support; no content means no reserved box.
+
+Basic account and duplicate/content review uses safe record summaries, evidence references, reasons and audit history. Review actions are reversible; no automatic account merging, destructive purge or newly invented banned-content policy. Existing protected agent files and provider secrets remain outside editorial/admin previews. Additive schemas and local implementation are approved by the owner; live operator provisioning and external data operations remain explicit operational steps.
+
 ## 10A. Signup/invitation enforcement
 
 Owner launch disables provider-level public signup in Supabase Auth, not only the app button. Invited beta uses a database/Auth hook or equivalent server-controlled pre-user/transactional bootstrap that atomically validates and consumes a hashed, email/audience-bound invite before workspace creation. Direct anonymous provider calls, replay, race, revoked/expired invite, and cross-audience tokens are denied. Self-hosted identity implementation must pass the same contract.

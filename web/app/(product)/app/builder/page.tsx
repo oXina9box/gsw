@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { getWorkspaceContext } from "@/lib/studio/workspace";
 import {
   createAgent,
   createLane,
@@ -21,19 +21,20 @@ export default async function BuilderPage({
   searchParams: Promise<{ error?: string; dept?: string }>;
 }) {
   const params = await searchParams;
-  const supabase = await createClient();
+  const { supabase, workspaceId } = await getWorkspaceContext();
 
   const [
-    { data: departments },
-    { data: lanes },
-    { data: agents },
-    { data: agentFiles },
+    { data: departments, error: departmentsError },
+    { data: lanes, error: lanesError },
+    { data: agents, error: agentsError },
+    { data: agentFiles, error: filesError },
   ] = await Promise.all([
-    supabase.from("departments").select("id, name, display_order").order("display_order"),
-    supabase.from("lanes").select("id, department_id, name, collaboration_mode, pass_order, pass_cycles"),
-    supabase.from("agents").select("id, lane_id, name, agent_type, recommended_tier, model_tier_override, protected_config"),
-    supabase.from("agent_files").select("agent_id, role, soul, jobdescription, skills, memory, user_content"),
+    supabase.from("departments").select("id, name, display_order").eq("workspace_id", workspaceId).order("display_order"),
+    supabase.from("lanes").select("id, department_id, name, collaboration_mode, pass_order, pass_cycles").eq("workspace_id", workspaceId),
+    supabase.from("agents").select("id, lane_id, name, agent_type, recommended_tier, model_tier_override, protected_config").eq("workspace_id", workspaceId),
+    supabase.from("agent_files").select("agent_id, role, soul, jobdescription, skills, memory, user_content").eq("workspace_id", workspaceId),
   ]);
+  if (departmentsError || lanesError || agentsError || filesError) throw new Error("Studio builder could not load. Please try again.");
 
   const activeDeptId = params.dept || departments?.[0]?.id;
   const activeDept = departments?.find((d) => d.id === activeDeptId) || departments?.[0];

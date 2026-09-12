@@ -122,7 +122,7 @@ Unknown User header contains:
 
 Authenticated pages use a dashboard shell instead of the public header: a fixed topbar (brand, search, notifications bell, module indicator, studio identity, account dropdown) and a fixed left sidenav. One Studio module governs the authenticated app: the sidenav lists Collective, workspace channels, Integrations, Secrets, and Studio setup, with fixed utility links (Docs, Help, Contact) at the bottom. Account access (profile, settings, billing, subscription, credits) exists only through the top-right account dropdown. Every workspace has an implicit Studio Brand Channel seeded first; user channels follow in creation order, and each channel carries its own dashboard, staffing, marketing, social media, assets, and production surfaces.
 
-Entering any module lands on its Dashboard. Sidenav owns module subpage navigation. Channel Dashboard has no third-tier control. Each non-dashboard channel subpage renders one full-width third-tier view dropdown directly below the breadcrumb and page title block, switching in-page views without mutating routes or URLs.
+Entering any module lands on its Dashboard. Sidenav owns module subpage navigation. Channel Dashboard has no third-tier control and matches its exact route only. Selecting a non-dashboard channel subpage reveals only that subpage's nested view choices inside the sidebar. The current view uses faded cyan and a non-color selection indicator. An allowlisted `?view=` parameter preserves view selection on direct load, refresh, back and forward; invalid values select the subpage default. No third-tier navigation panel occupies the content canvas.
 Footer appears on every public page and contains:
 
 - Home
@@ -310,7 +310,7 @@ Routes: `/signup`, `/login`, `/forgot-password`, `/reset-password`, `/verify-ema
 **Navigation hierarchy:**
 1. Topbar: global studio module and account navigation.
 2. Left sidenav: channel subpages (Dashboard, Channel Staffing, Marketing, Social Media, Assets, Production).
-3. Third-tier view dropdown: rendered immediately below breadcrumbs and page title on non-dashboard channel subpages only (Staffing, Marketing, Social Media, Assets, Production). Channel Dashboard is second-tier only and has no third-tier dropdown. Third-tier selections switch in-page views without mutating routes.
+3. Third-tier views: nested under the selected sidebar subpage only (Staffing, Marketing, Social Media, Assets, Production). Channel Dashboard has no third tier. View selection uses a validated `?view=` parameter on the existing route; only the current destination is selected.
 
 **Create/edit data:** Name, logo, theme, color tokens, audience, voice, cadence, pillars, rating, season, topics, budget, destinations, and rights status.
 

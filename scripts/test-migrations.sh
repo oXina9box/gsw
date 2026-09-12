@@ -18,6 +18,7 @@ image="${POSTGRES_TEST_IMAGE:-docker.io/library/postgres:16-alpine}"
       psql -U postgres -v ON_ERROR_STOP=1 -q -f "$migration"
     done
     psql -U postgres -v ON_ERROR_STOP=1 -q -f /repo/supabase/tests/studio_invariants.sql
+    psql -U postgres -v ON_ERROR_STOP=1 -q -f /repo/supabase/tests/site-administration.sql
     sh /repo/supabase/tests/storage_quota_concurrency.sh
     echo "migration invariants passed"
   '

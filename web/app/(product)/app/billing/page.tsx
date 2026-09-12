@@ -6,12 +6,14 @@ import { KometaStats, type StatItem } from "@/components/blocks/kometa/kometa-st
 export const metadata = { title: "Credits & Billing" };
 
 export default async function BillingPage() {
-  const { supabase } = await getWorkspaceContext();
-  const [{ data: account }, { data: ledger }, { data: products }] = await Promise.all([
-    supabase.from("credit_accounts").select("available, reserved, debt, updated_at").single(),
-    supabase.from("credit_ledger").select("id, amount, entry_type, created_at, metadata").order("created_at", { ascending: false }).limit(30),
+  const { supabase, workspaceId } = await getWorkspaceContext();
+  const [{ data: account, error: accountError }, { data: ledger, error: ledgerError }, { data: products, error: productsError }] = await Promise.all([
+    supabase.from("credit_accounts").select("available, reserved, debt, updated_at").eq("workspace_id", workspaceId).single(),
+    supabase.from("credit_ledger").select("id, amount, entry_type, created_at, metadata").eq("workspace_id", workspaceId).order("created_at", { ascending: false }).limit(30),
     supabase.from("commerce_products").select("key, name, description, kind, credit_amount, catalog_agent_id").eq("active", true),
   ]);
+  const loadError = accountError || ledgerError || productsError;
+  if (loadError) return <section className="product-page shell"><p className="form-error" role="alert">Billing data could not load. Refresh to try again.</p></section>;
 
   const stats: StatItem[] = [
     {

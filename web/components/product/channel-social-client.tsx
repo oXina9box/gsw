@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { FlowbiteBadge } from "@/components/blocks/flowbite/flowbite-badge";
-import { ChannelSubnav } from "@/components/product/channel-subnav";
+import { useChannelView } from "@/components/product/use-channel-view";
 
 type SocialConnection = {
   id: string;
@@ -47,14 +47,14 @@ type PlatformConfig = {
 };
 
 const INITIAL_PLATFORMS: readonly PlatformConfig[] = [
-  { id: "youtube", name: "YouTube", handle: "@studio_youtube", icon: "YT" },
-  { id: "tiktok", name: "Tik-Tok", handle: "@studio_tiktok", icon: "TT" },
-  { id: "x", name: "X", handle: "@studio_x", icon: "X" },
-  { id: "instagram", name: "Instagram", handle: "@studio_ig", icon: "IG" },
-  { id: "facebook", name: "Facebook", handle: "fb.com/studio", icon: "FB" },
-  { id: "telegram", name: "Telegram", handle: "t.me/studio_channel", icon: "TG" },
-  { id: "discord", name: "Discord", handle: "discord.gg/studio", icon: "DC" },
-  { id: "snapchat", name: "Snapchat", handle: "@studio_snap", icon: "SC" },
+  { id: "youtube", name: "YouTube", handle: "", icon: "YT" },
+  { id: "tiktok", name: "Tik-Tok", handle: "", icon: "TT" },
+  { id: "x", name: "X", handle: "", icon: "X" },
+  { id: "instagram", name: "Instagram", handle: "", icon: "IG" },
+  { id: "facebook", name: "Facebook", handle: "", icon: "FB" },
+  { id: "telegram", name: "Telegram", handle: "", icon: "TG" },
+  { id: "discord", name: "Discord", handle: "", icon: "DC" },
+  { id: "snapchat", name: "Snapchat", handle: "", icon: "SC" },
 ] as const;
 
 function normalizePlatform(name: string): string {
@@ -82,8 +82,7 @@ export function ChannelSocialClient({
   const [visiblePlatformIds, setVisiblePlatformIds] = useState<string[]>(
     INITIAL_PLATFORMS.map((p) => p.id)
   );
-  // Active view in third tier
-  const [activeView, setActiveView] = useState<string>("youtube");
+  const { activeView, setActiveView } = useChannelView("social");
   // Sub-tabs within platform view
   const [activeTab, setActiveTab] = useState<"inbox" | "signals" | "packages">("inbox");
 
@@ -95,41 +94,7 @@ export function ChannelSocialClient({
   const [repliedComments, setRepliedComments] = useState<string[]>([]);
   const [convertedSignals, setConvertedSignals] = useState<string[]>([]);
 
-  // Simulated live community comments stream for 2-way inbox
-  const [comments] = useState([
-    {
-      id: "c1",
-      platform: "YouTube",
-      author: "@alex_cyber",
-      text: "The twist in Episode 1 at 08:24 was insane! When is Episode 2 dropping?",
-      sentiment: "positive",
-      time: "12m ago",
-    },
-    {
-      id: "c2",
-      platform: "TikTok",
-      author: "@neon_fanatic",
-      text: "That visual lighting style is wild. The anamorphic lens flare looks so real.",
-      sentiment: "positive",
-      time: "42m ago",
-    },
-    {
-      id: "c3",
-      platform: "X",
-      author: "@story_critic",
-      text: "Act 2 pacing slowed down a bit in the police headquarters scene. Hope Ep 2 picks it back up.",
-      sentiment: "critique",
-      time: "2h ago",
-    },
-    {
-      id: "c4",
-      platform: "Discord",
-      author: "Morpheus_99",
-      text: "Is Kaelen Vance going to find out about his synthetic memory implant in the season finale?",
-      sentiment: "curiosity",
-      time: "3h ago",
-    },
-  ]);
+  const comments: readonly { id: string; platform: string; author: string; text: string; sentiment: string; time: string }[] = [];
 
   const handleSendReply = (commentId: string) => {
     if (!replyText[commentId]?.trim()) return;
@@ -158,7 +123,7 @@ export function ChannelSocialClient({
     const newConfig: PlatformConfig = {
       id,
       name: trimmed,
-      handle: `@${id}`,
+      handle: "",
       icon: trimmed.slice(0, 2).toUpperCase(),
     };
 
@@ -180,17 +145,6 @@ export function ChannelSocialClient({
       return [...prev, id];
     });
   };
-
-  // Third-tier groups based on visible platforms + Social Settings
-  const visiblePlatforms = platforms.filter((p) => visiblePlatformIds.includes(p.id));
-  const subnavGroups = [
-    {
-      items: [
-        ...visiblePlatforms.map((p) => ({ id: p.id, label: p.name })),
-        { id: "settings", label: "Social Settings" },
-      ],
-    },
-  ];
 
   // Lookup connection
   const connectionMap = new Map(
@@ -214,13 +168,7 @@ export function ChannelSocialClient({
   const isCurrentConnected = currentConnection?.status === "connected" || Boolean(currentConnection);
 
   return (
-    <div className="space-y-6">
-      <ChannelSubnav
-        activeTab="social"
-        activeView={activeView}
-        groups={subnavGroups}
-        onViewChange={(id) => setActiveView(id)}
-      />
+    <div className="space-y-4">
 
       {/* Social Settings View */}
       {activeView === "settings" ? (
@@ -310,7 +258,7 @@ export function ChannelSocialClient({
                   </FlowbiteBadge>
                 </div>
                 <span className="font-mono text-xs text-text-faint">
-                  {currentPlatformConfig?.handle ?? "@studio"} · {channelName}
+                  {currentPlatformConfig?.handle || "Handle unavailable"} · {channelName}
                 </span>
               </div>
             </div>

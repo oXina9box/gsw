@@ -11,18 +11,20 @@ export default async function UniversePage({
 }: {
   searchParams: Promise<{ error?: string; tier?: string; group?: string }>;
 }) {
-  const { supabase } = await getWorkspaceContext();
+  const { supabase, workspaceId } = await getWorkspaceContext();
   const params = await searchParams;
   let query = supabase
     .from("dna_records")
     .select("id, dna_id, dna_type, status, schema_version, version, locked, tier, group_type, record, updated_at")
+    .eq("workspace_id", workspaceId)
     .order("updated_at", { ascending: false });
 
   if (params.tier === "A" || params.tier === "B") query = query.eq("tier", params.tier);
   if (["Universe", "Studio", "Channel", "Season", "Socials", "FDNA"].includes(params.group ?? "")) {
     query = query.eq("group_type", params.group);
   }
-  const { data: records } = await query;
+  const { data: records, error: loadError } = await query;
+  if (loadError) throw new Error("Universe records could not load. Please try again.");
   const { error } = params;
 
   return (

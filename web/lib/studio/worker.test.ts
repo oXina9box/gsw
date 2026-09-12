@@ -84,6 +84,7 @@ function fakeAdmin({ step = 0, protectedAgent = false, assemblyClips = [], fault
     }) },
     rpc: async (name: string, args: Record<string, unknown>) => {
       state.rpc.push({ name, args });
+      if (name === "site_worker_operation_allowed") return { data: fault !== "moderation-denied", error: fault === "moderation-unavailable" ? new Error("unavailable") : null };
       return { data: fault === "contract-error" ? null : { master_id: "master-1", artifact_id: "artifact-genplay", shot_count: 1 }, error: fault === "contract-error" ? new Error("save") : null };
     },
   } as unknown as SupabaseClient;
@@ -100,6 +101,14 @@ afterEach(() => {
 });
 
 describe("studio worker contracts", () => {
+  it.each(["moderation-denied", "moderation-unavailable"])("blocks provider work when moderation is %s", async (fault) => {
+    const { admin, state } = fakeAdmin({ fault });
+    const fetchMock = vi.fn();
+    vi.stubGlobal("fetch", fetchMock);
+    await expect(executeStudioJob(admin, job("generate_text"), ENCRYPTION_KEY)).rejects.toThrow("Production access is restricted or unavailable");
+    expect(fetchMock).not.toHaveBeenCalled();
+    expect(state.uploads).toEqual([]);
+  });
   it("routes an open text role through its assigned provider and persists provenance", async () => {
     const { admin, state } = fakeAdmin();
     const fetchMock = vi.fn(async (input: string | URL | Request, init?: RequestInit) => { void input; void init; return Response.json({ choices: [{ message: { content: "Approved handoff" } }] }); });
@@ -152,8 +161,9 @@ describe("studio worker contracts", () => {
     vi.stubGlobal("fetch", vi.fn(async () => Response.json({ choices: [{ message: { content } }] })));
 
     await expect(executeStudioJob(admin, job("generate_text"), ENCRYPTION_KEY)).resolves.toMatchObject({ artifact_id: "artifact-genplay", shot_count: 1 });
-    expect(state.rpc[0]).toMatchObject({ name: "save_genplay_contract", args: { target_job: "job-generate_text" } });
-    expect(state.rpc[0].args.context_provenance).toMatchObject({ artifact_ids: ["artifact-prior"], dna_ids: ["CHAR-1"], agent_id: "agent-1", provider_connection_id: "connection-1" });
+    const savedContract = state.rpc.find((call) => call.name === "save_genplay_contract");
+    expect(savedContract).toMatchObject({ name: "save_genplay_contract", args: { target_job: "job-generate_text" } });
+    expect(savedContract?.args.context_provenance).toMatchObject({ artifact_ids: ["artifact-prior"], dna_ids: ["CHAR-1"], agent_id: "agent-1", provider_connection_id: "connection-1" });
   });
 
   it.runIf(ffmpegAvailable)("downloads selected clips and assembles a private MP4 master", async () => {

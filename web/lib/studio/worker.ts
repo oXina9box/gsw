@@ -114,8 +114,14 @@ async function loadProduction(admin: SupabaseClient, job: Job) {
 }
 
 async function ensureProductionActive(admin: SupabaseClient, job: Job) {
+  await ensureModerationAllowed(admin, job);
   const { data } = await admin.from("productions").select("id").eq("id", job.production_id).eq("workspace_id", job.workspace_id).eq("status", "active").maybeSingle();
   if (!data) throw new Error("Production was paused or archived");
+}
+
+async function ensureModerationAllowed(admin: SupabaseClient, job: Job) {
+  const { data, error } = await admin.rpc("site_worker_operation_allowed", { target_workspace: job.workspace_id, target_production: job.production_id });
+  if (error || data !== true) throw new Error("Production access is restricted or unavailable");
 }
 
 async function loadConnection(admin: SupabaseClient, workspaceId: string, capability: string, connectionId: string, encodedKey: string) {
@@ -343,6 +349,7 @@ async function assemble(admin: SupabaseClient, job: Job) {
 }
 
 export async function executeStudioJob(admin: SupabaseClient, job: Job, encodedKey: string) {
+  await ensureModerationAllowed(admin, job);
   if (["generate_text", "generate_image", "generate_audio"].includes(job.kind)) return generate(admin, job, encodedKey);
   if (job.kind === "assemble_master") return assemble(admin, job);
   throw new Error(`${job.kind} adapter is not configured`);

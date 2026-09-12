@@ -10,22 +10,22 @@ export default function PortfolioPage() {
     <article className="marketing-detail space-y-12 sm:space-y-16" data-archetype="A1">
       {/* Section 1: [C1] Showcase lede + 3 capability highlights + 3-image production showcase */}
       <KometaC1Section
-        badge="Lorem ipsum"
+        badge="THE WORK"
         badgeColor="cyan"
-        title="Lorem ipsum dolor sit amet"
-        lede="Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur."
+        title="Stories in progress"
+        lede="A look at stories and worlds Gem Studio helps you develop."
         items={[
           {
-            title: "Lorem ipsum dolor",
-            description: "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo."
+            title: "Concepts, frames, and finished direction",
+            description: "Bring early ideas into a clear creative direction."
           },
           {
-            title: "Consectetur adipiscing",
-            description: "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur."
+            title: "Find the visual thread",
+            description: "Keep character, location, and scene choices connected."
           },
           {
-            title: "Sed do eiusmod",
-            description: "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim."
+            title: "Prepare the final frame",
+            description: "Shape rhythm, sound, color, and the release package."
           }
         ]}
         images={{
@@ -39,9 +39,9 @@ export default function PortfolioPage() {
 
       {/* Section 2: [C4] Featured film showcase banner */}
       <KometaC4Section
-        badge="Lorem ipsum"
-        title="Lorem ipsum dolor sit amet consectetur"
-        description="Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident."
+        badge="YOUR TURN"
+        title="Build the work only you can make"
+        description="Build a creative process that keeps your vision in view."
         imageSrc="https://images.pexels.com/photos/927022/pexels-photo-927022.jpeg?auto=compress&cs=tinysrgb&dpr=3&h=750&w=1260"
         primaryCta={{ label: "Launch a Studio Production", href: "/?auth=signup" }}
         secondaryCta={{ label: "Explore the Pipeline", href: "/system" }}

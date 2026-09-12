@@ -460,6 +460,14 @@ main { min-height:calc(100vh - 12rem); }
 main.studio-main { min-height: calc(100vh - 3.5rem); }
 .marketing-brief,.production-brief { width:min(100%,48rem); margin-top:var(--space-8); }
 .product-page { padding-top:var(--space-12); }.product-page>.lede { margin-top:var(--space-5); }.product-page .studio-section { padding-block:var(--space-16) 0; }
+/* Working screens share compact gutters; marketing and editor canvases keep their own rhythm. */
+.studio-main .product-page { width:calc(100% - 2rem); padding-block:1.25rem 2rem; }
+.studio-main .product-page h1 { font-size:clamp(1.5rem,2.3vw,2.25rem); letter-spacing:-.025em; }
+.studio-main .product-page>.lede { margin-top:.75rem; }
+.studio-main .product-page .studio-section { padding-block:1.5rem 0; }
+.studio-main .product-page .section-head { gap:1rem; margin-bottom:1rem; }
+.studio-main .product-page .section-head h2 { font-size:clamp(1.25rem,2vw,1.75rem); }
+@media (max-width:767px) { .studio-main .product-page { padding-top:3rem; } }
 .product-page .section-head { display:flex; grid-template-columns:none; align-items:flex-end; justify-content:space-between; gap:var(--space-6); margin:0 0 var(--space-6); }.product-page .section-head h2 { max-width:none; font-size:clamp(1.55rem,2.5vw,2.25rem); }
 .workspace-hero { display:flex; align-items:end; justify-content:space-between; gap:var(--space-8); }.workspace-hero .lede { margin-top:var(--space-4); }
 .credit-pill { display:grid; min-width:11rem; gap:.15rem; padding:var(--space-5); border:1px solid var(--color-cyan); background:var(--color-cyan-05); text-align:right; box-shadow:var(--shadow-cyan); }.credit-pill strong { color:var(--color-cyan); font:700 2.2rem/1 var(--font-display); font-variant-numeric:tabular-nums; }.credit-pill span,.credit-pill small { color:var(--color-text-muted); font:var(--text-xs) var(--font-mono); }

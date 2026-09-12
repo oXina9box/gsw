@@ -1,5 +1,6 @@
 import { KometaC3Section, KometaC5Section } from "@/components/blocks/kometa/kometa-approved-sections";
 import { docArticles } from "@/lib/docs/content";
+import { PublishedContent } from "@/components/site/published-content";
 
 export const metadata = {
   title: "Documentation",
@@ -9,6 +10,7 @@ export const metadata = {
 export default function DocsPage() {
   return (
     <article className="marketing-detail space-y-12 sm:space-y-16" data-archetype="A2">
+      <PublishedContent placement="docs" />
       <header className="max-w-xl mx-auto text-center pt-6 animate-on-scroll [animation:animationIn_0.8s_ease-out_0.1s_both]">
         <span className="inline-block px-3 py-1 mb-4 text-xs font-mono font-semibold tracking-wider uppercase rounded-full border border-lime/30 text-lime bg-lime/10">
           Documentation

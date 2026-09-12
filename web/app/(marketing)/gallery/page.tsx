@@ -9,22 +9,22 @@ export default function GalleryPage() {
   return (
     <article className="marketing-detail space-y-12 sm:space-y-16" data-archetype="A1">
       <KometaC1Section
-        badge="Lorem ipsum"
+        badge="CONCEPT GALLERY"
         badgeColor="pink"
-        title="Lorem ipsum dolor sit amet"
-        lede="Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur."
+        title="A place for impossible ideas"
+        lede="Keep the creative process clear from idea through release."
         items={[
           {
-            title: "Lorem ipsum dolor",
-            description: "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo."
+            title: "Explore visual directions",
+            description: "Move from an early idea to a focused next step."
           },
           {
-            title: "Consectetur adipiscing",
-            description: "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur."
+            title: "Keep continuity",
+            description: "Keep the creative process clear from idea through release."
           },
           {
-            title: "Sed do eiusmod",
-            description: "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim."
+            title: "Coordinate the work",
+            description: "Make deliberate choices and keep the work connected."
           }
         ]}
         images={{
@@ -37,9 +37,9 @@ export default function GalleryPage() {
       />
 
       <KometaC4Section
-        badge="Lorem ipsum"
-        title="Lorem ipsum dolor sit amet consectetur"
-        description="Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident."
+        badge="OPEN THE DOOR"
+        title="Give your next world somewhere to exist"
+        description="Keep the creative process clear from idea through release."
         imageSrc="https://images.pexels.com/photos/3182812/pexels-photo-3182812.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260"
         primaryCta={{ label: "Create Studio", href: "/?auth=signup" }}
         secondaryCta={{ label: "View Pricing", href: "/pricing" }}

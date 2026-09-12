@@ -11,8 +11,8 @@ export default function LoginPage() {
       <PrelineSplitAuth
         title="Sign in to your Studio"
         subtitle="Access your production floor, manage hired agents, and review generated cuts."
-        sidebarTagline="Lorem ipsum"
-        sidebarHeadline="Lorem ipsum dolor sit amet consectetur"
+        sidebarTagline="MAKE THE UNREAL"
+        sidebarHeadline="Your story starts here"
         footer={
           <p className="text-text-muted">
             Don&apos;t have a studio yet?{" "}

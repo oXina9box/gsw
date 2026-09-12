@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { GemLogo } from "@/components/shell/gem-brand-icon";
 import { AccountDropdown } from "@/components/shell/account-dropdown";
@@ -24,6 +24,16 @@ import {
   StaffingIcon,
   WorkflowIcon,
 } from "@/components/product/shell-icons";
+import { channelForPath } from "@/lib/studio/navigation";
+import { SiteTipSlot } from "@/components/product/site-tip-slot";
+import type { PublishedSiteContent } from "@/lib/site/content";
+import {
+  CHANNEL_VIEW_REGISTRY,
+  channelPageForPath,
+  channelViewHref,
+  resolveChannelView,
+  type ChannelPageId,
+} from "@/lib/studio/channel-views";
 
 export type ChannelSummary = Readonly<{ id: string; name: string; status: string; is_brand?: boolean }>;
 
@@ -34,19 +44,41 @@ type StudioShellProps = Readonly<{
   orchestrationEnabled?: boolean;
   channels: readonly ChannelSummary[];
   notifications?: readonly NotificationRecord[];
-  children: React.ReactNode;
+  siteTips?: readonly PublishedSiteContent[];
+  children?: React.ReactNode;
 }>;
 
 const ITEM_CLASSES = "flex items-center gap-3 rounded-sm px-3 py-2 font-mono text-sm text-text-muted transition-colors duration-150 hover:bg-surface-2 hover:text-text active:bg-surface-3";
 
-export function StudioShell({ studioName, studioLogoUrl, userEmail, channels, notifications = [], children }: StudioShellProps) {
+type ShellNavItem = Readonly<{
+  label: string;
+  href: string;
+  icon: React.ComponentType<{ className?: string }>;
+  channelPage?: ChannelPageId;
+}>;
+
+function channelNavItems(channel: ChannelSummary): readonly ShellNavItem[] {
+  const href = `/app/channels/${channel.id}`;
+  return [
+    { label: "Dashboard", href, icon: DashboardIcon, channelPage: "dashboard" },
+    { label: "Channel Staffing", href: `${href}/staffing`, icon: StaffingIcon, channelPage: "staffing" },
+    { label: "Marketing", href: `${href}/marketing`, icon: MarketingIcon, channelPage: "marketing" },
+    { label: "Social Media", href: `${href}/social`, icon: SocialIcon, channelPage: "social" },
+    { label: "Assets", href: `${href}/assets`, icon: AssetsIcon, channelPage: "assets" },
+    { label: "Production", href: `${href}/production`, icon: WorkflowIcon, channelPage: "production" },
+  ];
+}
+
+export function StudioShell({ studioName, studioLogoUrl, userEmail, channels, notifications = [], siteTips = [], children }: StudioShellProps) {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [open, setOpen] = useState(false);
   const [desktopCollapsed, setDesktopCollapsed] = useState(false);
   // Render-time adjustment: close drawer on navigation without an effect
-  const [lastPath, setLastPath] = useState(pathname);
-  if (lastPath !== pathname) {
-    setLastPath(pathname);
+  const location = `${pathname}?${searchParams.toString()}`;
+  const [lastPath, setLastPath] = useState(location);
+  if (lastPath !== location) {
+    setLastPath(location);
     setOpen(false);
   }
 
@@ -65,10 +97,13 @@ export function StudioShell({ studioName, studioLogoUrl, userEmail, channels, no
   // Active module resolution based on pathname
   let activeModuleTitle = "Studio Reports";
   let moduleCategory = "Reports";
-  let navItems: readonly { label: string; href: string; icon: React.ComponentType<{ className?: string }> }[] = [];
+  let navItems: readonly ShellNavItem[] = [];
 
-  const brandChannel = channels.find((c) => c.is_brand);
-  const matchedChannel = channels.find((c) => pathname.startsWith(`/app/channels/${c.id}`));
+  const matchedChannel = channelForPath(channels, pathname);
+  const channelPage = channelPageForPath(pathname);
+  const selectedChannelView = channelPage
+    ? resolveChannelView(channelPage, searchParams.get("view"))
+    : undefined;
 
   if (pathname.startsWith("/app/integrations")) {
     activeModuleTitle = "Integrations";
@@ -92,32 +127,21 @@ export function StudioShell({ studioName, studioLogoUrl, userEmail, channels, no
       { label: "Overview", href: "/app/collective", icon: ChartIcon },
       { label: "Channels Rollup", href: "/app/channels", icon: ChannelIcon },
     ];
-  } else if (pathname.startsWith("/app/onboarding") || (matchedChannel && matchedChannel.is_brand)) {
-    // Studio Branding
-    const ch = matchedChannel?.is_brand ? matchedChannel : (brandChannel ?? channels[0]);
+  } else if (matchedChannel?.is_brand) {
     activeModuleTitle = "Studio Branding";
     moduleCategory = "Branding";
-    navItems = [
-      { label: "Dashboard", href: ch ? `/app/channels/${ch.id}` : "/app", icon: DashboardIcon },
-      { label: "Channel Staffing", href: ch ? `/app/channels/${ch.id}/staffing` : "/app/staffing", icon: StaffingIcon },
-      { label: "Marketing", href: ch ? `/app/channels/${ch.id}/marketing` : "/app/marketing", icon: MarketingIcon },
-      { label: "Social Media", href: ch ? `/app/channels/${ch.id}/social` : "/app/social", icon: SocialIcon },
-      { label: "Assets", href: ch ? `/app/channels/${ch.id}/assets` : "/app/assets", icon: AssetsIcon },
-      { label: "Production", href: ch ? `/app/channels/${ch.id}/production` : "/app/orchestration", icon: WorkflowIcon },
-    ];
-  } else {
-    // Active Channel (e.g. sadf, Channel 1, etc.)
-    const ch = matchedChannel ?? channels[0];
-    activeModuleTitle = ch ? ch.name : "Channel";
+    navItems = channelNavItems(matchedChannel);
+  } else if (matchedChannel) {
+    activeModuleTitle = matchedChannel.name;
     moduleCategory = "Channel";
-    navItems = [
-      { label: "Dashboard", href: ch ? `/app/channels/${ch.id}` : "/app", icon: DashboardIcon },
-      { label: "Channel Staffing", href: ch ? `/app/channels/${ch.id}/staffing` : "/app/staffing", icon: StaffingIcon },
-      { label: "Marketing", href: ch ? `/app/channels/${ch.id}/marketing` : "/app/marketing", icon: MarketingIcon },
-      { label: "Social Media", href: ch ? `/app/channels/${ch.id}/social` : "/app/social", icon: SocialIcon },
-      { label: "Assets", href: ch ? `/app/channels/${ch.id}/assets` : "/app/assets", icon: AssetsIcon },
-      { label: "Production", href: ch ? `/app/channels/${ch.id}/production` : "/app/orchestration", icon: WorkflowIcon },
-    ];
+    navItems = channelNavItems(matchedChannel);
+  } else if (pathname.startsWith("/app/onboarding")) {
+    activeModuleTitle = "Studio setup";
+    moduleCategory = "Setup";
+    navItems = [{ label: "Studio setup", href: "/app/onboarding", icon: DashboardIcon }];
+  } else if (pathname === "/account" || pathname.startsWith("/app/billing")) {
+    activeModuleTitle = "Account";
+    moduleCategory = "Account";
   }
 
   return (
@@ -198,19 +222,45 @@ export function StudioShell({ studioName, studioLogoUrl, userEmail, channels, no
           <nav aria-label="Studio modules" className="flex-1">
             <ul className="space-y-1">
               {navItems.map((item) => {
-                const isSubActive = pathname === item.href || (item.href !== "/app" && pathname.startsWith(`${item.href}/`));
+                const isSubActive = item.channelPage === "dashboard"
+                  ? pathname === item.href
+                  : pathname === item.href || (item.href !== "/app" && pathname.startsWith(`${item.href}/`));
+                const itemViews = item.channelPage ? CHANNEL_VIEW_REGISTRY[item.channelPage] : [];
                 const Icon = item.icon;
                 return (
                   <li key={item.label}>
-                    <Link
-                      href={item.href}
-                      aria-current={isSubActive ? "page" : undefined}
-                      className={`${ITEM_CLASSES}${isSubActive ? " bg-pink/10 text-pink font-semibold" : ""}`}
-                    >
-                      <span aria-hidden="true" className={`h-4 w-0.5 rounded-full ${isSubActive ? "bg-pink" : "bg-transparent"}`} />
-                      <Icon className={`h-4 w-4 shrink-0 ${isSubActive ? "text-pink" : "text-text-muted"}`} />
-                      <span className="truncate">{item.label}</span>
-                    </Link>
+                    <>
+                      <Link
+                        href={item.href}
+                        aria-current={isSubActive ? "page" : undefined}
+                        className={`${ITEM_CLASSES}${isSubActive ? " bg-pink/10 text-pink font-semibold" : ""}`}
+                      >
+                        <span aria-hidden="true" className={`h-4 w-0.5 rounded-full ${isSubActive ? "bg-pink" : "bg-transparent"}`} />
+                        <Icon className={`h-4 w-4 shrink-0 ${isSubActive ? "text-pink" : "text-text-muted"}`} />
+                        <span className="truncate">{item.label}</span>
+                      </Link>
+                      {matchedChannel && item.channelPage === channelPage && itemViews.length ? (
+                        <ul className="ml-7 mt-1 space-y-0.5 border-l border-cyan/20 pl-2" aria-label={`${item.label} views`}>
+                          {itemViews.map((view) => {
+                            const href = channelViewHref(item.href, searchParams.toString(), view.id) ?? item.href;
+                            const isViewActive = selectedChannelView?.id === view.id;
+                            return (
+                              <li key={view.id}>
+                                <Link
+                                  href={href}
+                                  aria-current={isViewActive ? "page" : undefined}
+                                  className={`block rounded-sm px-2 py-1 font-mono text-xs transition-colors hover:bg-surface-2 hover:text-text ${
+                                    isViewActive ? "bg-cyan/10 text-cyan" : "text-text-muted"
+                                  }`}
+                                >
+                                  {view.label}
+                                </Link>
+                              </li>
+                            );
+                          })}
+                        </ul>
+                      ) : null}
+                    </>
                   </li>
                 );
               })}
@@ -218,6 +268,7 @@ export function StudioShell({ studioName, studioLogoUrl, userEmail, channels, no
           </nav>
 
           <div className="mt-auto pt-3">
+            <SiteTipSlot items={siteTips} />
             <div className="mb-3 px-0.5">
               <CommandMenu
                 authenticated

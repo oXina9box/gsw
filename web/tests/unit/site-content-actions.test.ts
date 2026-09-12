@@ -1,0 +1,19 @@
+import { beforeEach, describe, expect, it, vi } from "vitest";
+const operator = vi.hoisted(() => ({ current: null }));
+type OperatorState = { current: null | { supabase: { storage: { from: ReturnType<typeof vi.fn> }; rpc: ReturnType<typeof vi.fn> }; userId: string } };
+const mutableOperator = operator as unknown as OperatorState;
+const redirect = vi.hoisted(() => vi.fn((path: string): never => { throw new Error(`REDIRECT:${path}`); }));
+const revalidatePath = vi.hoisted(() => vi.fn());
+vi.mock("next/navigation", () => ({ redirect })); vi.mock("next/cache", () => ({ revalidatePath }));
+vi.mock("@/lib/studio/operator-access", () => ({ requireOperator: vi.fn(async () => mutableOperator.current) }));
+import { restoreSiteContentRevision, saveSiteContent, setSiteContentPublication } from "@/app/(product)/site-content-actions";
+function form(fields: Record<string, string>, file?: File) { const result = new FormData(); Object.entries(fields).forEach(([key, value]) => result.set(key, value)); if (file) result.set("media_file", file); return result; }
+function validFields() { return { kind: "image", placement: "home", audience: "public", title: "A still", body: "Safe body", alt_text: "A still", reason: "Approved editorial update", revision: "0" }; }
+describe("guarded site content actions", () => {
+  const upload = vi.fn(async () => ({ error: null })); const rpc = vi.fn(async (): Promise<{ data: object | null; error: Error | null }> => ({ data: {}, error: null }));
+  beforeEach(() => { vi.clearAllMocks(); mutableOperator.current = { userId: "operator-1", supabase: { storage: { from: vi.fn(() => ({ upload })) }, rpc } }; });
+  it("denies unauthenticated save without writes", async () => { mutableOperator.current = null; await expect(saveSiteContent(form(validFields(), new File(["x"], "a.png", { type: "image/png" })))).rejects.toThrow("admin_error=unauthorized"); expect(upload).not.toHaveBeenCalled(); expect(rpc).not.toHaveBeenCalled(); });
+  it("uploads a valid image and saves a versioned path", async () => { await expect(saveSiteContent(form(validFields(), new File(["x"], "a.png", { type: "image/png" })))).rejects.toThrow("admin_saved=1"); expect(upload).toHaveBeenCalledWith(expect.stringMatching(/^site-editorial\/new\/1-[0-9a-f-]+\.png$/), expect.any(File), expect.objectContaining({ contentType: "image/png", upsert: false })); expect(rpc).toHaveBeenCalledWith("site_save_content", expect.objectContaining({ next_content: expect.objectContaining({ media_path: expect.stringMatching(/^site-editorial\/new\/1-/) }) })); });
+  it.each([{ reason: "x" }, { id: "bad-id" }, { mime: "text/plain" }, { oversize: true }])("rejects invalid input without writes (%o)", async (bad) => { const fields = { ...validFields(), ...(bad.reason ? { reason: bad.reason } : {}), ...(bad.id ? { id: bad.id } : {}) }; const file = new File([bad.oversize ? new Uint8Array(10 * 1024 * 1024 + 1) : "x"], "a", { type: bad.mime ?? "image/png" }); await expect(saveSiteContent(form(fields, file))).rejects.toThrow(/admin_error=invalid_(content|media)/); expect(upload).not.toHaveBeenCalled(); expect(rpc).not.toHaveBeenCalled(); });
+  it("maps conflicts and rejects invalid publication/restore before RPC", async () => { rpc.mockResolvedValueOnce({ data: null, error: new Error("content_conflict") }); const fields = { ...validFields(), media_path: "site-editorial/x.png", id: "00000000-0000-4000-8000-000000000001", revision: "1" }; await expect(saveSiteContent(form(fields))).rejects.toThrow("admin_error=conflict"); await expect(setSiteContentPublication(form({ id: "bad", revision: "1", publish: "true", reason: "publish it" }))).rejects.toThrow("admin_error=invalid_content"); await expect(restoreSiteContentRevision(form({ id: "bad", source_revision: "1", revision: "1", reason: "restore it" }))).rejects.toThrow("admin_error=invalid_content"); });
+});

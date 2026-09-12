@@ -1,14 +1,7 @@
 "use client";
 
-import { useState } from "react";
 import type { ReactNode } from "react";
-import { ChannelSubnav } from "@/components/product/channel-subnav";
-
-const PRODUCTION_NAV_GROUPS = [
-  {
-    items: [{ id: "stage-floor", label: "Production Stage Floor" }],
-  },
-] as const;
+import { useChannelView } from "@/components/product/use-channel-view";
 
 type ChannelProductionClientProps = Readonly<{
   stageFloorSlot: ReactNode;
@@ -19,16 +12,10 @@ export function ChannelProductionClient({
   stageFloorSlot,
   slatesSlot,
 }: ChannelProductionClientProps) {
-  const [activeView, setActiveView] = useState("stage-floor");
+  const { activeView } = useChannelView("production");
 
   return (
-    <div className="space-y-6">
-      <ChannelSubnav
-        activeTab="production"
-        activeView={activeView}
-        groups={PRODUCTION_NAV_GROUPS}
-        onViewChange={(id) => setActiveView(id)}
-      />
+    <div className="space-y-4">
 
       {activeView === "stage-floor" && (
         <>

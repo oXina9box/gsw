@@ -23,6 +23,8 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   outputFileTracingRoot: path.resolve(__dirname),
   poweredByHeader: false,
+  // Editorial uploads allow 10 MiB plus bounded multipart metadata.
+  experimental: { serverActions: { bodySizeLimit: "11mb" } },
   async headers() {
     return [{
       source: "/:path*",

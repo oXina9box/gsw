@@ -1,4 +1,5 @@
 import { LandingExperience } from "@/components/blocks/landing/landing-experience";
+import { PublishedContent } from "@/components/site/published-content";
 
 export const metadata = {
   title: "Gem Studio — AI film studio",
@@ -7,5 +8,5 @@ export const metadata = {
 };
 
 export default function HomePage() {
-  return <LandingExperience />;
+  return <><LandingExperience /><PublishedContent placement="homepage" /></>;
 }

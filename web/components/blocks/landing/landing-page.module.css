@@ -551,6 +551,13 @@
   color: var(--color-ink);
 }
 
+.finaleLead { display:flex; flex-wrap:wrap; justify-content:center; gap:1rem; font-weight:800; letter-spacing:.04em; opacity:1; margin-bottom:1.5rem; }
+.storyStep { display:inline-flex; flex-direction:column; align-items:center; gap:.4rem; font-size:.8rem; }
+.finaleIdea,.finaleBuild,.finaleRelease { display:inline-grid; place-items:center; width:3rem; height:3rem; border:2px solid var(--color-ink); border-radius:.25rem; color:var(--color-ink); font-size:1.75rem; line-height:1; }
+.finaleIdea { background:var(--color-cyan); }
+.finaleBuild { background:#f5ff00; }
+.finaleRelease { background:var(--color-lime); }
+
 .finaleBottom {
   display: flex;
   flex-direction: column;

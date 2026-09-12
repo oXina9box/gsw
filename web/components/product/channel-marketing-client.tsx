@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
-import { ChannelSubnav } from "@/components/product/channel-subnav";
+import { useChannelView } from "@/components/product/use-channel-view";
 import { FlowbiteBadge } from "@/components/blocks/flowbite/flowbite-badge";
 import { updateChannel, saveChannelMarketingBudget } from "@/app/(product)/actions";
 
@@ -38,58 +38,6 @@ type ChannelMarketingClientProps = Readonly<{
   totalProductionCredits: number;
   stageFloorSlot?: ReactNode;
 }>;
-type LaneId =
-  | "onboarding"
-  | "research"
-  | "budgets"
-  | "merchandise"
-  | "website"
-  | "advertising"
-  | "scheduling"
-  | "theming"
-  | "promos"
-  | "crosschannel"
-  | "reporting"
-  | "lore"
-  | "legal"
-  | "values";
-
-type MarketingView = LaneId | "stage-floor";
-
-const MARKETING_NAV_GROUPS = [
-  {
-    label: "Pre-Film",
-    items: [
-      { id: "onboarding", label: "01 Directives & Onboarding" },
-      { id: "research", label: "02 Research Hub" },
-      { id: "budgets", label: "03 Budgets & Credits" },
-      { id: "website", label: "05 Website & Funnels" },
-      { id: "advertising", label: "06 Advertising & Campaigns" },
-      { id: "promos", label: "09 Promos & Teasers" },
-      { id: "legal", label: "13 Legal & Rights" },
-      { id: "values", label: "14 Core Values & Guardrails" },
-    ],
-  },
-  {
-    label: "Content",
-    items: [
-      { id: "scheduling", label: "07 Master Scheduling" },
-      { id: "theming", label: "08 Season Theming & Arcs" },
-      { id: "crosschannel", label: "10 Cross-Channel Synergy" },
-      { id: "lore", label: "12 Lore & World Bible" },
-    ],
-  },
-  {
-    label: "Post file",
-    items: [
-      { id: "merchandise", label: "04 Merchandise Desk" },
-      { id: "reporting", label: "11 Reporting Rollup" },
-    ],
-  },
-  {
-    items: [{ id: "stage-floor", label: "Marketing Stage Floor" }],
-  },
-] as const;
 export function ChannelMarketingClient({
   channel,
   budgetData,
@@ -97,7 +45,7 @@ export function ChannelMarketingClient({
   totalProductionCredits,
   stageFloorSlot,
 }: ChannelMarketingClientProps) {
-  const [activeView, setActiveView] = useState<MarketingView>("onboarding");
+  const { activeView } = useChannelView("marketing");
   const [creditInput, setCreditInput] = useState<number>(budgetData?.guideline_credits ?? 0);
 
   const addCredits = (amount: number) => {
@@ -105,13 +53,7 @@ export function ChannelMarketingClient({
   };
 
   return (
-    <div className="space-y-6">
-      <ChannelSubnav
-        activeTab="marketing"
-        activeView={activeView}
-        groups={MARKETING_NAV_GROUPS}
-        onViewChange={(id) => setActiveView(id as MarketingView)}
-      />
+    <div className="space-y-4">
 
       {/* Marketing Stage Floor view */}
       {activeView === "stage-floor" && (
@@ -249,32 +191,32 @@ export function ChannelMarketingClient({
                 Market intelligence, competitor gap analyses, trending audio/visual formats, and audience demographic profiles.
               </p>
             </div>
-            <FlowbiteBadge color="lime">Research Active</FlowbiteBadge>
+            <FlowbiteBadge color="amber">Not connected</FlowbiteBadge>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="p-4 rounded-sm bg-surface-2 border border-border space-y-2">
               <span className="font-mono text-xs uppercase text-cyan font-semibold block">Target Audience Demographics</span>
               <p className="font-body text-xs text-text">
-                Primary viewer cohort: 18–34 tech-forward narrative fans. High engagement with serialized dystopian fiction and dark ambient synthwave.
+                Connect an approved analytics source to view audience demographics for this channel.
               </p>
-              <div className="pt-2 font-mono text-[10px] text-text-faint">Source: YouTube &amp; TikTok Analytics Sync</div>
+              <div className="pt-2 font-mono text-[10px] text-text-faint">No analytics source connected</div>
             </div>
 
             <div className="p-4 rounded-sm bg-surface-2 border border-border space-y-2">
               <span className="font-mono text-xs uppercase text-pink font-semibold block">Competitor Gap Analysis</span>
               <p className="font-body text-xs text-text">
-                Identified saturation in generic space-opera tropes; severe shortage of gritty episodic detective noir with grounded cybernetic continuity.
+                Competitor findings appear here after a research source is connected.
               </p>
-              <div className="pt-2 font-mono text-[10px] text-text-faint">Status: Clear Market Advantage</div>
+              <div className="pt-2 font-mono text-[10px] text-text-faint">No findings available</div>
             </div>
 
             <div className="p-4 rounded-sm bg-surface-2 border border-border space-y-2">
               <span className="font-mono text-xs uppercase text-amber font-semibold block">Trending Formats &amp; Audio</span>
               <p className="font-body text-xs text-text">
-                Rising traction on 15s cliffhanger excerpts leading into full episodes. Trending soundscapes: distorted bass, retro neon synth, industrial foley.
+                Trending formats and audio appear here after a research source is connected.
               </p>
-              <div className="pt-2 font-mono text-[10px] text-text-faint">Recommendation: Optimize TikTok Teasers</div>
+              <div className="pt-2 font-mono text-[10px] text-text-faint">No recommendations available</div>
             </div>
           </div>
         </div>
@@ -401,21 +343,21 @@ export function ChannelMarketingClient({
               <p className="text-text-muted text-[11px] font-body">
                 Cyberpunk oversized hoodies, tactical cap designs with vector channel insignia.
               </p>
-              <FlowbiteBadge color="lime" size="sm">Active Storefront</FlowbiteBadge>
+              <FlowbiteBadge color="amber" size="sm">Not connected</FlowbiteBadge>
             </div>
             <div className="p-4 rounded-sm bg-surface-2 border border-border space-y-2">
               <span className="text-text font-bold block">Art Bibles &amp; Decks</span>
               <p className="text-text-muted text-[11px] font-body">
-                Hardcover concept art books featuring production storyboards and character DNA profiles.
+                Product catalog data is not connected for this channel.
               </p>
-              <FlowbiteBadge color="cyan" size="sm">In Concept</FlowbiteBadge>
+              <FlowbiteBadge color="amber" size="sm">Unavailable</FlowbiteBadge>
             </div>
             <div className="p-4 rounded-sm bg-surface-2 border border-border space-y-2">
               <span className="text-text font-bold block">Digital Collectibles</span>
               <p className="text-text-muted text-[11px] font-body">
-                High-res master shot stills, original soundtrack FLAC drops, behind-the-scenes binders.
+                Product catalog data is not connected for this channel.
               </p>
-              <FlowbiteBadge color="pink" size="sm">Planned Drop</FlowbiteBadge>
+              <FlowbiteBadge color="amber" size="sm">Unavailable</FlowbiteBadge>
             </div>
           </div>
         </div>
@@ -439,7 +381,7 @@ export function ChannelMarketingClient({
             </div>
             <div className="flex items-center justify-between">
               <span className="text-text-muted">Newsletter Subscribers</span>
-              <span className="text-lime font-semibold">12,480 Active Fans</span>
+              <span className="text-text-faint">Unavailable — analytics not connected</span>
             </div>
           </div>
         </div>
@@ -459,8 +401,7 @@ export function ChannelMarketingClient({
                 15-second high-energy cut focusing on gun battles and neon cityscape flythroughs.
               </p>
               <div className="flex justify-between text-[10px] text-cyan pt-2">
-                <span>Budget: $250</span>
-                <span>CTR: 4.8%</span>
+                <span>Performance unavailable</span>
               </div>
             </div>
             <div className="p-4 rounded-sm bg-surface-2 border border-border space-y-2">
@@ -547,7 +488,7 @@ export function ChannelMarketingClient({
               <p className="text-text-muted text-[11px] font-body">
                 Key climax frames auto-isolated during Stage 10 video assembly for rapid social deployment.
               </p>
-              <FlowbiteBadge color="lime" size="sm">6 Cuts Ready</FlowbiteBadge>
+              <FlowbiteBadge color="amber" size="sm">No cuts available</FlowbiteBadge>
             </div>
           </div>
         </div>
@@ -563,13 +504,13 @@ export function ChannelMarketingClient({
           <div className="p-4 rounded-sm bg-surface-2 border border-border space-y-3 font-mono text-xs">
             <div className="flex items-center justify-between">
               <div>
-                <span className="text-text font-semibold block">Universe Shared Anchor: &ldquo;New Kyoto 2099&rdquo;</span>
-                <span className="text-[11px] text-text-faint">Linked with Sibling Channel: CyberCorp Chronicles</span>
+                <span className="text-text font-semibold block">Shared universe anchors</span>
+                <span className="text-[11px] text-text-faint">No linked channels available</span>
               </div>
-              <FlowbiteBadge color="cyan">Active Sync</FlowbiteBadge>
+              <FlowbiteBadge color="amber">Unavailable</FlowbiteBadge>
             </div>
             <p className="font-body text-xs text-text-muted">
-              Character &ldquo;Kaelen Vance&rdquo; scheduled for a cameo guest appearance in CyberCorp Episode 4.
+              Cross-channel scheduling appears here after channels are linked.
             </p>
           </div>
         </div>
@@ -582,24 +523,9 @@ export function ChannelMarketingClient({
           <p className="font-body text-xs text-text-muted">
             Economic performance, generation efficiency, and cost-per-minute produced for {channel.name}.
           </p>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 font-mono text-xs text-center">
-            <div className="p-3 rounded-sm bg-surface-2 border border-border">
-              <span className="text-[10px] text-text-faint uppercase block">Cost Per Finished Min</span>
-              <span className="text-lg font-bold text-cyan">$18.40</span>
+            <div className="rounded-sm border border-dashed border-border bg-surface-2 p-6 text-center font-mono text-xs text-text-muted">
+              Reporting data is unavailable until an approved analytics and spend source is connected.
             </div>
-            <div className="p-3 rounded-sm bg-surface-2 border border-border">
-              <span className="text-[10px] text-text-faint uppercase block">Subscriber Growth</span>
-              <span className="text-lg font-bold text-lime">+24.8%</span>
-            </div>
-            <div className="p-3 rounded-sm bg-surface-2 border border-border">
-              <span className="text-[10px] text-text-faint uppercase block">Avg Completion Rate</span>
-              <span className="text-lg font-bold text-text">72%</span>
-            </div>
-            <div className="p-3 rounded-sm bg-surface-2 border border-border">
-              <span className="text-[10px] text-text-faint uppercase block">Commercial ROI</span>
-              <span className="text-lg font-bold text-pink">3.4x</span>
-            </div>
-          </div>
         </div>
       )}
 
@@ -638,16 +564,16 @@ export function ChannelMarketingClient({
             <div className="p-3 rounded-sm bg-surface-2 border border-border flex items-center justify-between">
               <div>
                 <span className="text-text font-semibold block">AI Generation Model Licensing</span>
-                <span className="text-[11px] text-text-faint">Commercial Safe-Use Attested for Runway Gen-3 &amp; Midjourney v6</span>
+                <span className="text-[11px] text-text-faint">No licensing record attached</span>
               </div>
-              <FlowbiteBadge color="lime">Cleared</FlowbiteBadge>
+              <FlowbiteBadge color="amber">Unavailable</FlowbiteBadge>
             </div>
             <div className="p-3 rounded-sm bg-surface-2 border border-border flex items-center justify-between">
               <div>
                 <span className="text-text font-semibold block">Audio &amp; Voice Synthesis Rights</span>
-                <span className="text-[11px] text-text-faint">100% Original Synthetic Voices (ElevenLabs Commercial Tier)</span>
+                <span className="text-[11px] text-text-faint">No voice-rights record attached</span>
               </div>
-              <FlowbiteBadge color="lime">Cleared</FlowbiteBadge>
+              <FlowbiteBadge color="amber">Unavailable</FlowbiteBadge>
             </div>
           </div>
         </div>

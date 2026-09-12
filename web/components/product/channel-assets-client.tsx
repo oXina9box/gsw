@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { FlowbiteBadge } from "@/components/blocks/flowbite/flowbite-badge";
-import { ChannelSubnav } from "@/components/product/channel-subnav";
+import { useChannelView } from "@/components/product/use-channel-view";
 
 type DnaItem = {
   id: string;
@@ -21,7 +21,8 @@ type DnaItem = {
 type AssetItem = {
   id: string;
   kind: string;
-  uri: string;
+  uri: string | null;
+  downloadUrl: string | null;
   metadata: Record<string, unknown> | null;
   created_at: string;
   productionTitle: string;
@@ -35,21 +36,25 @@ type ChannelAssetsClientProps = Readonly<{
   assetItems: AssetItem[];
 }>;
 
-const ASSETS_NAV_GROUPS = [
-  {
-    items: [
-      { id: "dna", label: "DNA DataBase" },
-      { id: "staffing", label: "Staffing Files" },
-      { id: "content", label: "Content" },
-    ],
-  },
-] as const;
-
 function formatBytes(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
   if (bytes < 1024 * 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
   return `${(bytes / (1024 * 1024 * 1024)).toFixed(2)} GB`;
+}
+
+function assetName(uri: string | null) {
+  return uri?.split("/").pop() || "Generated Asset";
+}
+
+export function AssetPreview({ asset }: { asset: AssetItem }) {
+  if (!asset.downloadUrl) return <span>Preview unavailable until a signed URL is available.</span>;
+  const kind = asset.kind.toLowerCase();
+  // eslint-disable-next-line @next/next/no-img-element -- Private signed media must not enter a shared optimizer cache.
+  if (kind.includes("image")) return <img src={asset.downloadUrl} alt={assetName(asset.uri)} className="max-h-full max-w-full object-contain" />;
+  if (kind.includes("audio")) return <audio controls src={asset.downloadUrl} className="w-full" />;
+  if (kind.includes("video")) return <video controls src={asset.downloadUrl} className="max-h-full max-w-full" />;
+  return <a href={asset.downloadUrl} target="_blank" rel="noopener noreferrer" className="text-cyan hover:underline">Open signed preview</a>;
 }
 
 export function ChannelAssetsClient({
@@ -59,70 +64,14 @@ export function ChannelAssetsClient({
   dnaItems,
   assetItems,
 }: ChannelAssetsClientProps) {
-  const [activeView, setActiveView] = useState<"dna" | "staffing" | "content">("dna");
+  const { activeView } = useChannelView("assets");
   const [dnaFilter, setDnaFilter] = useState<string>("all");
   const [fileSearch, setFileSearch] = useState("");
   const [fileKindFilter, setFileKindFilter] = useState<string>("all");
   const [inspectingDna, setInspectingDna] = useState<DnaItem | null>(null);
   const [previewAsset, setPreviewAsset] = useState<AssetItem | null>(null);
 
-  // Simulated static core DNA records if productions haven't linked any yet
-  const displayDna =
-    dnaItems.length > 0
-      ? dnaItems
-      : [
-          {
-            id: "dna-default-1",
-            role: "Protagonist Lead",
-            productionTitle: "Ep 01: The Neon Genesis",
-            dna_records: {
-              id: "rec-1",
-              dna_id: "CHAR-01",
-              dna_type: "CDNA",
-              locked: true,
-              record: {
-                name: "Kaelen Vance",
-                summary: "Cynical detective with cybernetic eye, trenchcoat, scarred jawline.",
-                visual_anchor: "Synthetic left eye glowing faint cyan, weathered brown coat",
-                negative_prompt: "clean shaven, smiling, generic anime, bright saturated colors",
-              },
-            },
-          },
-          {
-            id: "dna-default-2",
-            role: "Primary Setting",
-            productionTitle: "Ep 01: The Neon Genesis",
-            dna_records: {
-              id: "rec-2",
-              dna_id: "LOC-01",
-              dna_type: "LDNA",
-              locked: true,
-              record: {
-                name: "Sector 7 Alleyways",
-                summary: "Wet brutalist asphalt streets reflecting vertical neon billboards.",
-                visual_anchor: "Puddles reflecting pink and amber neon, heavy atmospheric fog",
-                negative_prompt: "sunny, clean daylight, trees, modern office buildings",
-              },
-            },
-          },
-          {
-            id: "dna-default-3",
-            role: "Cinematic Standard",
-            productionTitle: "All Productions",
-            dna_records: {
-              id: "rec-3",
-              dna_id: "STYLE-01",
-              dna_type: "SDNA",
-              locked: true,
-              record: {
-                name: "Neo-Noir 35mm Standard",
-                summary: "Kodak Vision3 500T grain profile, anamorphic lens flares, high contrast.",
-                visual_anchor: "Deep shadows, anamorphic bokeh horizontal streaks, 2.39:1 aspect",
-                negative_prompt: "flat lighting, digital sheen, oversaturated cartoons",
-              },
-            },
-          },
-        ];
+  const displayDna = dnaItems;
 
   const filteredDna = displayDna.filter((item) => {
     if (dnaFilter === "all") return true;
@@ -152,51 +101,14 @@ export function ChannelAssetsClient({
       const q = fileSearch.toLowerCase();
       const matchTitle = asset.productionTitle.toLowerCase().includes(q);
       const matchKind = asset.kind.toLowerCase().includes(q);
-      const matchUri = asset.uri.toLowerCase().includes(q);
+      const matchUri = (asset.uri ?? "").toLowerCase().includes(q);
       if (!matchTitle && !matchKind && !matchUri) return false;
     }
     return true;
   });
 
   return (
-    <div className="space-y-6">
-      <ChannelSubnav
-        activeTab="assets"
-        activeView={activeView}
-        groups={ASSETS_NAV_GROUPS}
-        onViewChange={(id) => setActiveView(id as "dna" | "staffing" | "content")}
-      />
-
-      {/* Storage Vault Telemetry HUD (always visible, contextual counts) */}
-      <div className="rounded-md border border-border bg-surface p-5 space-y-3">
-        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border pb-2 font-mono text-xs">
-          <span className="text-text font-semibold uppercase tracking-wider">
-            Workspace Vault Telemetry · {channelName}
-          </span>
-          <span className="text-cyan">
-            Capacity: {formatBytes(bytesUsed)} Used / 100 GB Allocated
-          </span>
-        </div>
-
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 font-mono text-xs text-center">
-          <div className="p-3 rounded-sm bg-surface-2 border border-border">
-            <span className="text-[10px] text-text-faint uppercase block">Storage Footprint</span>
-            <span className="text-lg font-bold text-cyan">{formatBytes(bytesUsed)}</span>
-          </div>
-          <div className="p-3 rounded-sm bg-surface-2 border border-border">
-            <span className="text-[10px] text-text-faint uppercase block">DNA Continuity Anchors</span>
-            <span className="text-lg font-bold text-pink">{displayDna.length} Locked</span>
-          </div>
-          <div className="p-3 rounded-sm bg-surface-2 border border-border">
-            <span className="text-[10px] text-text-faint uppercase block">Media Takes &amp; Masters</span>
-            <span className="text-lg font-bold text-text">{assetItems.length} Files</span>
-          </div>
-          <div className="p-3 rounded-sm bg-surface-2 border border-border">
-            <span className="text-[10px] text-text-faint uppercase block">Integrity Status</span>
-            <span className="text-lg font-bold text-lime">100% Verified</span>
-          </div>
-        </div>
-      </div>
+    <div className="space-y-4">
 
       {/* VIEW 1: DNA DataBase */}
       {activeView === "dna" && (
@@ -206,6 +118,9 @@ export function ChannelAssetsClient({
               <h2 className="font-display text-lg font-semibold text-text">DNA Continuity Vault</h2>
               <p className="font-body text-xs text-text-muted">
                 All DNA lives here. Character bibles, location anchors, and style profiles that enforce strict visual continuity.
+              </p>
+              <p className="mt-1 font-mono text-xs text-text-faint">
+                {displayDna.length} records · {formatBytes(bytesUsed)} stored
               </p>
             </div>
 
@@ -238,7 +153,7 @@ export function ChannelAssetsClient({
                 typeof rec?.record?.summary === "string"
                   ? rec.record.summary
                   : "Continuity anchor locked for AI generations.";
-              const isLocked = rec?.locked ?? true;
+              const isLocked = rec?.locked;
 
               return (
                 <div
@@ -250,8 +165,8 @@ export function ChannelAssetsClient({
                       <span className="font-mono text-[10px] uppercase font-bold text-cyan">
                         {rec?.dna_type ?? "DNA"} · {item.role}
                       </span>
-                      <FlowbiteBadge color={isLocked ? "lime" : "amber"} size="sm">
-                        {isLocked ? "LOCKED" : "DRAFT"}
+                      <FlowbiteBadge color={isLocked === undefined ? "amber" : isLocked ? "lime" : "amber"} size="sm">
+                        {isLocked === undefined ? "STATUS UNAVAILABLE" : isLocked ? "LOCKED" : "DRAFT"}
                       </FlowbiteBadge>
                     </div>
                     <h3 className="font-display text-base font-semibold text-text">{recName}</h3>
@@ -376,7 +291,7 @@ export function ChannelAssetsClient({
                       {new Date(asset.created_at).toLocaleDateString()}
                     </span>
                   </div>
-                  <h4 className="font-semibold text-text">{asset.uri.split("/").pop()}</h4>
+                  <h4 className="font-semibold text-text">{assetName(asset.uri)}</h4>
                   <span className="text-[11px] text-text-faint block">{asset.productionTitle}</span>
                 </div>
               ))}
@@ -442,8 +357,8 @@ export function ChannelAssetsClient({
                         {new Date(asset.created_at).toLocaleDateString()}
                       </span>
                     </div>
-                    <span className="font-semibold text-text block truncate" title={asset.uri}>
-                      {asset.uri.split("/").pop() || "Generated Asset"}
+                    <span className="font-semibold text-text block truncate" title={asset.uri ?? undefined}>
+                      {assetName(asset.uri)}
                     </span>
                     <span className="text-[11px] text-text-faint block truncate">
                       {asset.productionTitle}
@@ -458,14 +373,7 @@ export function ChannelAssetsClient({
                     >
                       Preview Take &rarr;
                     </button>
-                    <a
-                      href={asset.uri}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-text-muted hover:text-text text-[11px]"
-                    >
-                      Download
-                    </a>
+                    {asset.downloadUrl ? <a href={asset.downloadUrl} target="_blank" rel="noopener noreferrer" className="text-text-muted hover:text-text text-[11px]">Download</a> : <span className="text-text-faint text-[11px]">Download unavailable</span>}
                   </div>
                 </div>
               ))}
@@ -484,7 +392,7 @@ export function ChannelAssetsClient({
                   {previewAsset.kind} Master Take Preview
                 </span>
                 <h3 className="font-display text-lg font-semibold text-text">
-                  {previewAsset.uri.split("/").pop()}
+                  {assetName(previewAsset.uri)}
                 </h3>
               </div>
               <button
@@ -498,7 +406,7 @@ export function ChannelAssetsClient({
 
             <div className="p-4 rounded-sm bg-surface-2 border border-border space-y-2">
               <div className="aspect-video w-full rounded-sm bg-black/40 flex items-center justify-center text-text-faint border border-border">
-                <span>[Direct Stream Preview Seam: {previewAsset.uri}]</span>
+                <AssetPreview asset={previewAsset} />
               </div>
               <div className="pt-2 flex items-center justify-between text-[11px] text-text-muted">
                 <span>Source: {previewAsset.productionTitle}</span>
@@ -507,14 +415,7 @@ export function ChannelAssetsClient({
             </div>
 
             <div className="border-t border-border pt-3 flex justify-end gap-2">
-              <a
-                href={previewAsset.uri}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="button button-secondary text-xs"
-              >
-                Open Raw Storage File
-              </a>
+              {previewAsset.downloadUrl && <a href={previewAsset.downloadUrl} target="_blank" rel="noopener noreferrer" className="button button-secondary text-xs">Open Signed File</a>}
               <button
                 type="button"
                 onClick={() => setPreviewAsset(null)}

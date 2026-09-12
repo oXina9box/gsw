@@ -15,19 +15,20 @@ export default async function ChannelStaffingPage({
 }) {
   const { channelId } = await params;
   const { error: queryError, saved } = await searchParams;
-  const { supabase } = await getWorkspaceContext();
+  const { supabase, workspaceId } = await getWorkspaceContext();
 
-  const [{ data: channel }, { data: agents }, { data: staffData }] = await Promise.all([
-    supabase.from("channels").select("id, name, status").eq("id", channelId).maybeSingle(),
+  const [{ data: channel, error: channelError }, { data: agents, error: agentsError }, { data: staffData, error: staffError }] = await Promise.all([
+    supabase.from("channels").select("id, name, status").eq("workspace_id", workspaceId).eq("id", channelId).maybeSingle(),
     supabase
       .from("agents")
-      .select("id, name, capability, model, lanes(id, name, departments(id, name))")
+      .select("id, name, capabilities, recommended_tier, model_tier_override, lanes(id, name, departments(id, name))")
+      .eq("workspace_id", workspaceId)
       .order("name"),
-    supabase.from("channel_staff").select("agent_id").eq("channel_id", channelId),
+    supabase.from("channel_staff").select("agent_id").eq("workspace_id", workspaceId).eq("channel_id", channelId),
   ]);
-
+  const isStaffSchemaMissing = staffError?.code === "PGRST205";
+  if (channelError || agentsError || (staffError && !isStaffSchemaMissing)) throw new Error("Channel staffing could not load. Please try again.");
   if (!channel) notFound();
-
   const assignedAgentIds = (staffData ?? []).map((row) => row.agent_id);
 
   return (

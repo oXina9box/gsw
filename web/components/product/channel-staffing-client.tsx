@@ -3,14 +3,17 @@
 import { useState } from "react";
 import Link from "next/link";
 import { FlowbiteBadge } from "@/components/blocks/flowbite/flowbite-badge";
-import { ChannelSubnav } from "@/components/product/channel-subnav";
+import { useChannelView } from "@/components/product/use-channel-view";
 import { setChannelStaffAction } from "@/app/(product)/actions";
 
 type AgentItem = {
   id: string;
   name: string;
-  capability: string | null;
-  model: string | null;
+  capability?: string | null;
+  capabilities?: string[] | null;
+  model?: string | null;
+  recommended_tier?: string | null;
+  model_tier_override?: string | null;
   lanes: {
     id?: string;
     name?: string;
@@ -27,23 +30,13 @@ type ChannelStaffingClientProps = Readonly<{
 
 const CORE_DEPARTMENTS = ["Marketing", "Creative", "Production", "Operations"] as const;
 
-const STAFFING_NAV_GROUPS = [
-  {
-    items: [
-      { id: "hired", label: "Hired agents - Channel" },
-      { id: "hire", label: "Agents for hire" },
-      { id: "custom", label: "Custom Agents" },
-    ],
-  },
-] as const;
-
 export function ChannelStaffingClient({
   channelId,
   channelName,
   agents,
   assignedAgentIds,
 }: ChannelStaffingClientProps) {
-  const [activeView, setActiveView] = useState<"hired" | "hire" | "custom">("hired");
+  const { activeView } = useChannelView("staffing");
   const [search, setSearch] = useState("");
   const [selectedDept, setSelectedDept] = useState<string>("all");
 
@@ -59,8 +52,10 @@ export function ChannelStaffingClient({
     if (search.trim()) {
       const q = search.toLowerCase();
       const matchName = agent.name.toLowerCase().includes(q);
-      const matchCap = (agent.capability ?? "").toLowerCase().includes(q);
-      const matchModel = (agent.model ?? "").toLowerCase().includes(q);
+      const capStr = (agent.capabilities?.join(", ") ?? agent.capability ?? "").toLowerCase();
+      const matchCap = capStr.includes(q);
+      const modelStr = (agent.model_tier_override ?? agent.recommended_tier ?? agent.model ?? "").toLowerCase();
+      const matchModel = modelStr.includes(q);
       if (!matchName && !matchCap && !matchModel) return false;
     }
 
@@ -79,13 +74,7 @@ export function ChannelStaffingClient({
   const availableList = filteredAgents.filter((a) => !assignedSet.has(a.id));
 
   return (
-    <div className="space-y-6">
-      <ChannelSubnav
-        activeTab="staffing"
-        activeView={activeView}
-        groups={STAFFING_NAV_GROUPS}
-        onViewChange={(id) => setActiveView(id as "hired" | "hire" | "custom")}
-      />
+    <div className="space-y-4">
 
       {activeView === "hired" && (
         <>
@@ -186,11 +175,11 @@ export function ChannelStaffingClient({
                           </FlowbiteBadge>
                         </div>
                         <h4 className="font-display text-base font-semibold text-text">{agent.name}</h4>
-                        <p className="font-body text-xs text-text-muted">{agent.capability ?? "Specialist"}</p>
+                        <p className="font-body text-xs text-text-muted">{agent.capabilities?.join(", ") ?? agent.capability ?? "Specialist"}</p>
                       </div>
 
                       <div className="pt-3 border-t border-border flex items-center justify-between">
-                        <span className="font-mono text-[10px] text-cyan">{agent.model ?? "default model"}</span>
+                        <span className="font-mono text-[10px] text-cyan">{agent.model_tier_override ?? agent.recommended_tier ?? agent.model ?? "default model"}</span>
                         <form action={setChannelStaffAction}>
                           <input type="hidden" name="channel_id" value={channelId} />
                           <input type="hidden" name="agent_id" value={agent.id} />
@@ -280,12 +269,12 @@ export function ChannelStaffingClient({
                           </FlowbiteBadge>
                         </div>
                         <h4 className="font-display text-base font-semibold text-text">{agent.name}</h4>
-                        <p className="font-body text-xs text-text-muted">{agent.capability ?? "Specialist"}</p>
+                        <p className="font-body text-xs text-text-muted">{agent.capabilities?.join(", ") ?? agent.capability ?? "Specialist"}</p>
                       </div>
 
                       <div className="pt-3 border-t border-border flex items-center justify-between">
                         <span className="font-mono text-[10px] text-text-faint">
-                          {agent.model ?? "default model"}
+                          {agent.model_tier_override ?? agent.recommended_tier ?? agent.model ?? "default model"}
                         </span>
                         <form action={setChannelStaffAction}>
                           <input type="hidden" name="channel_id" value={channelId} />

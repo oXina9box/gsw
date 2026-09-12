@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { getWorkspaceContext } from "@/lib/studio/workspace";
 import { CreateForm } from "@/components/product/create-form";
 import { ExecutionLive } from "@/components/product/execution-live";
 import { ProductionNodeWorkbench } from "@/components/product/production-node-workbench";
@@ -56,16 +56,18 @@ type ExecutionStep = {
 };
 
 export default async function OrchestrationPage({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
-  const supabase = await createClient();
-  const [{ data: workflows }, { data: lanes }, { data: agents }, { data: files }, { data: executions }, { data: steps }, { data: rules }] = await Promise.all([
-    supabase.from("workflows").select("id, name, description").order("name"),
-    supabase.from("lanes").select("id, name, collaboration_mode, pass_order, pass_cycles").order("name"),
-    supabase.from("agents").select("id, lane_id, name, agent_type, recommended_tier, model_tier_override, capabilities, protected_config").order("name"),
-    supabase.from("agent_files").select("agent_id, role, soul, jobdescription, skills, memory, user_content"),
-    supabase.from("executions").select("*").order("created_at", { ascending: false }),
-    supabase.from("execution_steps").select("*").order("created_at"),
-    supabase.from("handoff_rules").select("*").order("workflow_id, position"),
+  const { supabase, workspaceId } = await getWorkspaceContext();
+  const results = await Promise.all([
+    supabase.from("workflows").select("id, name, description").eq("workspace_id", workspaceId).order("name"),
+    supabase.from("lanes").select("id, name, collaboration_mode, pass_order, pass_cycles").eq("workspace_id", workspaceId).order("name"),
+    supabase.from("agents").select("id, lane_id, name, agent_type, recommended_tier, model_tier_override, capabilities, protected_config").eq("workspace_id", workspaceId).order("name"),
+    supabase.from("agent_files").select("agent_id, role, soul, jobdescription, skills, memory, user_content").eq("workspace_id", workspaceId),
+    supabase.from("executions").select("*").eq("workspace_id", workspaceId).order("created_at", { ascending: false }),
+    supabase.from("execution_steps").select("*").eq("workspace_id", workspaceId).order("created_at"),
+    supabase.from("handoff_rules").select("*").eq("workspace_id", workspaceId).order("workflow_id, position"),
   ]);
+  if (results.some((result) => result.error)) throw new Error("Orchestration could not load. Please try again.");
+  const [{ data: workflows }, { data: lanes }, { data: agents }, { data: files }, { data: executions }, { data: steps }, { data: rules }] = results;
   const params = await searchParams;
   const workflowList = (workflows as Workflow[] | null) ?? [];
   const laneList = (lanes as Lane[] | null) ?? [];

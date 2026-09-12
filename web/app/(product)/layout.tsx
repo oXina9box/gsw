@@ -1,18 +1,21 @@
 import { StudioShell, type ChannelSummary } from "@/components/product/studio-shell";
 import { getWorkspaceContext } from "@/lib/studio/workspace";
 import type { NotificationRecord } from "@/components/product/notification-bell";
+import { getPublishedSiteContent } from "@/lib/site/content-server";
 
 export default async function ProductLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  const { supabase, user, membership } = await getWorkspaceContext();
-  const [{ data: onboarding }, { data: channelsData, error: channelsError }, { data: notificationsData }] = await Promise.all([
-    supabase.from("onboarding_profiles").select("studio_identity").maybeSingle(),
-    supabase.from("channels").select("id, name, status, is_brand").order("is_brand", { ascending: false }).order("created_at", { ascending: true }),
-    supabase.from("notifications").select("id, kind, body, href, read_at, created_at").order("created_at", { ascending: false }).limit(10),
+  const { supabase, user, membership, workspaceId } = await getWorkspaceContext();
+  const [{ data: onboarding }, { data: channelsData, error: channelsError }, { data: notificationsData }, siteTips] = await Promise.all([
+    supabase.from("onboarding_profiles").select("studio_identity").eq("workspace_id", workspaceId).maybeSingle(),
+    supabase.from("channels").select("id, name, status, is_brand").eq("workspace_id", workspaceId).order("is_brand", { ascending: false }).order("created_at", { ascending: true }),
+    supabase.from("notifications").select("id, kind, body, href, read_at, created_at").eq("workspace_id", workspaceId).order("created_at", { ascending: false }).limit(10),
+    getPublishedSiteContent("studio-sidebar", "member"),
   ]);
 
   let channels: ChannelSummary[] = (channelsData ?? []) as ChannelSummary[];
   if (channelsError) {
-    const { data: fallback } = await supabase.from("channels").select("id, name, status").order("created_at", { ascending: true });
+    const { data: fallback, error: fallbackError } = await supabase.from("channels").select("id, name, status").eq("workspace_id", workspaceId).order("created_at", { ascending: true });
+    if (fallbackError) throw new Error("Studio navigation could not load. Please try again.");
     channels = (fallback ?? []) as ChannelSummary[];
   }
 
@@ -31,6 +34,7 @@ export default async function ProductLayout({ children }: Readonly<{ children: R
       orchestrationEnabled
       channels={channels}
       notifications={notifications}
+      siteTips={siteTips}
     >
       {children}
     </StudioShell>

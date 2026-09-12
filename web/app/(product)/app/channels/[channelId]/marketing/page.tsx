@@ -18,7 +18,7 @@ export default async function ChannelMarketingPage({
   const { error: queryError, saved, workflow } = await searchParams;
   const { supabase, workspaceId } = await getWorkspaceContext();
 
-  const [{ data: channel }, { data: budgetData }, { data: productions }] = await Promise.all([
+  const [{ data: channel, error: channelError }, { data: budgetData, error: budgetError }, { data: productions, error: productionsError }] = await Promise.all([
     supabase
       .from("channels")
       .select("id, name, status, audience, voice, cadence, pillars").eq("workspace_id", workspaceId)
@@ -34,9 +34,9 @@ export default async function ChannelMarketingPage({
       .select("id, title, status, production_budget_guidelines(guideline_credits, notes)").eq("workspace_id", workspaceId)
       .eq("channel_id", channelId),
   ]);
-
+  const isBudgetSchemaMissing = budgetError?.code === "PGRST205";
+  if (channelError || (budgetError && !isBudgetSchemaMissing) || productionsError) throw new Error("Channel marketing could not load. Please try again.");
   if (!channel) notFound();
-
   const productionList = productions ?? [];
   const totalProductionCredits = productionList.reduce((acc, p) => {
     const bg = p.production_budget_guidelines as { guideline_credits?: number | null } | null;

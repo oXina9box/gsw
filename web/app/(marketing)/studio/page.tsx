@@ -11,9 +11,9 @@ export default function StudioPage() {
     <article className="marketing-detail space-y-12 sm:space-y-16" data-archetype="A1">
       {/* Section 1: [C4] 50/50 split diagonal image hero */}
       <KometaC4Section
-        badge="Lorem ipsum dolor"
-        title="Lorem ipsum dolor sit amet consectetur"
-        description="Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident."
+        badge="CREATIVE WORKSPACE"
+        title="Build worlds worth seeing"
+        description="Turn a spark into a connected story, then carry it through production."
         imageSrc="https://images.pexels.com/photos/3182812/pexels-photo-3182812.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260"
         primaryCta={{ label: "Create Studio", href: "/?auth=signup" }}
         secondaryCta={{ label: "View System Architecture", href: "/system" }}
@@ -22,31 +22,31 @@ export default function StudioPage() {
 
       {/* Section 2: [F2] 4-column studio department grid */}
       <KometaF2Section
-        heading="Lorem ipsum dolor sit amet"
-        lede="Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur."
+        heading="From first spark to final frame"
+        lede="A connected creative space for developing, building, directing, and finishing."
         cards={[
           {
-            title: "Lorem ipsum",
-            description: "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore.",
-            bullets: ["Lorem ipsum dolor", "Consectetur adipiscing", "Sed do eiusmod"],
+            title: "Shape the story",
+            description: "Shape scenes, beats, and character intention.",
+            bullets: ["Develop characters and scenes", "Keep visual DNA connected", "Move from idea to production"],
             href: "/docs"
           },
           {
-            title: "Dolor sit amet",
-            description: "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia.",
-            bullets: ["Tempor incididunt", "Ut labore et dolore", "Magna aliqua ut"],
+            title: "Build the world",
+            description: "Keep locations, props, and visual DNA connected.",
+            bullets: ["Plan the next step", "Shape the work", "Keep momentum"],
             href: "/docs"
           },
           {
-            title: "Consectetur",
-            description: "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi.",
-            bullets: ["Enim ad minim", "Quis nostrud exercitation", "Ullamco laboris nisi"],
+            title: "Direct the feeling",
+            description: "Explore composition, motion, light, and performance.",
+            bullets: ["Start with intent", "Explore the idea", "Build the frame"],
             href: "/docs"
           },
           {
-            title: "Adipiscing elit",
+            title: "Finish the frame",
             description: "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium.",
-            bullets: ["Aliquip ex ea", "Commodo consequat", "Duis aute irure"],
+            bullets: ["Cut for rhythm", "Shape sound and color", "Prepare the release"],
             href: "/docs"
           }
         ]}
@@ -54,22 +54,22 @@ export default function StudioPage() {
 
       {/* Section 3: [C1] 3 stacked production standards + 3-image asset collage */}
       <KometaC1Section
-        badge="Lorem ipsum"
+        badge="MAKE IT YOURS"
         badgeColor="lime"
-        title="Lorem ipsum dolor sit amet"
-        lede="Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur."
+        title="A studio for independent imagination"
+        lede="Keep the creative process clear from idea through release."
         items={[
           {
-            title: "Lorem ipsum dolor",
-            description: "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo."
+            title: "Stay in the director's chair",
+            description: "Move from an early idea to a focused next step."
           },
           {
-            title: "Consectetur adipiscing",
-            description: "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur."
+            title: "Keep continuity",
+            description: "Keep the creative process clear from idea through release."
           },
           {
-            title: "Sed do eiusmod",
-            description: "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim."
+            title: "Coordinate the work",
+            description: "Make deliberate choices and keep the work connected."
           }
         ]}
         images={{

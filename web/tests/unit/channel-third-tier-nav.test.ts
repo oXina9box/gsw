@@ -2,52 +2,72 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { createElement } from "react";
 import { describe, expect, it, vi } from "vitest";
 
+const navigation = vi.hoisted(() => ({ pathname: "/app/channels/ch-1/staffing", search: "" }));
+
+vi.mock("next/navigation", () => ({
+  usePathname: () => navigation.pathname,
+  useSearchParams: () => new URLSearchParams(navigation.search),
+  useRouter: () => ({ push: vi.fn() }),
+}));
+
 vi.mock("@/app/(product)/actions", () => ({
   setChannelStaffAction: async () => {},
   updateChannel: async () => {},
   saveChannelMarketingBudget: async () => {},
 }));
 
-import { ChannelSubnav } from "@/components/product/channel-subnav";
+import { CHANNEL_VIEW_REGISTRY } from "@/lib/studio/channel-views";
+import { StudioShell } from "@/components/product/studio-shell";
 import { ChannelStaffingClient } from "@/components/product/channel-staffing-client";
 import { ChannelMarketingClient } from "@/components/product/channel-marketing-client";
 import { ChannelSocialClient } from "@/components/product/channel-social-client";
 import { ChannelAssetsClient } from "@/components/product/channel-assets-client";
 import { ChannelProductionClient } from "@/components/product/channel-production-client";
 
-describe("ChannelSubnav third-tier dropdown", () => {
-  it("returns null for dashboard activeTab", () => {
-    const markup = renderToStaticMarkup(
-      createElement(ChannelSubnav, {
-        activeTab: "dashboard",
-        activeView: "overview",
-        groups: [{ items: [{ id: "overview", label: "Overview" }] }],
-      })
-    );
-    expect(markup).toBe("");
+describe("Channel third-tier navigation", () => {
+  it("keeps every view in the shared registry instead of a content dropdown", () => {
+    expect(CHANNEL_VIEW_REGISTRY.dashboard).toEqual([]);
+    expect(CHANNEL_VIEW_REGISTRY.marketing.map(({ id }) => id)).toContain("research");
+    expect(CHANNEL_VIEW_REGISTRY.marketing.map(({ id }) => id)).toContain("stage-floor");
   });
 
-  it("renders select with aria-label Page view and grouped options", () => {
+  it("renders only the selected page children in the sidebar with a faded cyan current view", () => {
+    navigation.pathname = "/app/channels/cinema-2/marketing";
+    navigation.search = "view=research";
     const markup = renderToStaticMarkup(
-      createElement(ChannelSubnav, {
-        activeTab: "marketing",
-        activeView: "research",
-        groups: [
-          {
-            label: "Pre-Film",
-            items: [{ id: "research", label: "02 Research Hub" }],
-          },
-          {
-            items: [{ id: "stage-floor", label: "Marketing Stage Floor" }],
-          },
-        ],
-      })
+      createElement(StudioShell, {
+        studioName: "Test studio",
+        channels: [{ id: "cinema", name: "Cinema", status: "active" }, { id: "cinema-2", name: "Cinema 2", status: "active" }],
+      }, createElement("div", null, "Canvas"))
     );
 
-    expect(markup).toContain('aria-label="Page view"');
-    expect(markup).toContain('label="Pre-Film"');
+    expect(markup).toContain('aria-label="Marketing views"');
     expect(markup).toContain("02 Research Hub");
-    expect(markup).toContain("Marketing Stage Floor");
+    expect(markup).toContain("bg-cyan/10 text-cyan");
+    expect(markup).toContain("/app/channels/cinema-2/marketing?view=research");
+    expect(markup).not.toContain('aria-label="Channel Staffing views"');
+    expect(markup).not.toContain("channel-third-tier-view-select");
+  });
+
+  it("does not create dashboard children or choose a fallback channel on Account", () => {
+    navigation.pathname = "/app/channels/cinema";
+    navigation.search = "view=anything";
+    const dashboard = renderToStaticMarkup(
+      createElement(StudioShell, {
+        studioName: "Test studio",
+        channels: [{ id: "cinema", name: "Cinema", status: "active" }],
+      }, null)
+    );
+    expect(dashboard).not.toContain('aria-label="Dashboard views"');
+
+    navigation.pathname = "/account";
+    const account = renderToStaticMarkup(
+      createElement(StudioShell, {
+        studioName: "Test studio",
+        channels: [{ id: "cinema", name: "Cinema", status: "active" }],
+      }, null)
+    );
+    expect(account).not.toContain("/app/channels/cinema");
   });
 });
 
@@ -70,6 +90,8 @@ describe("ChannelStaffingClient third-tier views", () => {
   ];
 
   it("renders Hired agents view by default with assigned agents", () => {
+    navigation.pathname = "/app/channels/ch-1/staffing";
+    navigation.search = "";
     const markup = renderToStaticMarkup(
       createElement(ChannelStaffingClient, {
         channelId: "ch-1",
@@ -79,9 +101,9 @@ describe("ChannelStaffingClient third-tier views", () => {
       })
     );
 
-    expect(markup).toContain("Hired agents - Channel");
-    expect(markup).toContain("Agents for hire");
-    expect(markup).toContain("Custom Agents");
+    expect(CHANNEL_VIEW_REGISTRY.staffing.map(({ label }) => label)).toEqual([
+      "Hired agents - Channel", "Agents for hire", "Custom Agents",
+    ]);
     expect(markup).toContain("Specialist Alpha");
     expect(markup).toContain("Department Quota &amp; Coverage Bar");
   });
@@ -98,7 +120,9 @@ describe("ChannelMarketingClient third-tier views", () => {
     pillars: ["Drama"],
   };
 
-  it("renders Pre-Film, Content, Post file groups and stage-floor option", () => {
+  it("keeps every marketing view registered while rendering the resolved default", () => {
+    navigation.pathname = "/app/channels/ch-1/marketing";
+    navigation.search = "";
     const markup = renderToStaticMarkup(
       createElement(ChannelMarketingClient, {
         channel: dummyChannel,
@@ -109,44 +133,36 @@ describe("ChannelMarketingClient third-tier views", () => {
       })
     );
 
-    expect(markup).toContain("Pre-Film");
-    expect(markup).toContain("01 Directives &amp; Onboarding");
-    expect(markup).toContain("02 Research Hub");
-    expect(markup).toContain("Content");
-    expect(markup).toContain("07 Master Scheduling");
-    expect(markup).toContain("Post file");
-    expect(markup).toContain("04 Merchandise Desk");
-    expect(markup).toContain("Marketing Stage Floor");
+    expect(markup).toContain("Channel Strategic Directives");
+    expect(CHANNEL_VIEW_REGISTRY.marketing.map(({ label }) => label)).toEqual(expect.arrayContaining([
+      "02 Research Hub", "07 Master Scheduling", "04 Merchandise Desk", "Marketing Stage Floor",
+    ]));
   });
 });
 
 describe("ChannelSocialClient third-tier views", () => {
   it("renders YouTube, Tik-Tok, X, Instagram, Facebook, Telegram, Discord, Snapchat, Social Settings", () => {
-    const markup = renderToStaticMarkup(
-      createElement(ChannelSocialClient, {
-        channelId: "ch-1",
-        channelName: "Test Channel",
-        connections: [],
-        signals: [],
-        releasePackages: [],
-      })
-    );
+    navigation.pathname = "/app/channels/ch-1/social";
+    navigation.search = "";
+    renderToStaticMarkup(createElement(ChannelSocialClient, {
+      channelId: "ch-1",
+      channelName: "Test Channel",
+      connections: [],
+      signals: [],
+      releasePackages: [],
+    }));
 
-    expect(markup).toContain("YouTube");
-    expect(markup).toContain("Tik-Tok");
-    expect(markup).toContain("X");
-    expect(markup).toContain("Instagram");
-    expect(markup).toContain("Facebook");
-    expect(markup).toContain("Telegram");
-    expect(markup).toContain("Discord");
-    expect(markup).toContain("Snapchat");
-    expect(markup).toContain("Social Settings");
+    expect(CHANNEL_VIEW_REGISTRY.social.map(({ label }) => label)).toEqual(expect.arrayContaining([
+      "YouTube", "Tik-Tok", "X", "Instagram", "Facebook", "Telegram", "Discord", "Snapchat", "Social Settings",
+    ]));
   });
 });
 
 describe("ChannelAssetsClient third-tier views", () => {
   it("renders DNA DataBase, Staffing Files, and Content options", () => {
-    const markup = renderToStaticMarkup(
+    navigation.pathname = "/app/channels/ch-1/assets";
+    navigation.search = "";
+    renderToStaticMarkup(
       createElement(ChannelAssetsClient, {
         channelId: "ch-1",
         channelName: "Test Channel",
@@ -156,15 +172,14 @@ describe("ChannelAssetsClient third-tier views", () => {
       })
     );
 
-    expect(markup).toContain("DNA DataBase");
-    expect(markup).toContain("Staffing Files");
-    expect(markup).toContain("Content");
-    expect(markup).toContain("Workspace Vault Telemetry");
+    expect(CHANNEL_VIEW_REGISTRY.assets.map(({ label }) => label)).toEqual(["DNA DataBase", "Staffing Files", "Content"]);
   });
 });
 
 describe("ChannelProductionClient third-tier views", () => {
   it("renders Production Stage Floor view", () => {
+    navigation.pathname = "/app/channels/ch-1/production";
+    navigation.search = "";
     const markup = renderToStaticMarkup(
       createElement(ChannelProductionClient, {
         stageFloorSlot: createElement("div", { id: "prod-floor" }, "Production Floor"),
@@ -172,7 +187,7 @@ describe("ChannelProductionClient third-tier views", () => {
       })
     );
 
-    expect(markup).toContain("Production Stage Floor");
+    expect(CHANNEL_VIEW_REGISTRY.production.map(({ label }) => label)).toEqual(["Production Stage Floor"]);
     expect(markup).toContain("Production Floor");
     expect(markup).toContain("Production Slates");
   });

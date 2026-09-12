@@ -6,11 +6,12 @@ import Link from "next/link";
 export const metadata = { title: "Open Production" };
 
 export default async function FrontOfficePage({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
-  const { supabase } = await getWorkspaceContext();
-  const [{ data: channels, error: channelsError }, { data: workflows }] = await Promise.all([
-    supabase.from("channels").select("id, name").order("created_at"),
-    supabase.from("workflows").select("id, name, template_key").order("name"),
+  const { supabase, workspaceId } = await getWorkspaceContext();
+  const [{ data: channels, error: channelsError }, { data: workflows, error: workflowsError }] = await Promise.all([
+    supabase.from("channels").select("id, name").eq("workspace_id", workspaceId).order("created_at"),
+    supabase.from("workflows").select("id, name, template_key").eq("workspace_id", workspaceId).order("name"),
   ]);
+  if (workflowsError) throw new Error("Production workflows could not load. Please try again.");
   const { error } = await searchParams;
 
   return (

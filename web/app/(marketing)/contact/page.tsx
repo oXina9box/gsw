@@ -78,9 +78,9 @@ export default function ContactPage() {
       <Reveal>
         <div className="shell">
           <KometaContact
-            kicker="Lorem ipsum"
-            title="Lorem ipsum dolor sit amet consectetur"
-            lede="Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur."
+            kicker="START A CONVERSATION"
+            title="Bring us the idea that will not leave you alone"
+            lede="Tell us what you are building, and where the story should go next."
             infoItems={contactInfo}
             formSlot={formContent}
           />
@@ -89,7 +89,7 @@ export default function ContactPage() {
 
       <Reveal>
         <section className="detail-cta shell">
-          <h2>Lorem ipsum dolor sit amet?</h2>
+          <h2>What are you making next?</h2>
           <Link className="button button-outline" href="/docs">
             Read the Documentation ↗
           </Link>
