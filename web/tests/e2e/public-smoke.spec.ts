@@ -71,13 +71,12 @@ test("no horizontal overflow across viewports", async ({ page }) => {
   for (const vp of viewports) {
     await page.setViewportSize(vp);
     await page.goto("/");
-    await page.waitForLoadState("networkidle");
+    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
 
     const hasOverflow = await page.evaluate(() => {
       return document.documentElement.scrollWidth > window.innerWidth;
     });
     expect(hasOverflow).toBe(false);
-    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
   }
 });
 

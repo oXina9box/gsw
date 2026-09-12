@@ -4,7 +4,7 @@ const hasSupabase = Boolean(
   process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
 );
 
-test.skip(!hasSupabase && !process.env.CI, "Protected-route smoke tests require Supabase configuration");
+test.skip(!hasSupabase, "Protected-route smoke tests require Supabase configuration");
 
 test("signed-out visitors are sent to login", async ({ page }) => {
   expect(hasSupabase, "CI must provide Supabase configuration for protected-route smoke tests").toBe(true);

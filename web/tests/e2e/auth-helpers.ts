@@ -37,11 +37,8 @@ export type AuthSessionData = {
 const sessionCache = new Map<string, AuthSessionData>();
 
 export function getStagingSupabaseConfig(): StagingAuthConfig | null {
-  const supabaseUrl = process.env.STAGING_SUPABASE_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseAnonKey =
-    process.env.STAGING_SUPABASE_ANON_KEY ??
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ??
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const supabaseUrl = process.env.STAGING_SUPABASE_URL;
+  const supabaseAnonKey = process.env.STAGING_SUPABASE_ANON_KEY;
 
   if (!supabaseUrl || !supabaseAnonKey) {
     return null;
